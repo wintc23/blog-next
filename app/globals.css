@@ -1,0 +1,489 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Tailwind's preflight is disabled (to avoid fighting AntD's reset), so we
+ * have to re-add the border defaults ourselves. Without this, utility classes
+ * like `border-b` only set `border-bottom-width` and the border-style stays
+ * `none` — so the line is 1px tall but invisible.
+ */
+*,
+*::before,
+*::after {
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+}
+
+html {
+  min-height: 100%;
+  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  word-spacing: 1px;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+  /* Background lives on <html> (not body::before) so it paints across the
+   * full viewport including the scrollbar gutter. A fixed pseudo-element
+   * gets clipped to viewport-minus-scrollbar and leaves a white strip on
+   * the right.  Tile at natural size like the live site. */
+  background-color: #f4f4f4;
+  background-image: url('https://file.wintc.top/lisa/background.jpg');
+  background-repeat: repeat;
+}
+
+body {
+  background: none;
+  color: #333;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* =================== Header (ported from blog-ssr layout) =================== */
+@keyframes show-header {
+  from { transform: translateY(-100%); opacity: 0.5; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+@keyframes hide-header {
+  from { transform: translateY(0);     opacity: 1; }
+  to   { transform: translateY(-100%); opacity: 0.5; }
+}
+
+.layout-header {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 2;
+  background-color: #fafbfc;
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1);
+  /* Fixed header width = 100vw (full viewport, includes scrollbar).
+   * Main content width = 100% (documentElement, excludes scrollbar).
+   * Without compensation, header content would sit 15px left of main.
+   * Pad the left by the scrollbar width so header inner tracks main. */
+  padding-left: calc(100vw - 100%);
+}
+.layout-header.hide {
+  transform: translateY(-100%);
+  animation: hide-header 0.5s;
+}
+.layout-header.show {
+  animation: show-header 0.5s;
+}
+
+.layout-header .layout-header-main {
+  flex-shrink: 0;
+  padding: 0 20px;
+}
+.layout-header .layout-header-main .site-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 400;
+}
+.layout-header .layout-header-main .site-title .title-content {
+  font-weight: 400;
+  color: #2d8cf0;
+}
+.layout-header .layout-header-main .nav-list .nav {
+  font-weight: bold;
+  font-size: 16px;
+  color: #2d8cf0;
+  transition: color 0.2s ease;
+}
+.layout-header .layout-header-main .nav-list .nav:hover {
+  color: #57a3f3;
+}
+
+/* Search input: rounded 20px with blue border, matches iView live site */
+header .ant-input-search input.ant-input,
+header .ant-input-search .ant-input-outlined,
+header .ant-input-search .ant-input-group-addon,
+header .ant-input-search .ant-input-group-addon .ant-btn {
+  border-color: #409eff !important;
+}
+header .ant-input-search input.ant-input {
+  border-top-left-radius: 20px !important;
+  border-bottom-left-radius: 20px !important;
+  padding-left: 15px;
+}
+header .ant-input-search .ant-input-group-addon .ant-btn {
+  border-top-right-radius: 20px !important;
+  border-bottom-right-radius: 20px !important;
+}
+
+/* Mobile (<600px): vertical 2-row header, yellow nav, no search */
+@media screen and (max-width: 599px) {
+  .layout-header .layout-header-main {
+    padding: 20px;
+  }
+  .layout-header .layout-header-main .nav-list {
+    display: flex;
+    margin-top: 10px;
+  }
+  .layout-header .layout-header-main .nav-list .nav {
+    color: #ffbb21;
+  }
+  .layout-header .layout-header-main .nav-list .nav + .nav {
+    margin-left: 10px;
+  }
+  .layout-header .layout-header-main .global-search {
+    display: none;
+  }
+}
+
+/* Desktop (>=600px): horizontal centered header, 1000px max */
+@media screen and (min-width: 600px) {
+  .layout-header .layout-header-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 4rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .layout-header .layout-header-main .nav-list {
+    display: flex;
+    align-items: center;
+  }
+  .layout-header .layout-header-main .nav-list .nav + .nav {
+    margin-left: 15px;
+  }
+}
+
+/* =================== Layout (.layout / .layout-main / .modules / .nuxt-container) =================== */
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.layout-main {
+  flex: auto;
+}
+.modules .module {
+  background: #fff;
+  border-radius: 2px;
+}
+.modules .module + .module {
+  margin-top: 10px;
+}
+
+/* Mobile (<600px) */
+@media screen and (max-width: 599px) {
+  .layout {
+    padding-top: 100px;
+  }
+  .layout-main .nuxt-container {
+    padding: 5px;
+  }
+}
+
+/* Tablet/desktop (>=600px) */
+@media screen and (min-width: 600px) {
+  .layout {
+    padding-top: 4rem;
+    /* Mirror the same compensation applied to .layout-header so main and
+     * header share the same 100vw coordinate space — content stays aligned
+     * and doesn't shift when navigating between scrollbar/no-scrollbar
+     * pages. Matches blog-ssr's approach. */
+    padding-left: calc(100vw - 100%);
+  }
+  .layout-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 10px;
+    width: 100%;
+    display: flex;
+  }
+  .layout-main.hide-modules {
+    max-width: 960px;
+  }
+  .layout-main .modules {
+    width: 280px;
+    padding: 10px 0;
+    flex-shrink: 0;
+  }
+  .layout-main .nuxt-container {
+    overflow: hidden;
+    padding: 10px;
+    flex: auto;
+    min-width: 0;
+  }
+}
+
+/* Hide sidebar on narrow screens but keep main 1200px max */
+@media screen and (max-width: 849px) {
+  .layout-main .modules {
+    display: none;
+  }
+}
+
+/* =================== Post list (.page-post-list) =================== */
+.page-post-list .sub-page-header {
+  background: #fff;
+  padding: 15px 20px;
+  margin-bottom: 5px;
+  border-radius: 2px;
+  color: #666;
+}
+.page-post-list .sub-page-header .tag-title,
+.page-post-list .sub-page-header .tag-count {
+  color: #2d8cf0;
+}
+
+.page-post-list .post-list .post {
+  background: #fff;
+  color: #333;
+}
+.page-post-list .post-list .post + .post {
+  margin: 10px 0;
+}
+
+.page-post-list .post .post-abstract .post-title {
+  font-size: 20px;
+  color: #2d8cf0;
+}
+.page-post-list .post .post-abstract .post-title:hover {
+  text-decoration: underline;
+}
+.page-post-list .post .post-abstract .post-info-common {
+  padding: 0.5em 0 1em;
+  font-size: 14px;
+}
+.page-post-list .post .post-abstract .post-info-common .post-type {
+  align-self: center;
+  margin-right: 20px;
+  color: #ffa710;
+  font-weight: bold;
+  border-radius: 2px;
+}
+.page-post-list .post .post-abstract .post-info-common .post-date {
+  color: #888;
+}
+.page-post-list .post .post-abstract .post-abstract-content {
+  color: #777;
+  text-indent: 2em;
+}
+.page-post-list .post .post-abstract-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 0;
+}
+.page-post-list .post .post-abstract-image img {
+  vertical-align: middle;
+  width: 100%;
+  height: auto;
+  transition: width 0.5s ease-out;
+}
+.page-post-list .post:hover .post-abstract-image img {
+  width: 110%;
+}
+
+.page-post-list .post .post-info {
+  display: flex;
+  margin-top: 1em;
+  font-size: 14px;
+}
+.page-post-list .post .post-info .look-all,
+.page-post-list .post .post-info .edit {
+  text-decoration: underline;
+  color: #2d8cf0;
+}
+.page-post-list .post .post-info .edit {
+  margin-left: 5px;
+}
+.page-post-list .post .post-info .placeholder {
+  flex: auto;
+}
+.page-post-list .post .post-info .info-item span {
+  color: #777;
+  text-decoration: underline;
+}
+.page-post-list .post .post-info .info-item + .info-item::before {
+  content: '·';
+  margin: 0 5px;
+}
+
+/* Mobile (<600px): post stacks vertically, image has its own block */
+@media screen and (max-width: 599px) {
+  .page-post-list .post-list .post {
+    padding: 20px;
+  }
+  .page-post-list .post .post-abstract-image img {
+    max-width: 100%;
+  }
+}
+
+/* Tablet/desktop (>=600px): two-column post (text + image side-by-side),
+ * image scales with viewport via 30vw / 20vw, capped at 300×200. */
+@media screen and (min-width: 600px) {
+  .page-post-list .post-list {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .page-post-list .post-list .post {
+    padding: 30px 40px;
+    border-radius: 2px;
+  }
+  .page-post-list .post .post-abstract-main {
+    display: flex;
+  }
+  .page-post-list .post .post-abstract-main .post-abstract {
+    flex: auto;
+    font-size: 16px;
+    margin-right: 10px;
+    min-width: 0;
+  }
+  .page-post-list .post .post-abstract-main .post-abstract .post-abstract-content {
+    pointer-events: none;
+  }
+  .page-post-list .post .post-abstract-image {
+    align-self: center;
+    width: 30vw;
+    height: 20vw;
+    max-width: 300px;
+    max-height: 200px;
+    flex-shrink: 0;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.06);
+  }
+  .page-post-list .post:hover .post-abstract-image {
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  }
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+h1 { font-size: 24px; }
+h2 { font-size: 20px; }
+h3 { font-size: 18px; }
+h4, h5, h6 { font-size: 16px; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ws {
+  background: #fff;
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.08);
+}
+
+.fp {
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.24);
+}
+
+.sub-page-header {
+  background: #fff;
+  padding: 15px 20px;
+  margin-bottom: 5px;
+  color: #666;
+  border-radius: 2px;
+}
+
+/* iView-style green "success" button, mapped onto AntD's default button. */
+.ant-btn.btn-success:not(:disabled),
+.ant-btn.btn-success:not(:disabled):hover,
+.ant-btn.btn-success:not(:disabled):focus {
+  background: #19be6b;
+  border-color: #19be6b;
+  color: #fff;
+}
+.ant-btn.btn-success:not(:disabled):hover {
+  background: #47cb89;
+  border-color: #47cb89;
+}
+.ant-btn.btn-success:not(:disabled):active {
+  background: #18b566;
+  border-color: #18b566;
+}
+
+/* Prism overrides and markdown body styles */
+.markdown-body {
+  color: #333;
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin: 1.5em 0 0.8em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.markdown-body p {
+  margin: 1em 0;
+}
+
+.markdown-body a {
+  color: #4791ff;
+  text-decoration: underline;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  height: auto !important;
+  display: block;
+  margin: 1em auto;
+}
+
+.markdown-body blockquote {
+  border-left: 4px solid #ddd;
+  padding: 0.5em 1em;
+  color: #666;
+  background: #fafafa;
+  margin: 1em 0;
+}
+
+.markdown-body code {
+  background: rgba(27, 31, 35, 0.05);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-size: 0.9em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.markdown-body pre {
+  background: #272822;
+  color: #f8f8f2;
+  padding: 1em;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.markdown-body pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: 0.9em;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+  margin: 1em 0;
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  margin: 1em 0;
+  width: 100%;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+}
+
+.markdown-body table th {
+  background: #f6f8fa;
+}
