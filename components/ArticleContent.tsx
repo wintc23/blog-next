@@ -13,6 +13,11 @@ import 'prismjs/components/prism-css'
 import 'prismjs/components/prism-markup'
 import 'prismjs/components/prism-sql'
 import 'prismjs/components/prism-yaml'
+// BlockNote core styles — required so the full-HTML output saved by the
+// editor (`.bn-block-outer`, `.bn-block-content`, `[data-text-color]`,
+// `[data-text-alignment]`, etc.) renders with the correct visual styles
+// on the read-only article page, without loading the editor runtime.
+import '@blocknote/core/style.css'
 
 interface Props {
   html: string

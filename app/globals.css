@@ -211,6 +211,19 @@ header .ant-input-search .ant-input-group-addon .ant-btn {
   }
 }
 
+/* When the route-level error boundary is active (`app/error.tsx` toggles
+ * `body.error-active`) hide the sidebar modules column so the error
+ * screen feels focused and centred. Same treatment for the 404 page via
+ * `body.notfound-active`. */
+body.error-active .layout-main .modules,
+body.notfound-active .layout-main .modules {
+  display: none;
+}
+body.error-active .layout-main,
+body.notfound-active .layout-main {
+  max-width: 960px;
+}
+
 /* Hide sidebar on narrow screens but keep main 1200px max */
 @media screen and (max-width: 849px) {
   .layout-main .modules {
@@ -399,6 +412,99 @@ a {
 .ant-btn.btn-success:not(:disabled):active {
   background: #18b566;
   border-color: #18b566;
+}
+
+/* Thin overlay scrollbar: invisible until the container is hovered, thumb
+ * fades in on hover, track stays transparent. Apply via
+ * `className="scroll-thin"` to any overflow container. Degrades gracefully
+ * on Firefox via `scrollbar-width: thin`.
+ *
+ * `.bn-suggestion-menu` is listed here so BlockNote's slash command
+ * dropdown — which sits outside our own markup and can't easily get a
+ * className added — picks up the same treatment site-wide. Same for any
+ * other editor floating panels below. */
+.scroll-thin,
+.bn-suggestion-menu,
+.bn-drag-handle-menu {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  overflow-y: auto;
+}
+.scroll-thin:hover,
+.bn-suggestion-menu:hover,
+.bn-drag-handle-menu:hover {
+  scrollbar-color: rgba(31, 35, 41, 0.25) transparent;
+}
+.scroll-thin::-webkit-scrollbar,
+.bn-suggestion-menu::-webkit-scrollbar,
+.bn-drag-handle-menu::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.scroll-thin::-webkit-scrollbar-track,
+.bn-suggestion-menu::-webkit-scrollbar-track,
+.bn-drag-handle-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-thin::-webkit-scrollbar-thumb,
+.bn-suggestion-menu::-webkit-scrollbar-thumb,
+.bn-drag-handle-menu::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: background 0.2s;
+}
+.scroll-thin:hover::-webkit-scrollbar-thumb,
+.bn-suggestion-menu:hover::-webkit-scrollbar-thumb,
+.bn-drag-handle-menu:hover::-webkit-scrollbar-thumb {
+  background: rgba(31, 35, 41, 0.25);
+  background-clip: content-box;
+}
+.scroll-thin::-webkit-scrollbar-thumb:hover,
+.bn-suggestion-menu::-webkit-scrollbar-thumb:hover,
+.bn-drag-handle-menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(31, 35, 41, 0.45);
+  background-clip: content-box;
+}
+.scroll-thin::-webkit-scrollbar-thumb:active,
+.bn-suggestion-menu::-webkit-scrollbar-thumb:active,
+.bn-drag-handle-menu::-webkit-scrollbar-thumb:active {
+  background: rgba(31, 35, 41, 0.55);
+  background-clip: content-box;
+}
+.scroll-thin::-webkit-scrollbar-corner,
+.bn-suggestion-menu::-webkit-scrollbar-corner,
+.bn-drag-handle-menu::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Polished refresh button on the error/404 pages — adds extra horizontal
+ * padding, a soft blue shadow, hover-lift and a spinning reload icon on
+ * top of AntD's primary round button. Scoped to `.error-refresh-btn` so
+ * it only affects the error screens. */
+.ant-btn.error-refresh-btn {
+  padding-inline: 28px;
+  height: 44px;
+  font-size: 15px;
+  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.32);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+.ant-btn.error-refresh-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(64, 158, 255, 0.42);
+}
+.ant-btn.error-refresh-btn:active {
+  transform: translateY(0);
+}
+.ant-btn.error-refresh-btn .reload-icon {
+  transition: transform 0.4s ease;
+}
+.ant-btn.error-refresh-btn:hover .reload-icon {
+  transform: rotate(180deg);
 }
 
 /* Prism overrides and markdown body styles */

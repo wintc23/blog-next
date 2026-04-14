@@ -28,15 +28,18 @@ export async function cancelLikePostAction(id: number) {
 
 export async function savePostAction(data: Record<string, unknown>) {
   return runAction(async () => {
-    const saved = await apiFetchServer('/save-post/', {
+    // `/save-post/` returns `{ message, notify }` — not a full Post. Skip
+    // response schema validation and just pass the submitted data's id
+    // through for downstream `revalidatePath`.
+    await apiFetchServer('/save-post/', {
       method: 'POST',
       data,
-      schema: PostSchema,
     })
+    const id = data.id as number | undefined
     revalidatePath('/')
-    revalidatePath(`/article/${(saved as Post).id}`)
+    if (id) revalidatePath(`/article/${id}`)
     revalidatePath('/manage')
-    return saved as Post
+    return undefined
   })
 }
 

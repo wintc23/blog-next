@@ -56,6 +56,14 @@ export default function ManageLayoutClient({ children }: { children: React.React
     )
   }
 
+  // The article editor owns its own full-screen chrome (back button +
+  // contextual action bar), so skip the management header on that route.
+  if (pathname === '/manage/article' || pathname.startsWith('/manage/article/')) {
+    return (
+      <div className="flex h-screen flex-col bg-white">{children}</div>
+    )
+  }
+
   const selectedKey =
     MENU.map((m) => m.key)
       .sort((a, b) => b.length - a.length)
