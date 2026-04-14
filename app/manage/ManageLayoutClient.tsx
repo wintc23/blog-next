@@ -14,6 +14,34 @@ import { useEffect } from 'react'
 import { Button } from 'antd'
 import { useUser, useShowLogin } from '@/lib/store'
 
+/**
+ * Wrapper for the full-screen article editor route. Lock the page to
+ * `overflow: hidden` while mounted: BlockNote portals its formatting
+ * toolbars into a `bn-root` div appended to <body>, and when the
+ * toolbar repositions (e.g. flipping below a tall image during scroll)
+ * its absolute coordinates can extend past the viewport bottom, which
+ * normally pops the browser-native scrollbar onto <html> *in addition*
+ * to our editor's own `.scroll-thin` scroller — the "double scrollbar"
+ * the user sees. Hiding overflow on html+body suppresses that second
+ * scrollbar without affecting how floating-ui places the toolbar
+ * relative to its reference image.
+ */
+function ArticleEditorShell({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    const html = document.documentElement
+    const body = document.body
+    const prevHtml = html.style.overflow
+    const prevBody = body.style.overflow
+    html.style.overflow = 'hidden'
+    body.style.overflow = 'hidden'
+    return () => {
+      html.style.overflow = prevHtml
+      body.style.overflow = prevBody
+    }
+  }, [])
+  return <div className="flex h-screen flex-col bg-white">{children}</div>
+}
+
 const MENU = [
   { key: '/manage', label: '文章管理', icon: <BookOutlined /> },
   { key: '/manage/topic', label: '标签/分类', icon: <TagsOutlined /> },
@@ -59,9 +87,7 @@ export default function ManageLayoutClient({ children }: { children: React.React
   // The article editor owns its own full-screen chrome (back button +
   // contextual action bar), so skip the management header on that route.
   if (pathname === '/manage/article' || pathname.startsWith('/manage/article/')) {
-    return (
-      <div className="flex h-screen flex-col bg-white">{children}</div>
-    )
+    return <ArticleEditorShell>{children}</ArticleEditorShell>
   }
 
   const selectedKey =
