@@ -6,7 +6,4 @@ out
 next-env.d.ts
 .DS_Store
 *.tsbuildinfo
-scripts/pw/shots/
-scripts/pw/compare/
-scripts/pw/interact/
-scripts/pw/manage/
+scripts/pw/
