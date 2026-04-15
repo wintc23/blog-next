@@ -147,6 +147,7 @@ function CommentItem({
         <div className="flex items-center text-sm leading-8 text-[#aaa]">
           <span
             onClick={() => setEditing((v) => !v)}
+            style={{ WebkitTapHighlightColor: 'transparent' }}
             className={`cursor-pointer select-none hover:font-bold hover:text-[#6B798C] ${
               editing ? 'font-bold text-[#6B798C]' : ''
             }`}

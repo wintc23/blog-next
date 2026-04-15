@@ -38,31 +38,35 @@ export default function CommentInput({ value, onChange, placeholder, rows = 4 }:
       }
 
   return (
-    // Outer wrapper is `relative` only — no explicit z-index. The fixed
-    // page header sits at z-index: 2; if we put the input wrapper at
-    // z-10 it would float over the header during scroll.
-    <div className="relative" onClickCapture={guardTextarea}>
+    // `isolate` creates a fresh stacking context so the inner `z-[3]`
+    // button only competes against its siblings — without it, the
+    // button's z-3 still resolves against the document root and floats
+    // over the fixed page header (z-index: 2) on scroll.
+    <div className="relative isolate" onClickCapture={guardTextarea}>
       {/* Placeholder reserves the top 48px so the textarea sits below the
           floating button. `pointer-events-none` so it can't intercept
           taps that should reach the avatar button on top of it. */}
       <div className="pointer-events-none relative z-[1] h-12" />
-      {/* Single 64x64 button covers the entire visible circle — the
-          previous layout split visuals across an outer decorative ring
-          and a smaller inner button, leaving the outer ring (and the
-          top half of the inner button, which the placeholder div was
-          covering) unclickable. */}
+      {/* The 64x64 button covers the full visible area so the entire
+          ring is clickable. Inside it sits a smaller 48x48 circle with
+          its own blue border so the ring + inner circle visual is
+          preserved — the outer button's border is the outer ring, the
+          nested div's border is the inner edge. */}
       <button
         type="button"
         onClick={handleAvatar}
         aria-label={user?.id ? '查看我的信息' : '登录'}
-        className="absolute left-8 top-0 z-[3] flex h-16 w-16 cursor-pointer select-none items-center justify-center overflow-hidden rounded-full border border-[#57a3f3] bg-white p-0"
+        style={{ WebkitTapHighlightColor: 'transparent' }}
+        className="absolute left-8 top-0 z-[3] flex h-16 w-16 cursor-pointer select-none items-center justify-center rounded-full border border-[#57a3f3] bg-white p-0 outline-none focus:outline-none focus-visible:outline-none active:bg-white"
       >
-        {user?.id ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={user.avatar} alt="avatar" className="h-full w-full object-cover" />
-        ) : (
-          <span>登录</span>
-        )}
+        <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-[#57a3f3] bg-white">
+          {user?.id ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={user.avatar} alt="avatar" className="h-full w-full object-cover" />
+          ) : (
+            <span>登录</span>
+          )}
+        </span>
       </button>
       <Input.TextArea
         value={value}
