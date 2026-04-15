@@ -56,6 +56,30 @@ export default function UserInfoDrawer() {
     load(drawerUserId)
   }, [drawerUserId, detail, load])
 
+  // Mobile back-button integration: while the drawer is open, push a
+  // synthetic history entry. Pressing the system / browser back button
+  // pops that entry, which fires popstate; we close the drawer instead
+  // of letting the navigation propagate. If the user closes the drawer
+  // via the × / mask, we pop the entry ourselves so history doesn't
+  // accumulate. Listener removal happens before our own pop so the
+  // popstate it fires doesn't re-trigger `hideUserDrawer`.
+  useEffect(() => {
+    if (!drawerUserId) return
+    const marker = '__userdrawer__'
+    window.history.pushState({ blogNextDrawer: marker }, '')
+    const onPop = () => {
+      hideUserDrawer()
+    }
+    window.addEventListener('popstate', onPop)
+    return () => {
+      window.removeEventListener('popstate', onPop)
+      const state = window.history.state as { blogNextDrawer?: string } | null
+      if (state?.blogNextDrawer === marker) {
+        window.history.back()
+      }
+    }
+  }, [drawerUserId, hideUserDrawer])
+
   // Only mount the Drawer once detail for the requested user is ready, so
   // it slides in already populated (no empty → filled flash).
   if (!drawerUserId || !detail || detail.id !== drawerUserId) return null
