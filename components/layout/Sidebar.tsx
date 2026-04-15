@@ -11,7 +11,7 @@ import {
   useHeaderOffset,
 } from '@/lib/store'
 import { SITE } from '@/lib/config'
-import { TAG_LIST, pseudoRandom, formatCount } from '@/lib/utils'
+import { pseudoRandom, formatCount } from '@/lib/utils'
 
 const HIDE_SIDEBAR_PREFIXES = ['/message', '/about', '/recommendation']
 
@@ -21,6 +21,20 @@ const ALIYUN = {
   text: ['云服务器 精选特惠', '花100块买台云服务器练手学习,是稳赚不赔的投资!'],
   tags: ['新用户享好礼', '云服务器1折起'],
 }
+
+// Hex codes drawn from the iView preset colours used by blog-ssr's
+// `<Tag :color="...">`. Same eight slots, deterministic random pick via
+// `pseudoRandom` keeps each tag's colour stable across renders.
+const TAG_COLORS = [
+  '#19be6b', // success / green
+  '#2d8cf0', // primary / blue
+  '#ff9900', // orange
+  '#ed4014', // error / red
+  '#9b51e0', // purple
+  '#ed3f7d', // magenta
+  '#1cbbb4', // cyan
+  '#f5a623', // gold
+]
 
 export default function Sidebar() {
   const site = useSite()
@@ -46,8 +60,8 @@ export default function Sidebar() {
     .filter((t) => t.postCount)
     .sort((a, b) => b.postCount - a.postCount)
   const colors: string[] = []
-  for (const idx of pseudoRandom(tags.length, TAG_LIST.length)) {
-    colors.push(TAG_LIST[idx])
+  for (const idx of pseudoRandom(tags.length, TAG_COLORS.length)) {
+    colors.push(TAG_COLORS[idx])
   }
   const topTen = site.topTen || []
   const links = site.linkList || []
@@ -56,14 +70,14 @@ export default function Sidebar() {
   return (
     <aside className="modules">
       {admin && (
-        <div className="ws mb-3 rounded-sm">
-          <div className="flex items-center justify-between border-b border-[#eee] px-4 py-2 text-[#666]">
+        <div className="ws mb-[10px] rounded-sm">
+          <div className="flex items-center justify-between border-b border-[#eee] px-[15px] py-2 text-[#666]">
             <span>{SITE.title}</span>
             {summary && (
               <Tooltip
                 title={`自 ${summary.visitStartDate} 起累计访问 ${summary.visitCount} 次，累计访客 ${summary.visitorCount || 0} 人`}
               >
-                <span className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-[rgba(51,97,216,0.08)] px-2 py-[2px] text-[12px] text-[#3361d8]">
+                <span className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-[rgba(51,97,216,0.08)] px-[10px] py-[2px] text-[12px] leading-[1.4] text-[#3361d8]">
                   <span className="text-[#7f8aa3]">访问</span>
                   <span className="font-semibold">{formatCount(summary.visitCount)}</span>
                   <span className="mx-1 h-3 w-px bg-[rgba(51,97,216,0.18)]" />
@@ -73,34 +87,34 @@ export default function Sidebar() {
               </Tooltip>
             )}
           </div>
-          <div className="px-4 py-3">
-            <div className="overflow-hidden pb-2">
+          <div className="px-[15px] pb-5 pt-[10px]">
+            <div className="overflow-hidden py-[10px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={admin.avatar}
                 alt={admin.username}
-                className="float-left mr-3 h-[50px] w-[50px] cursor-pointer rounded-full"
+                className="float-left mr-[10px] h-[50px] w-[50px] cursor-pointer rounded-full"
                 onClick={() => showUserDrawer(admin.id)}
               />
-              <div className="text-[orange]">{admin.username}</div>
-              <div className="py-1 text-sm">
+              <div className="overflow-hidden text-[orange]">{admin.username}</div>
+              <div className="overflow-hidden py-[5px] text-sm">
                 共<span className="text-[#3361d8]">{admin.postCount || 0}</span>篇文章
               </div>
             </div>
-            <div className="flex items-center gap-2 pt-1 text-[15px]">
+            <div className="flex items-center py-1 pl-5 text-[20px]">
               <GithubOutlined />
               <a
                 target="_blank"
                 rel="noreferrer"
                 href={SITE.githubHomePage}
-                className="hover:underline"
+                className="ml-[10px] text-base hover:underline"
               >
                 github
               </a>
             </div>
-            <div className="flex items-center gap-2 pt-1 text-[15px]">
+            <div className="flex items-center py-1 pl-5 text-[20px]">
               <EnvironmentOutlined />
-              <span>{SITE.location}</span>
+              <span className="ml-[10px] text-base">{SITE.location}</span>
             </div>
             {admin.aboutMe && (
               <div className="mt-2 text-sm text-[#666]">{admin.aboutMe}</div>
@@ -111,14 +125,14 @@ export default function Sidebar() {
 
       {/* Aliyun module is shown on all pages (including article), matching
           blog-ssr which has no `outlineShow` gate on this card. */}
-      <div className="ws mb-3 rounded-sm">
-        <div className="flex items-center justify-between border-b border-[#eee] px-4 py-2 text-[#666]">
+      <div className="ws mb-[10px] rounded-sm">
+        <div className="border-b border-[#eee] px-[15px] py-2 text-[#666]">
           <span>{ALIYUN.title}</span>
           <a
             href={ALIYUN.href}
             target="_blank"
             rel="noreferrer"
-            className="text-sm hover:underline"
+            className="float-right text-sm hover:underline"
           >
             [了解详情]
           </a>
@@ -127,13 +141,15 @@ export default function Sidebar() {
           href={ALIYUN.href}
           target="_blank"
           rel="noreferrer"
-          className="block px-4 py-3 text-[#333]"
+          className="block px-[15px] pb-5 pt-[10px] text-[#333]"
         >
           {ALIYUN.text.map((t, i) => (
             <div
               key={i}
               className={
-                i === 0 ? 'text-[15px]' : 'mt-1 text-sm text-[#FF2121]'
+                i === 0
+                  ? 'mb-[15px] mt-[5px] text-[15px]'
+                  : 'mb-[15px] mt-[5px] text-sm text-[#FF2121]'
               }
             >
               {t}
@@ -150,20 +166,29 @@ export default function Sidebar() {
       </div>
 
       {!outlineShow && topTen.length > 0 && (
-        <div className="ws mb-3 rounded-sm">
-          <div className="border-b border-[#eee] px-4 py-2 text-[#666]">热门文章</div>
-          <div className="px-4 py-3">
-            {topTen.map((post) => (
-              <div key={post.id} className="mb-2 flex items-start justify-between gap-2">
+        <div className="ws mb-[10px] rounded-sm">
+          <div className="border-b border-[#eee] px-[15px] py-2 text-[#666]">
+            热门文章
+          </div>
+          <div className="px-[15px] pb-5 pt-[10px]">
+            {topTen.map((post, i) => (
+              <div
+                key={post.id}
+                className={`flex items-start justify-between gap-2 ${i ? 'mt-[10px]' : ''}`}
+              >
                 <Link
                   href={`/article/${post.id}`}
                   title={post.title}
-                  className="min-w-0 flex-1 text-[#333] hover:text-[#4791ff] hover:underline"
+                  className="min-w-0 flex-1 truncate text-[#333] hover:text-[#4791ff] hover:underline"
                 >
                   {post.title}
                 </Link>
-                <span className="shrink-0 whitespace-nowrap text-xs text-[#999]" title={`${post.readTimes}次浏览`}>
-                  <EyeOutlined /> {post.readTimes}
+                <span
+                  className="shrink-0 whitespace-nowrap text-sm text-[#999]"
+                  title={`${post.readTimes}次浏览`}
+                >
+                  <EyeOutlined className="mr-[5px]" />
+                  {post.readTimes}
                 </span>
               </div>
             ))}
@@ -172,14 +197,21 @@ export default function Sidebar() {
       )}
 
       {!outlineShow && tags.length > 0 && (
-        <div className="ws mb-3 rounded-sm">
-          <div className="border-b border-[#eee] px-4 py-2 text-[#666]">文章标签</div>
-          <div className="flex flex-wrap gap-2 px-4 py-3">
+        <div className="ws mb-[10px] rounded-sm">
+          <div className="border-b border-[#eee] px-[15px] py-2 text-[#666]">
+            文章标签
+          </div>
+          <div className="flex flex-wrap justify-around px-[15px] pb-5 pt-[10px]">
             {tags.map((tag, idx) => (
-              <Link key={tag.id} href={`/tag/${tag.id}`}>
-                <Tag color={colors[idx]} title={`${tag.title}(${tag.postCount})`}>
-                  {tag.title}({tag.postCount})
-                </Tag>
+              <Link
+                key={tag.id}
+                href={`/tag/${tag.id}`}
+                title={`${tag.title}(${tag.postCount})`}
+                style={{ borderColor: colors[idx], color: colors[idx] }}
+                className="mb-[5px] flex w-[120px] items-center justify-center rounded border bg-white px-2 py-[2px] text-center text-[12px] leading-5 hover:opacity-80"
+              >
+                <span className="truncate">{tag.title}</span>
+                <span className="ml-[2px] shrink-0">({tag.postCount})</span>
               </Link>
             ))}
           </div>
@@ -187,21 +219,21 @@ export default function Sidebar() {
       )}
 
       {!outlineShow && links.length > 0 && (
-        <div className="ws mb-3 rounded-sm">
-          <div className="flex items-center justify-between border-b border-[#eee] px-4 py-2 text-[#666]">
+        <div className="ws mb-[10px] rounded-sm">
+          <div className="border-b border-[#eee] px-[15px] py-2 text-[#666]">
             <span>友链</span>
-            <Link href="/link" className="text-sm hover:underline">
+            <Link href="/link" className="float-right text-sm hover:underline">
               [详情]
             </Link>
           </div>
-          <div className="flex flex-wrap gap-2 px-4 py-3">
+          <div className="flex flex-wrap gap-[5px] px-[15px] pb-5 pt-[10px]">
             {links.map((link) => (
               <a
                 key={link.id}
                 target="_blank"
                 rel="noreferrer"
                 href={link.link}
-                className="rounded bg-[rgba(0,0,0,0.05)] px-2 py-[2px] text-sm hover:bg-[rgba(0,0,0,0.1)]"
+                className="rounded bg-black/5 px-2 py-[2px] text-sm text-[#333] hover:bg-black/10"
               >
                 {link.title}
               </a>
