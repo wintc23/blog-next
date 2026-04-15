@@ -1,0 +1,13 @@
+{
+  "apps": [{
+    "name": "blog-next",
+    "script": "npm",
+    "args": "start",
+    "cwd": "/home/lushg/blog-next",
+    "instances": 1,
+    "env": {
+      "NODE_ENV": "production"
+    },
+    "log_date_format": "YYYY-MM-DD HH:mm Z"
+  }]
+}
