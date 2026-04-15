@@ -19,10 +19,34 @@ export async function generateMetadata({
   const [id, type] = slug
   try {
     const post = await getPost(id, type, true)
+    const title = `${post.title} - ${SITE.title}`
+    const description =
+      (post.description || post.abstract || '').trim() || SITE.description
+    // og:image has to be an absolute URL for WeChat / QQ / Weibo to
+    // pick it up — fall back to the site icon if the post has no
+    // cover. `SITE.url` is the canonical origin defined in config.
+    const image = post.abstractImage || SITE.icon
+    const url = `${SITE.url}/article/${id}`
     return {
-      title: `${post.title} - ${SITE.title}`,
+      title,
       keywords: post.keywords || SITE.keywords,
-      description: (post.description || '') + SITE.description,
+      description,
+      alternates: { canonical: url },
+      openGraph: {
+        type: 'article',
+        title,
+        description,
+        url,
+        siteName: SITE.title,
+        images: [{ url: image }],
+        locale: 'zh_CN',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [image],
+      },
     }
   } catch {
     return { title: SITE.title }

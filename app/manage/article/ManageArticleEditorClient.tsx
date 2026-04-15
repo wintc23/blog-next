@@ -109,9 +109,15 @@ export default function ManageArticleEditorClient() {
   )
 
   // Save the current draft before navigating away (back to list or to
-  // the article preview page) so the user never loses edits.
+  // the article preview page) so the user never loses edits. Skip the
+  // round-trip if there's nothing dirty — no point calling the save
+  // endpoint when the local state already matches the server.
   const saveThen = useCallback(
     async (dest: string) => {
+      if (!dirty) {
+        router.push(dest)
+        return
+      }
       const r = await doSave(true)
       if (!r.ok) {
         message.error(r.error || '保存失败')
@@ -119,7 +125,7 @@ export default function ManageArticleEditorClient() {
       }
       router.push(dest)
     },
-    [doSave, router, message],
+    [dirty, doSave, router, message],
   )
   const goBack = useCallback(() => saveThen('/manage'), [saveThen])
   const goPreview = useCallback(() => {
