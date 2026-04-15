@@ -251,8 +251,10 @@ export default function Sidebar() {
           className="ws mb-3 sticky rounded-sm transition-[top] duration-500"
           style={{ top: headerOffset + 5 }}
         >
-          <div className="border-b border-[#eee] px-4 py-2 text-[#666]">目录</div>
-          <div className="max-h-[70vh] overflow-auto px-4 py-3">
+          <div className="border-b border-[#eee] px-[15px] py-2 text-[#666]">
+            目录
+          </div>
+          <div className="scroll-thin max-h-[70vh] overflow-auto px-[15px] pb-5 pt-[10px]">
             {outline.map((item) => (
               <div
                 key={item.id}

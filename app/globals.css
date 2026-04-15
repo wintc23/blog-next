@@ -31,6 +31,10 @@ html {
   background-color: #f4f4f4;
   background-image: url('https://file.wintc.top/lisa/background.jpg');
   background-repeat: repeat;
+  /* Anchor the tiled background to the viewport so it stays put while
+   * long articles scroll. Without this the background tiles scroll with
+   * the document, which feels off on tall pages. */
+  background-attachment: fixed;
 }
 
 body {

@@ -18,21 +18,44 @@ export default function LoginModal() {
   const { message } = App.useApp()
 
   const openLoginWindow = (url: string) => {
-    if (isPC()) {
-      window.open(
+    // Always remember where the user came from so the same-window
+    // redirect path (mobile, or popup-blocked PC fallback) can return
+    // them to where they were after the OAuth round-trip.
+    try {
+      localStorage.setItem(
+        'loginRedirect',
+        window.location.pathname + window.location.search,
+      )
+    } catch {}
+    if (!isPC()) {
+      window.open(url, '_self')
+      return
+    }
+    // PC: try a popup first. window.open returns null (or an
+    // immediately-closed window) when the browser blocks the popup —
+    // detect both, warn the user, and fall back to a same-window
+    // navigation so the login flow still completes.
+    let popup: Window | null = null
+    try {
+      popup = window.open(
         url,
         'login',
         'resizable=yes,scrollbars=yes,status=yes,height=600,width=800',
       )
-    } else {
-      try {
-        localStorage.setItem(
-          'loginRedirect',
-          window.location.pathname + window.location.search,
-        )
-      } catch {}
-      window.open(url, '_self')
+    } catch {
+      popup = null
     }
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+      message.warning('浏览器拦截了登录弹窗，将在当前页面打开登录')
+      window.open(url, '_self')
+      return
+    }
+    // Re-focus the popup if it already existed (window.open with the
+    // same name reuses an existing window — this lifts it back on top
+    // of any windows that may be hiding it).
+    try {
+      popup.focus()
+    } catch {}
   }
 
   const loginWithGithub = () => {

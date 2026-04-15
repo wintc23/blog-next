@@ -19,6 +19,7 @@ import {
   useUser,
   useShowLogin,
   useSetOutlineItems,
+  useSite,
 } from '@/lib/store'
 import type { OutlineItem } from '@/lib/store'
 import {
@@ -39,6 +40,8 @@ export default function ArticleClient({ initialPost }: { initialPost: Post }) {
   const [submitting, setSubmitting] = useState(false)
   const user = useUser()
   const showLogin = useShowLogin()
+  const site = useSite()
+  const postType = site.postTypes?.find((t) => t.id === post.typeId)
   const { message } = App.useApp()
   const setOutlineItems = useSetOutlineItems()
   const articleRef = useRef<HTMLElement>(null)
@@ -127,11 +130,18 @@ export default function ArticleClient({ initialPost }: { initialPost: Post }) {
           <h2 className="text-center text-[26px] font-bold">{post.title}</h2>
           <div className="my-6 text-center text-sm text-[#666]">
             <span>{formatTime(post.timestamp)}</span>
-            <span className="mx-4">浏览 {post.readTimes}</span>
+            {postType && (
+              <span className="mx-4 text-[#ffa710] font-bold">
+                {postType.name}
+              </span>
+            )}
+            <span className="mr-4">
+              <span className="underline">{post.readTimes}</span> 次浏览
+            </span>
             {user?.admin && (
               <Link
                 href={`/manage/article?postId=${post.id}`}
-                className="underline"
+                className="text-[#2d8cf0] underline"
               >
                 编辑
               </Link>

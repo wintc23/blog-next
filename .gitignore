@@ -7,3 +7,5 @@ next-env.d.ts
 .DS_Store
 *.tsbuildinfo
 scripts/pw/
+scripts/.env.cli.*
+!scripts/.env.cli.example
