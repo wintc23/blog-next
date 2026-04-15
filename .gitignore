@@ -6,6 +6,6 @@ out
 next-env.d.ts
 .DS_Store
 *.tsbuildinfo
-scripts/pw/
-scripts/.env.cli.*
-!scripts/.env.cli.example
+# `scripts/` holds developer-only tooling (Playwright probes, admin
+# CLI, throwaway env files) — never commit anything from here.
+scripts/
