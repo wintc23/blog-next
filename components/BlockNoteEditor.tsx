@@ -14,11 +14,88 @@ import {
   DragHandleButton,
   SuggestionMenuController,
 } from '@blocknote/react'
-import type { Block } from '@blocknote/core'
+import {
+  BlockNoteSchema,
+  defaultBlockSpecs,
+  createCodeBlockSpec,
+  type Block,
+} from '@blocknote/core'
 import { zh } from '@blocknote/core/locales'
 import { flip, offset, shift, size } from '@floating-ui/react'
 import '@blocknote/core/fonts/inter.css'
 import '@blocknote/mantine/style.css'
+
+// Configure BlockNote's default code block with the languages we care
+// about plus a Shiki-backed highlighter so the editor renders real
+// syntax colours. Dynamic-import Shiki's `createHighlighter` so it's
+// loaded on demand (Shiki's WASM + grammar payloads are heavy — no
+// point blocking the initial editor render for it).
+const CODE_LANGUAGES: Record<string, { name: string; aliases?: string[] }> = {
+  text: { name: 'Plain Text', aliases: ['plain'] },
+  javascript: { name: 'JavaScript', aliases: ['js'] },
+  typescript: { name: 'TypeScript', aliases: ['ts'] },
+  jsx: { name: 'JSX' },
+  tsx: { name: 'TSX' },
+  html: { name: 'HTML' },
+  css: { name: 'CSS' },
+  scss: { name: 'SCSS' },
+  json: { name: 'JSON' },
+  yaml: { name: 'YAML', aliases: ['yml'] },
+  markdown: { name: 'Markdown', aliases: ['md'] },
+  python: { name: 'Python', aliases: ['py'] },
+  go: { name: 'Go' },
+  rust: { name: 'Rust', aliases: ['rs'] },
+  java: { name: 'Java' },
+  c: { name: 'C' },
+  cpp: { name: 'C++', aliases: ['c++', 'cc'] },
+  csharp: { name: 'C#', aliases: ['cs'] },
+  php: { name: 'PHP' },
+  ruby: { name: 'Ruby', aliases: ['rb'] },
+  swift: { name: 'Swift' },
+  kotlin: { name: 'Kotlin', aliases: ['kt'] },
+  sql: { name: 'SQL' },
+  bash: { name: 'Bash', aliases: ['sh', 'shell'] },
+  dockerfile: { name: 'Dockerfile' },
+  nginx: { name: 'Nginx' },
+  vue: { name: 'Vue' },
+  xml: { name: 'XML' },
+  diff: { name: 'Diff' },
+  ini: { name: 'INI' },
+}
+
+// Minimal warmup set passed to shiki's createHighlighter. Loading all
+// 28 supported languages upfront was visibly slow (~1–2 s delay before
+// the first code block colourised); BlockNote's plugin calls
+// `highlighter.loadLanguage(lang)` on demand for anything not in this
+// list, so we keep the initial payload small with the two or three
+// languages you type most often, and pay a small per-language cost
+// only when a different one first appears.
+const EDITOR_PRELOAD_LANGS = ['javascript', 'typescript', 'bash']
+
+// BlockNote renders the code block's language picker as a sibling
+// `<div contenteditable="false"><select>…</select></div>` inside the
+// codeBlock container. `blocksToFullHTML` serialises the DOM verbatim,
+// so that UI element leaks into stored body HTML — the reader page
+// then displays a functional language switcher (not what we want) and
+// the extra wrapper throws off the SSR shiki regex that expects
+// `<pre>` immediately after the codeBlock div. Strip it on the way
+// out so storage stays clean.
+function sanitizeCodeBlockHtml(html: string): string {
+  return html.replace(
+    /(<div[^>]*data-content-type="codeBlock"[^>]*>)\s*<div[^>]*contenteditable="false"[^>]*>[\s\S]*?<\/div>(?=\s*<pre)/g,
+    '$1',
+  )
+}
+
+const editorSchema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    codeBlock: createCodeBlockSpec({
+      defaultLanguage: 'text',
+      supportedLanguages: CODE_LANGUAGES,
+    }),
+  },
+})
 
 interface Props {
   value: string
@@ -67,7 +144,9 @@ const BlockNoteEditor = forwardRef<BlockNoteEditorRef, Props>(
           return
         }
         const { BlockNoteEditor: Core } = await import('@blocknote/core')
-        const scratch = Core.create()
+        // Scratch editor uses the same custom schema so codeBlock
+        // language detection survives the HTML → blocks round trip.
+        const scratch = Core.create({ schema: editorSchema })
         const blocks = await scratch.tryParseHTMLToBlocks(value)
         if (!cancelled) setInitialBlocks(blocks)
       }
@@ -111,6 +190,7 @@ function EditorInner({
   forwardedRef: React.Ref<BlockNoteEditorRef>
 }) {
   const editor = useCreateBlockNote({
+    schema: editorSchema,
     initialContent: initialContent && initialContent.length > 0 ? initialContent : undefined,
     dictionary: zh,
     uploadFile,
@@ -143,7 +223,8 @@ function EditorInner({
         // BlockNote's `.bn-block-*` class hierarchy with `data-*` attrs —
         // renderable as plain HTML once the BlockNote core stylesheet is
         // imported on the article page.
-        const html = await editor.blocksToFullHTML(editor.document)
+        let html = await editor.blocksToFullHTML(editor.document)
+        html = sanitizeCodeBlockHtml(html)
         onChange(html)
       }, 200)
     }

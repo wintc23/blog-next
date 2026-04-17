@@ -5,7 +5,7 @@ set -e
 
 git push origin main
 
-ssh root@8.129.22.92 << 'AUTOSCRIPT'
+ssh root@wintc.top << 'AUTOSCRIPT'
 set -e
 export NVM_DIR="$HOME/.nvm"
 . "$NVM_DIR/nvm.sh"

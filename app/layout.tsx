@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import 'prismjs/themes/prism-tomorrow.css'
 import { AntdRegistry } from '@ant-design/nextjs-registry'
 import { Providers } from '@/components/Providers'
 import AppShell from '@/components/AppShell'

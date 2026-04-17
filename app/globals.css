@@ -505,6 +505,20 @@ a {
   background: transparent;
 }
 
+/* BlockNote's code block language selector is opacity: 0 by default
+ * with a 1 s hover delay, making it effectively invisible. Override
+ * to keep it faintly visible at all times, brightening on hover, so
+ * the user can discover and use it without guessing. */
+.bn-editor .bn-block-content[data-content-type="codeBlock"] > div > select {
+  opacity: 0.6 !important;
+  transition: opacity 0.2s ease !important;
+  transition-delay: 0s !important;
+}
+.bn-editor .bn-block-content[data-content-type="codeBlock"]:hover > div > select,
+.bn-editor .bn-block-content[data-content-type="codeBlock"] > div > select:focus {
+  opacity: 1 !important;
+}
+
 /* Polished refresh button on the error/404 pages — adds extra horizontal
  * padding, a soft blue shadow, hover-lift and a spinning reload icon on
  * top of AntD's primary round button. Scoped to `.error-refresh-btn` so

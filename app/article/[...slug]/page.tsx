@@ -3,6 +3,7 @@ import ArticleClient from './ArticleClient'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { SITE } from '@/lib/config'
+import { highlightCodeBlocks } from '@/lib/highlight-code'
 
 export const dynamic = 'force-dynamic'
 
@@ -68,5 +69,10 @@ export default async function ArticlePage({
     notFound()
   }
   if (!post) notFound()
-  return <ArticleClient initialPost={post} />
+  // SSR syntax highlighting: shiki runs server-side against the
+  // stored HTML so the browser receives already-coloured code blocks.
+  // Client bundle stays shiki-free; no flash-of-unstyled-code when
+  // the page hydrates.
+  const bodyHtml = await highlightCodeBlocks(post.bodyHtml || '')
+  return <ArticleClient initialPost={{ ...post, bodyHtml }} />
 }
