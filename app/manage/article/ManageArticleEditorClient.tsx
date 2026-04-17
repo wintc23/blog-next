@@ -39,7 +39,7 @@ type PostFull = Post
 export default function ManageArticleEditorClient() {
   const router = useRouter()
   const sp = useSearchParams()
-  const postId = sp.get('postId')
+  const postId = sp?.get('postId')
   const { message } = App.useApp()
 
   const [postData, setPostData] = useState<PostFull | null>(null)

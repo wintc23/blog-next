@@ -40,7 +40,7 @@ export default function MessagePageClient({ initial }: { initial: Paginated<Mess
         setData({ ...data, list: [...data.list, r.data] })
       } else {
         setMsg('')
-        const currentPage = sp.get('page')
+        const currentPage = sp?.get('page')
         if (!currentPage) router.push('/message?page=1')
         else router.refresh()
       }

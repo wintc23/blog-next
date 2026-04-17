@@ -21,11 +21,11 @@ export default function ManageArticleListClient() {
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
 
-  const urlType = sp.get('type')
+  const urlType = sp?.get('type')
   const currentType = urlType
     ? Number(urlType)
     : types.find((t) => t.default)?.id || types[0]?.id || 0
-  const currentPage = Number(sp.get('page') || 1)
+  const currentPage = Number(sp?.get('page') || 1)
 
   const loadTypes = useCallback(async () => {
     try {
@@ -62,7 +62,7 @@ export default function ManageArticleListClient() {
   }, [loadList])
 
   const updateQuery = (patch: Record<string, string | number>) => {
-    const q = new URLSearchParams(sp.toString())
+    const q = new URLSearchParams(sp?.toString() ?? '')
     for (const k in patch) q.set(k, String(patch[k]))
     router.push(`/manage?${q.toString()}`)
   }

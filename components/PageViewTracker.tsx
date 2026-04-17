@@ -9,7 +9,7 @@ export default function PageViewTracker() {
   const sp = useSearchParams()
 
   useEffect(() => {
-    const qs = sp.toString()
+    const qs = sp?.toString() ?? ''
     const fullPath = qs ? `${pathname}?${qs}` : pathname
     trackEvent('visitPage', {
       fullPath,
