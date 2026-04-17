@@ -332,6 +332,90 @@ export interface BlockNoteEditorRef {
  * string via BlockNote's HTML helpers, keeping the existing `bodyHtml`
  * field working without a migration.
  */
+// Legacy editors wrote code block language on `<pre class="...">` in a
+// handful of different formats (Prism: `language-X`; highlight.js:
+// `hljs X`; SyntaxHighlighter: `brush: X`). BlockNote's codeBlock
+// parser only inspects the inner `<code>`'s class, so every one of
+// those hints would be dropped during the one-shot migration. Detect
+// the language from the `<pre>` class and hoist it onto `<code>` as
+// `language-X` before handing off to BlockNote.
+const LEGACY_LANG_FIXUPS: Record<string, string> = {
+  markup: 'html',
+  sh: 'bash',
+  shell: 'bash',
+  plain: 'text',
+  plaintext: 'text',
+  js: 'javascript',
+  ts: 'typescript',
+  py: 'python',
+  'c++': 'cpp',
+  cs: 'csharp',
+  rb: 'ruby',
+  kt: 'kotlin',
+  rs: 'rust',
+  yml: 'yaml',
+  md: 'markdown',
+  django: 'html',
+  jinja: 'html',
+}
+// Tokens we should NOT treat as language names when surveying a
+// pre class — they're presentation / tooling markers that showed up
+// alongside real language hints in legacy markup.
+const LANG_NOISE_TOKENS = new Set([
+  'hljs',
+  'highlight',
+  'syntaxbox',
+  'prettyprint',
+  'prism',
+  'notranslate',
+  'linenums',
+  'line-numbers',
+])
+function extractLegacyLanguage(preClass: string): string | null {
+  // 1) Prism-style `language-X` wins if present.
+  const prism = preClass.match(/\blanguage-([\w+-]+)/i)
+  if (prism) return (LEGACY_LANG_FIXUPS[prism[1].toLowerCase()] || prism[1].toLowerCase())
+  // 2) SyntaxHighlighter-style `brush: X`.
+  const brush = preClass.match(/\bbrush\s*:\s*([\w+-]+)/i)
+  if (brush) return (LEGACY_LANG_FIXUPS[brush[1].toLowerCase()] || brush[1].toLowerCase())
+  // 3) highlight.js — `hljs X` / `X hljs`. Pick the token that's
+  // neither `hljs` nor presentation noise.
+  const tokens = preClass.split(/\s+/).filter(Boolean).map((t) => t.toLowerCase())
+  if (tokens.includes('hljs')) {
+    for (const tok of tokens) {
+      if (tok === 'hljs' || LANG_NOISE_TOKENS.has(tok)) continue
+      return LEGACY_LANG_FIXUPS[tok] || tok
+    }
+  }
+  return null
+}
+function hoistLegacyCodeLanguage(html: string): string {
+  return html.replace(
+    /<pre([^>]*)\bclass="([^"]*)"([^>]*)>\s*<code\b([^>]*)>/gi,
+    (match, preAttrsBefore, preClass, preAttrsAfter, codeAttrs) => {
+      const lang = extractLegacyLanguage(preClass)
+      if (!lang) return match
+      // Preserve any existing class on <code>; append the language
+      // one unless <code> already carries a language hint.
+      const existingClass = codeAttrs.match(/\bclass="([^"]*)"/i)
+      let newCodeAttrs: string
+      if (existingClass) {
+        if (/language-/i.test(existingClass[1])) {
+          newCodeAttrs = codeAttrs
+        } else {
+          newCodeAttrs = codeAttrs.replace(
+            /\bclass="([^"]*)"/i,
+            `class="$1 language-${lang}"`,
+          )
+        }
+      } else {
+        newCodeAttrs = `${codeAttrs} class="language-${lang}"`
+      }
+      return `<pre${preAttrsBefore}${preAttrsAfter}><code${newCodeAttrs}>`
+    },
+  )
+}
+
 // Dev-only: expose `window.__bnMigrate(html)` so the legacy → BlockNote
 // migration script can drive `tryParseHTMLToBlocks` + the full HTML
 // serializer without mounting the editor UI. Gated behind the dev
@@ -342,7 +426,8 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
   ;(window as any).__bnMigrate = async (html: string) => {
     const { BlockNoteEditor: Core } = await import('@blocknote/core')
     const scratch = Core.create({ schema: editorSchema })
-    const blocks = await scratch.tryParseHTMLToBlocks(html || '')
+    const preprocessed = hoistLegacyCodeLanguage(html || '')
+    const blocks = await scratch.tryParseHTMLToBlocks(preprocessed)
     let out = await scratch.blocksToFullHTML(blocks)
     out = sanitizeCodeBlockHtml(out)
     return { html: out, blocks }
@@ -367,7 +452,10 @@ const BlockNoteEditor = forwardRef<BlockNoteEditorRef, Props>(
         // Scratch editor uses the same custom schema so codeBlock
         // language detection survives the HTML → blocks round trip.
         const scratch = Core.create({ schema: editorSchema })
-        const blocks = await scratch.tryParseHTMLToBlocks(value)
+        // Recover language hints from legacy Prism-style HTML (where
+        // language sat on `<pre class="...">`, not on `<code>`) before
+        // handing off to BlockNote's parser.
+        const blocks = await scratch.tryParseHTMLToBlocks(hoistLegacyCodeLanguage(value))
         if (!cancelled) setInitialBlocks(blocks)
       }
       parse()
