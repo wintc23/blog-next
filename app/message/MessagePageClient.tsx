@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, App } from 'antd'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import CommentInput from '@/components/CommentInput'
 import CommentTree from '@/components/CommentTree'
@@ -15,6 +15,13 @@ import type { Message, Paginated } from '@/lib/types'
 
 export default function MessagePageClient({ initial }: { initial: Paginated<Message> }) {
   const [data, setData] = useState(initial)
+  // When the server re-renders after a submit (`router.push` to a new
+  // page, or `router.refresh()` on the current one), a fresh `initial`
+  // prop arrives but `useState(initial)` keeps the stale first-render
+  // value. Sync the local copy so the new list shows up.
+  useEffect(() => {
+    setData(initial)
+  }, [initial])
   const [msg, setMsg] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const user = useUser()

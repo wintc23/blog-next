@@ -1,10 +1,20 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 import { apiFetchServer } from '@/lib/api/client'
-import { PostSchema, PostUpdateSchema } from '@/lib/schemas'
-import type { Post, PostUpdate } from '@/lib/schemas'
+import { PostUpdateSchema } from '@/lib/schemas'
+import type { PostUpdate } from '@/lib/schemas'
 import { runAction } from './result'
+
+// `/add-post/<type>` returns `{ message, post_id, notify }` — not a full
+// Post entity. Validate that shape and normalise to `{ id }` so the
+// caller doesn't need to know about the server's envelope.
+const AddPostResponseSchema = z.object({
+  postId: z.number(),
+  message: z.string().optional(),
+  notify: z.boolean().optional(),
+})
 
 export async function likePostAction(id: number) {
   return runAction(async () => {
@@ -45,9 +55,11 @@ export async function savePostAction(data: Record<string, unknown>) {
 
 export async function addPostAction(type: number) {
   return runAction(async () => {
-    const post = await apiFetchServer(`/add-post/${type}`, { schema: PostSchema })
+    const r = await apiFetchServer(`/add-post/${type}`, {
+      schema: AddPostResponseSchema,
+    })
     revalidatePath('/manage')
-    return post as Post
+    return { id: r.postId }
   })
 }
 

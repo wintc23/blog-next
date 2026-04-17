@@ -1,12 +1,16 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-// BlockNote core styles — required so the full-HTML output saved by
-// the editor (`.bn-block-outer`, `.bn-block-content`, `[data-text-color]`,
-// `[data-text-alignment]`, etc.) renders with the correct visual
-// styles on the read-only article page, without loading the editor
-// runtime.
+// BlockNote core styles + Inter font-face — together they give the
+// read-only article page the exact same visual environment as the
+// editor. We wrap the stored block HTML in `.bn-root bn-default-styles`
+// (same class combo that sits at the root of the live editor), so
+// heading sizes, paragraph margins, list markers, code block colours
+// and inline typography all resolve via BlockNote's selectors. One
+// source of truth for content typography = WYSIWYG with the editor,
+// no parallel `.markdown-body` rules to maintain.
 import '@blocknote/core/style.css'
+import '@blocknote/core/fonts/inter.css'
 
 interface Props {
   html: string
@@ -41,7 +45,7 @@ export default function ArticleContent({ html, onOutlineChange }: Props) {
   return (
     <div
       ref={ref}
-      className="markdown-body"
+      className="bn-container bn-root bn-default-styles"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   )

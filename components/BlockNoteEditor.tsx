@@ -4,8 +4,11 @@ import {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useRef,
   useState,
 } from 'react'
+import { createPortal } from 'react-dom'
+import { Select } from 'antd'
 import { BlockNoteView } from '@blocknote/mantine'
 import {
   useCreateBlockNote,
@@ -87,15 +90,207 @@ function sanitizeCodeBlockHtml(html: string): string {
   )
 }
 
+// Match the reader-side SSR theme (see lib/highlight-code.ts) so WYSIWYG
+// colours line up with what visitors eventually see.
+const EDITOR_THEME = 'github-dark'
+
 const editorSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
     codeBlock: createCodeBlockSpec({
       defaultLanguage: 'text',
       supportedLanguages: CODE_LANGUAGES,
+      createHighlighter: () =>
+        import('shiki').then(({ createHighlighter }) =>
+          createHighlighter({
+            themes: [EDITOR_THEME],
+            langs: EDITOR_PRELOAD_LANGS,
+          }),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ) as unknown as Promise<any>,
     }),
   },
 })
+
+// Sorted alphabetically by display name so the dropdown reads naturally
+// (Bash, C, C++, …) instead of in the insertion order above.
+const LANG_OPTIONS = Object.entries(CODE_LANGUAGES)
+  .map(([value, { name }]) => ({ value, label: name }))
+  .sort((a, b) => a.label.localeCompare(b.label))
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyEditor = any
+
+// Overlay-based language picker: rendered as a fixed-position AntD Select
+// portaled into document.body so we never inject DOM into ProseMirror's
+// managed subtree. An earlier approach that appended a mount point next
+// to the native <select> caused ProseMirror to treat the extra child as
+// an unexpected mutation and rebuild the nodeview on every keystroke,
+// which dropped us into an endless mount/unmount cycle. Positioning from
+// outside sidesteps that entirely.
+function CodeLanguageOverlay({
+  editor,
+  containerRef,
+}: {
+  editor: AnyEditor
+  containerRef: React.RefObject<HTMLDivElement | null>
+}) {
+  const [blockIds, setBlockIds] = useState<string[]>([])
+
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    let rafId: number | null = null
+    const scan = () => {
+      rafId = null
+      const blocks = Array.from(
+        container.querySelectorAll<HTMLElement>(
+          '.bn-block-content[data-content-type="codeBlock"]',
+        ),
+      )
+      const ids: string[] = []
+      for (const b of blocks) {
+        const id = b.closest('[data-id]')?.getAttribute('data-id')
+        if (id) ids.push(id)
+      }
+      setBlockIds((prev) =>
+        prev.length === ids.length && prev.every((v, i) => v === ids[i])
+          ? prev
+          : ids,
+      )
+    }
+    const schedule = () => {
+      if (rafId != null) return
+      rafId = requestAnimationFrame(scan)
+    }
+
+    scan()
+    const observer = new MutationObserver(schedule)
+    observer.observe(container, { childList: true, subtree: true })
+    return () => {
+      if (rafId != null) cancelAnimationFrame(rafId)
+      observer.disconnect()
+    }
+  }, [containerRef])
+
+  return (
+    <>
+      {blockIds.map((id) => (
+        <CodeLanguageFloater
+          key={id}
+          editor={editor}
+          blockId={id}
+          containerRef={containerRef}
+        />
+      ))}
+    </>
+  )
+}
+
+function CodeLanguageFloater({
+  editor,
+  blockId,
+  containerRef,
+}: {
+  editor: AnyEditor
+  blockId: string
+  containerRef: React.RefObject<HTMLDivElement | null>
+}) {
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
+  const [value, setValue] = useState<string>(() => {
+    const b = editor.getBlock(blockId)
+    return (b?.props?.language as string | undefined) || 'text'
+  })
+
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    let rafId: number | null = null
+
+    const findAnchor = () =>
+      container.querySelector<HTMLElement>(
+        `[data-id="${CSS.escape(blockId)}"] .bn-block-content[data-content-type="codeBlock"]`,
+      )
+
+    const update = () => {
+      rafId = null
+      const anchor = findAnchor()
+      if (!anchor) {
+        setPos(null)
+        return
+      }
+      const r = anchor.getBoundingClientRect()
+      setPos({ top: r.top + 6, left: r.left + 16 })
+    }
+    const schedule = () => {
+      if (rafId != null) return
+      rafId = requestAnimationFrame(update)
+    }
+
+    update()
+    const ro = new ResizeObserver(schedule)
+    const anchor = findAnchor()
+    if (anchor) ro.observe(anchor)
+    window.addEventListener('scroll', schedule, true)
+    window.addEventListener('resize', schedule)
+
+    // ProseMirror may detach and re-create the anchor element as it
+    // re-renders the codeBlock on edits, so recheck position whenever
+    // the editor tree mutates as well.
+    const mo = new MutationObserver(schedule)
+    mo.observe(container, { childList: true, subtree: true })
+
+    return () => {
+      if (rafId != null) cancelAnimationFrame(rafId)
+      ro.disconnect()
+      mo.disconnect()
+      window.removeEventListener('scroll', schedule, true)
+      window.removeEventListener('resize', schedule)
+    }
+  }, [blockId, containerRef])
+
+  useEffect(() => {
+    const unsub = editor.onChange(() => {
+      const b = editor.getBlock(blockId)
+      if (!b) return
+      const lang = (b.props?.language as string | undefined) || 'text'
+      setValue((prev) => (prev === lang ? prev : lang))
+    })
+    return () => {
+      if (typeof unsub === 'function') unsub()
+    }
+  }, [editor, blockId])
+
+  if (!pos) return null
+
+  return createPortal(
+    <div
+      className="bn-code-lang-overlay"
+      style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 100 }}
+    >
+      <Select
+        size="small"
+        showSearch
+        value={value}
+        options={LANG_OPTIONS}
+        style={{ minWidth: 140 }}
+        popupMatchSelectWidth={180}
+        filterOption={(input, option) => {
+          const q = input.toLowerCase()
+          const label = String(option?.label ?? '').toLowerCase()
+          const val = String(option?.value ?? '').toLowerCase()
+          return label.includes(q) || val.includes(q)
+        }}
+        onChange={(lang) => {
+          setValue(lang)
+          editor.updateBlock(blockId, { props: { language: lang } })
+        }}
+      />
+    </div>,
+    document.body,
+  )
+}
 
 interface Props {
   value: string
@@ -108,6 +303,13 @@ interface Props {
    * file to the backing storage.
    */
   uploadFile?: (file: File) => Promise<string>
+  /**
+   * Fires when the user presses ArrowUp with the caret at the very start of
+   * the first block. The parent can use this to hand focus back to a title
+   * input that sits above the editor, so the vertical arrow navigation
+   * reads as a continuous document (title ↔ body).
+   */
+  onEscapeTop?: () => void
 }
 
 /**
@@ -118,6 +320,7 @@ interface Props {
  */
 export interface BlockNoteEditorRef {
   focusEnd: () => void
+  focusStart: () => void
 }
 
 /**
@@ -129,8 +332,25 @@ export interface BlockNoteEditorRef {
  * string via BlockNote's HTML helpers, keeping the existing `bodyHtml`
  * field working without a migration.
  */
+// Dev-only: expose `window.__bnMigrate(html)` so the legacy → BlockNote
+// migration script can drive `tryParseHTMLToBlocks` + the full HTML
+// serializer without mounting the editor UI. Gated behind the dev
+// build to keep the helper out of production bundles (the one-shot
+// migration is already done).
+if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(window as any).__bnMigrate = async (html: string) => {
+    const { BlockNoteEditor: Core } = await import('@blocknote/core')
+    const scratch = Core.create({ schema: editorSchema })
+    const blocks = await scratch.tryParseHTMLToBlocks(html || '')
+    let out = await scratch.blocksToFullHTML(blocks)
+    out = sanitizeCodeBlockHtml(out)
+    return { html: out, blocks }
+  }
+}
+
 const BlockNoteEditor = forwardRef<BlockNoteEditorRef, Props>(
-  function BlockNoteEditor({ value, onChange, placeholder, uploadFile }, ref) {
+  function BlockNoteEditor({ value, onChange, placeholder, uploadFile, onEscapeTop }, ref) {
     const [initialBlocks, setInitialBlocks] = useState<Block[] | undefined | null>(null)
 
     // Parse the inbound HTML into BlockNote blocks once, before creating the
@@ -168,6 +388,7 @@ const BlockNoteEditor = forwardRef<BlockNoteEditorRef, Props>(
         onChange={onChange}
         placeholder={placeholder}
         uploadFile={uploadFile}
+        onEscapeTop={onEscapeTop}
         forwardedRef={ref}
       />
     )
@@ -181,12 +402,14 @@ function EditorInner({
   onChange,
   placeholder,
   uploadFile,
+  onEscapeTop,
   forwardedRef,
 }: {
   initialContent: Block[] | undefined
   onChange: (html: string) => void
   placeholder?: string
   uploadFile?: (file: File) => Promise<string>
+  onEscapeTop?: () => void
   forwardedRef: React.Ref<BlockNoteEditorRef>
 }) {
   const editor = useCreateBlockNote({
@@ -196,6 +419,8 @@ function EditorInner({
     uploadFile,
   })
 
+  const containerRef = useRef<HTMLDivElement>(null)
+
   useImperativeHandle(
     forwardedRef,
     () => ({
@@ -204,6 +429,13 @@ function EditorInner({
         const doc = editor.document
         const last = doc[doc.length - 1]
         if (last) editor.setTextCursorPosition(last, 'end')
+        editor.focus()
+      },
+      focusStart: () => {
+        if (!editor) return
+        const doc = editor.document
+        const first = doc[0]
+        if (first) editor.setTextCursorPosition(first, 'start')
         editor.focus()
       },
     }),
@@ -276,44 +508,70 @@ function EditorInner({
   // (\u00A0) instead when the caret is at the very start of a block's
   // content; this preserves both visual rendering and the round-trip.
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key !== ' ') return
     if (e.metaKey || e.ctrlKey || e.altKey) return
     if (!editor) return
-    // Only intervene for keystrokes inside the main ProseMirror
-    // contenteditable. BlockNote also renders <input>/<textarea>
-    // elements (image caption / alt-text editor, link panel, etc.) and
-    // those need raw spaces — intercepting them here would silently
-    // break the caption/title menu the user can summon on an image.
     const target = e.target as HTMLElement
+    // BlockNote also renders <input>/<textarea> elements (image caption
+    // / link panel, etc.); those need default key behaviour so their
+    // panels/captions work normally.
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
     if (!target.closest('.ProseMirror')) return
     const tiptap = editor._tiptapEditor
     const { $from, empty } = tiptap.state.selection
-    if (!empty) return
-    if ($from.parentOffset !== 0) return
-    e.preventDefault()
-    tiptap.commands.insertContent('\u00A0')
+
+    // ArrowUp at the very top of the first block → escape upward so a
+    // title input above the editor can take focus. Gate on:
+    //  - a collapsed selection (nothing actually highlighted)
+    //  - caret at the first block in the document
+    //  - caret on the first visual line of that block (textOffset 0 is
+    //    enough for most single-line blocks; longer blocks fall through
+    //    and scroll naturally).
+    if (e.key === 'ArrowUp' && onEscapeTop && empty) {
+      const doc = editor.document
+      const currentBlock = editor.getTextCursorPosition().block
+      if (doc[0] && currentBlock.id === doc[0].id && $from.parentOffset === 0) {
+        e.preventDefault()
+        onEscapeTop()
+        return
+      }
+    }
+
+    // ProseMirror inserts a plain ASCII space on the " " key, and when
+    // the block HTML round-trips through `blocksToFullHTML` and
+    // `tryParseHTMLToBlocks` the HTML parser collapses leading/repeated
+    // spaces — so typing spaces at the start of a line ends up invisible
+    // after save/reload. Insert a NBSP (\u00A0) instead when the caret
+    // is at the very start of a block's content.
+    if (e.key === ' ') {
+      if (!empty) return
+      if ($from.parentOffset !== 0) return
+      e.preventDefault()
+      tiptap.commands.insertContent('\u00A0')
+    }
   }
 
   return (
-    <BlockNoteView
-      editor={editor}
-      sideMenu={false}
-      slashMenu={false}
-      data-placeholder={placeholder}
-      onKeyDown={onKeyDown}
-    >
-      <SideMenuController
-        sideMenu={(props) => (
-          <SideMenu {...props}>
-            <DragHandleButton {...props} />
-          </SideMenu>
-        )}
-      />
-      <SuggestionMenuController
-        triggerCharacter="/"
-        floatingUIOptions={slashMenuFloatingOptions}
-      />
-    </BlockNoteView>
+    <div ref={containerRef} className="contents">
+      <BlockNoteView
+        editor={editor}
+        sideMenu={false}
+        slashMenu={false}
+        data-placeholder={placeholder}
+        onKeyDown={onKeyDown}
+      >
+        <SideMenuController
+          sideMenu={(props) => (
+            <SideMenu {...props}>
+              <DragHandleButton {...props} />
+            </SideMenu>
+          )}
+        />
+        <SuggestionMenuController
+          triggerCharacter="/"
+          floatingUIOptions={slashMenuFloatingOptions}
+        />
+      </BlockNoteView>
+      <CodeLanguageOverlay editor={editor} containerRef={containerRef} />
+    </div>
   )
 }

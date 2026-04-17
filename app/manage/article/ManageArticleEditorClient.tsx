@@ -56,6 +56,7 @@ export default function ManageArticleEditorClient() {
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
   const editorRef = useRef<BlockNoteEditorRef | null>(null)
+  const titleRef = useRef<HTMLInputElement | null>(null)
   // Watermark handler reads `watermark` + `postData.id` at call time — keep
   // the latest values in a ref so the `uploadFile` function identity stays
   // stable across renders (otherwise BlockNote would recreate its upload
@@ -327,8 +328,18 @@ export default function ManageArticleEditorClient() {
               padding (54px) so the caret lines up with body block content
               instead of the side-menu gutter. */}
           <input
+            ref={titleRef}
             value={postData.title || ''}
             onChange={(e) => update({ title: e.target.value })}
+            onKeyDown={(e) => {
+              // ArrowDown from the single-line title drops focus into the
+              // body editor. Enter also does this — feels natural when
+              // the user is setting up a new article top-to-bottom.
+              if (e.key === 'ArrowDown' || e.key === 'Enter') {
+                e.preventDefault()
+                editorRef.current?.focusStart()
+              }
+            }}
             placeholder="无标题"
             className="w-full shrink-0 border-none bg-transparent px-[54px] text-[36px] font-bold leading-[1.3] text-[#1f2329] outline-none placeholder:text-[#bbbfc4]"
           />
@@ -349,6 +360,13 @@ export default function ManageArticleEditorClient() {
               value={postData.bodyHtml || ''}
               onChange={(html) => update({ bodyHtml: html })}
               uploadFile={uploadEditorFile}
+              onEscapeTop={() => {
+                const el = titleRef.current
+                if (!el) return
+                el.focus()
+                const n = el.value.length
+                el.setSelectionRange(n, n)
+              }}
             />
           </div>
         </div>

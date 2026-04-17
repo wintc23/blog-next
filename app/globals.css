@@ -505,18 +505,22 @@ a {
   background: transparent;
 }
 
-/* BlockNote's code block language selector is opacity: 0 by default
- * with a 1 s hover delay, making it effectively invisible. Override
- * to keep it faintly visible at all times, brightening on hover, so
- * the user can discover and use it without guessing. */
+/* Hide BlockNote's built-in code block language <select>. We render an
+ * AntD Select as a fixed-position overlay (see `CodeLanguageOverlay` in
+ * components/BlockNoteEditor.tsx) to get searchable, alphabetical
+ * language picking without searching inside the ProseMirror subtree. */
 .bn-editor .bn-block-content[data-content-type="codeBlock"] > div > select {
-  opacity: 0.6 !important;
-  transition: opacity 0.2s ease !important;
-  transition-delay: 0s !important;
+  display: none !important;
 }
-.bn-editor .bn-block-content[data-content-type="codeBlock"]:hover > div > select,
-.bn-editor .bn-block-content[data-content-type="codeBlock"] > div > select:focus {
-  opacity: 1 !important;
+/* Fade the floating picker slightly until the user hovers the block
+ * (or the picker itself), so it doesn't scream for attention. */
+.bn-code-lang-overlay {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+.bn-code-lang-overlay:hover,
+.bn-code-lang-overlay:focus-within {
+  opacity: 1;
 }
 
 /* Polished refresh button on the error/404 pages — adds extra horizontal

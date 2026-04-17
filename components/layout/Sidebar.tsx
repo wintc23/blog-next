@@ -201,14 +201,14 @@ export default function Sidebar() {
           <div className="border-b border-[#eee] px-[15px] py-2 text-[#666]">
             文章标签
           </div>
-          <div className="flex flex-wrap justify-around px-[15px] pb-5 pt-[10px]">
+          <div className="flex flex-wrap justify-start gap-2 px-[15px] pb-5 pt-[10px]">
             {tags.map((tag, idx) => (
               <Link
                 key={tag.id}
                 href={`/tag/${tag.id}`}
                 title={`${tag.title}(${tag.postCount})`}
                 style={{ borderColor: colors[idx], color: colors[idx] }}
-                className="mb-[5px] flex w-[120px] items-center justify-center rounded border bg-white px-2 py-[2px] text-center text-[12px] leading-5 hover:opacity-80"
+                className="flex w-[120px] items-center justify-center rounded border bg-white px-2 py-[2px] text-center text-[12px] leading-5 hover:opacity-80"
               >
                 <span className="truncate">{tag.title}</span>
                 <span className="ml-[2px] shrink-0">({tag.postCount})</span>
