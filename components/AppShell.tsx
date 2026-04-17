@@ -19,17 +19,17 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
 
   if (
-    STANDALONE_ROUTES.some((p) => pathname === p || pathname.startsWith(p + '/'))
+    STANDALONE_ROUTES.some((p) => pathname === p || pathname?.startsWith(p + '/'))
   ) {
     return <>{children}</>
   }
 
-  if (BARE_ROUTES.some((p) => pathname === p || pathname.startsWith(p + '/'))) {
+  if (BARE_ROUTES.some((p) => pathname === p || pathname?.startsWith(p + '/'))) {
     return <div className="min-h-screen p-6">{children}</div>
   }
 
   const hideModules = HIDE_SIDEBAR_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(p + '/'),
+    (p) => pathname === p || pathname?.startsWith(p + '/'),
   )
 
   return (

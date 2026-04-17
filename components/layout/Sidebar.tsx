@@ -43,7 +43,7 @@ export default function Sidebar() {
   const headerOffset = useHeaderOffset()
   const pathname = usePathname()
   const shouldShow = !HIDE_SIDEBAR_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(p + '/'),
+    (p) => pathname === p || pathname?.startsWith(p + '/'),
   )
   if (!shouldShow) return null
 

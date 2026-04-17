@@ -10,7 +10,7 @@ export default function PageViewTracker() {
 
   useEffect(() => {
     const qs = sp?.toString() ?? ''
-    const fullPath = qs ? `${pathname}?${qs}` : pathname
+    const fullPath = qs ? `${pathname}?${qs}` : (pathname ?? '')
     trackEvent('visitPage', {
       fullPath,
       from: typeof document !== 'undefined' ? document.referrer : '',
