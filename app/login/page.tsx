@@ -35,7 +35,7 @@ function LoginInner() {
   const [status, setStatus] = useState('正在进行第三方登录,请稍候…')
 
   useEffect(() => {
-    const code = sp.get('code')
+    const code = sp?.get('code')
     if (!code) {
       setStatus('缺少 code 参数')
       return
