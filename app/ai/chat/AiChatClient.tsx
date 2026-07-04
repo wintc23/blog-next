@@ -482,7 +482,7 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
         <Button
           type="text"
           icon={<CloseOutlined />}
-          className="text-[#6b778c] hover:!text-[#409eff] md:hidden"
+          className="text-[#6b778c] hover:!text-[#409eff] md:!hidden"
           onClick={() => setSidebarOpen(false)}
         />
       </div>
