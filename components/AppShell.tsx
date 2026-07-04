@@ -9,7 +9,7 @@ import Footer from './layout/Footer'
 /** Routes that opt out of the global header/sidebar/footer. */
 const BARE_ROUTES = ['/login', '/qqtoken']
 /** Routes that render fully standalone (own layout, no padding). */
-const STANDALONE_ROUTES = ['/manage']
+const STANDALONE_ROUTES = ['/manage', '/ai']
 /** Routes where the sidebar (and its 280px column) is hidden, so the
  * main content can use a narrower 960px max-width. Mirrors blog-ssr's
  * `hide-modules` class. */

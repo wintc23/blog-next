@@ -9,6 +9,7 @@ import {
   CommentOutlined,
   MessageOutlined,
   BarChartOutlined,
+  RobotOutlined,
 } from '@ant-design/icons'
 import { useEffect } from 'react'
 import { Button } from 'antd'
@@ -47,6 +48,7 @@ const MENU = [
   { key: '/manage/topic', label: '标签/分类', icon: <TagsOutlined /> },
   { key: '/manage/comment', label: '评论管理', icon: <CommentOutlined /> },
   { key: '/manage/message', label: '留言管理', icon: <MessageOutlined /> },
+  { key: '/manage/ai-key', label: 'AI Key', icon: <RobotOutlined /> },
   { key: '/manage/stat', label: '访问统计', icon: <BarChartOutlined /> },
 ]
 
@@ -113,7 +115,7 @@ export default function ManageLayoutClient({ children }: { children: React.React
               icon: m.icon,
               label: <Link href={m.key}>{m.label}</Link>,
             }))}
-            style={{ borderBottom: 'none', minWidth: 600 }}
+            style={{ borderBottom: 'none', minWidth: 700 }}
           />
         </div>
       </div>

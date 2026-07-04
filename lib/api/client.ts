@@ -5,13 +5,14 @@ import { BASE_URL } from '@/lib/config'
 const isServer = typeof window === 'undefined'
 
 export interface ApiFetchOptions<T extends ZodTypeAny = ZodTypeAny> {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   data?: unknown
   params?: Record<string, unknown>
   token?: string
   cache?: RequestCache
   next?: NextFetchRequestConfig
   headers?: Record<string, string>
+  signal?: AbortSignal
   /** Zod schema to validate and type the response body. */
   schema?: T
 }
@@ -31,7 +32,7 @@ async function runFetch(
   opts: ApiFetchOptions,
   token: string | undefined,
 ): Promise<unknown> {
-  const { method = 'GET', data, params, cache, next, headers: extraHeaders } = opts
+  const { method = 'GET', data, params, cache, next, headers: extraHeaders, signal } = opts
 
   let url = `${BASE_URL}${path}`
   if (params) {
@@ -52,7 +53,7 @@ async function runFetch(
     body = JSON.stringify(underline(data))
   }
 
-  const res = await fetch(url, { method, headers, body, cache, next })
+  const res = await fetch(url, { method, headers, body, cache, next, signal })
   const text = await res.text()
   let parsed: unknown = null
   if (text) {
