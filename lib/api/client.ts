@@ -1,6 +1,6 @@
 import type { ZodTypeAny, z } from 'zod'
 import { underline, getTokenClient, clearTokenClient, camel } from '@/lib/utils'
-import { BASE_URL } from '@/lib/config'
+import { BASE_URL, INTERNAL_API_BASE_URL } from '@/lib/config'
 
 const isServer = typeof window === 'undefined'
 
@@ -34,7 +34,8 @@ async function runFetch(
 ): Promise<unknown> {
   const { method = 'GET', data, params, cache, next, headers: extraHeaders, signal } = opts
 
-  let url = `${BASE_URL}${path}`
+  const baseUrl = isServer ? INTERNAL_API_BASE_URL : BASE_URL
+  let url = `${baseUrl}${path}`
   if (params) {
     const qs = new URLSearchParams()
     for (const k in params) {

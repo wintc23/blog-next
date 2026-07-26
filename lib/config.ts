@@ -3,6 +3,9 @@ export const IS_DEV = process.env.NODE_ENV !== 'production'
 export const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:5001/api'
 
+export const INTERNAL_API_BASE_URL =
+  process.env.INTERNAL_API_BASE_URL || 'http://127.0.0.1:5001/api'
+
 export const GITHUB_CLIENT_ID =
   process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID || '802e5accfa4aeddf1a15'
 export const QQ_CLIENT_ID =
