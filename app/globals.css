@@ -101,6 +101,9 @@ body {
   outline: none;
 }
 .layout-header .layout-header-main .nav-list .nav {
+  position: relative;
+  display: inline-flex;
+  padding: 0.35rem 0;
   font-weight: bold;
   font-size: 16px;
   color: #2d8cf0;
@@ -109,6 +112,23 @@ body {
    * link doesn't retain a focused/active state after click. */
   outline: none;
   -webkit-tap-highlight-color: transparent;
+}
+.layout-header .layout-header-main .nav-list .nav::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 16px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0;
+  transform: translateX(-50%) scaleX(0.35);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.layout-header .layout-header-main .nav-list .nav.active::after {
+  opacity: 1;
+  transform: translateX(-50%) scaleX(1);
 }
 .layout-header .layout-header-main .nav-list .nav:hover {
   color: #57a3f3;

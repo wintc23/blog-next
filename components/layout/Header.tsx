@@ -5,9 +5,11 @@ import { SITE } from '@/lib/config'
 import { useUser, useSetHeaderOffset } from '@/lib/store'
 import SiteSearch from './SiteSearch'
 import { useEffect, useRef, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 export default function Header() {
   const user = useUser()
+  const pathname = usePathname()
   const setHeaderOffset = useSetHeaderOffset()
   const [state, setState] = useState<'' | 'hide' | 'show'>('')
   const oldScroll = useRef(0)
@@ -41,11 +43,37 @@ export default function Header() {
   }, [setHeaderOffset])
 
   const navList = [
-    { title: '首页', path: '/' },
-    { title: '留言', path: '/message' },
-    { title: '关于', path: '/about' },
+    {
+      title: '博客',
+      path: '/',
+      active:
+        pathname === '/' ||
+        pathname?.startsWith('/article/') ||
+        pathname?.startsWith('/tag/'),
+    },
+    {
+      title: '作品',
+      path: '/products',
+      active: pathname === '/products' || pathname?.startsWith('/products/'),
+    },
+    {
+      title: '关于',
+      path: '/about',
+      active: pathname === '/about' || pathname?.startsWith('/about/'),
+    },
+    {
+      title: '留言',
+      path: '/message',
+      active: pathname === '/message' || pathname?.startsWith('/message/'),
+    },
   ]
-  if (user?.admin) navList.push({ title: '后台管理', path: '/manage' })
+  if (user?.admin) {
+    navList.push({
+      title: '后台管理',
+      path: '/manage',
+      active: pathname === '/manage' || pathname?.startsWith('/manage/'),
+    })
+  }
 
   return (
     <header ref={ref} className={`layout-header ${state}`}>
@@ -57,7 +85,12 @@ export default function Header() {
         </h1>
         <nav className="nav-list">
           {navList.map((nav) => (
-            <Link key={nav.path} href={nav.path} className="nav">
+            <Link
+              key={nav.path}
+              href={nav.path}
+              className={`nav ${nav.active ? 'active' : ''}`}
+              aria-current={nav.active ? 'page' : undefined}
+            >
               {nav.title}
             </Link>
           ))}

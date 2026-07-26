@@ -13,7 +13,12 @@ import {
 import { SITE } from '@/lib/config'
 import { pseudoRandom, formatCount } from '@/lib/utils'
 
-const HIDE_SIDEBAR_PREFIXES = ['/message', '/about', '/recommendation']
+const HIDE_SIDEBAR_PREFIXES = [
+  '/message',
+  '/about',
+  '/products',
+  '/recommendation',
+]
 
 const ALIYUN = {
   href: 'https://www.aliyun.com/minisite/goods?userCode=h55rc1yh',

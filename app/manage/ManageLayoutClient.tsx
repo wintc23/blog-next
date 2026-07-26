@@ -10,6 +10,7 @@ import {
   MessageOutlined,
   BarChartOutlined,
   RobotOutlined,
+  AppstoreOutlined,
 } from '@ant-design/icons'
 import { useEffect } from 'react'
 import { Button } from 'antd'
@@ -45,6 +46,7 @@ function ArticleEditorShell({ children }: { children: React.ReactNode }) {
 
 const MENU = [
   { key: '/manage', label: '文章管理', icon: <BookOutlined /> },
+  { key: '/manage/product', label: '作品管理', icon: <AppstoreOutlined /> },
   { key: '/manage/topic', label: '标签/分类', icon: <TagsOutlined /> },
   { key: '/manage/comment', label: '评论管理', icon: <CommentOutlined /> },
   { key: '/manage/message', label: '留言管理', icon: <MessageOutlined /> },
@@ -86,9 +88,13 @@ export default function ManageLayoutClient({ children }: { children: React.React
     )
   }
 
-  // The article editor owns its own full-screen chrome (back button +
-  // contextual action bar), so skip the management header on that route.
-  if (pathname === '/manage/article' || pathname?.startsWith('/manage/article/')) {
+  // Full-screen editors own their contextual action bar, so skip the
+  // management navigation header on those routes.
+  if (
+    pathname === '/manage/article' ||
+    pathname?.startsWith('/manage/article/') ||
+    pathname === '/manage/product/edit'
+  ) {
     return <ArticleEditorShell>{children}</ArticleEditorShell>
   }
 
@@ -115,7 +121,7 @@ export default function ManageLayoutClient({ children }: { children: React.React
               icon: m.icon,
               label: <Link href={m.key}>{m.label}</Link>,
             }))}
-            style={{ borderBottom: 'none', minWidth: 700 }}
+            style={{ borderBottom: 'none', minWidth: 820 }}
           />
         </div>
       </div>

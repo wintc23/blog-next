@@ -13,7 +13,12 @@ const STANDALONE_ROUTES = ['/manage', '/ai']
 /** Routes where the sidebar (and its 280px column) is hidden, so the
  * main content can use a narrower 960px max-width. Mirrors blog-ssr's
  * `hide-modules` class. */
-const HIDE_SIDEBAR_PREFIXES = ['/message', '/about', '/recommendation']
+const HIDE_SIDEBAR_PREFIXES = [
+  '/message',
+  '/about',
+  '/products',
+  '/recommendation',
+]
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
