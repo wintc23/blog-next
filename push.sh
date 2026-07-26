@@ -15,11 +15,16 @@ git fetch origin
 git reset --hard origin/main
 npm ci
 npm run build
-# Restart by process name, NOT pm2.json: the running entry was created
-# manually with --interpreter pointing at the Node 22 nvm binary, and
-# `pm2 restart pm2.json` would re-read the JSON config and replace the
-# interpreter with the daemon's default (Node 12), breaking Next 15.
-pm2 restart blog-next --update-env
+# Recreate the process with the active nvm Node binary and explicit network
+# binding. This avoids inheriting stale PM2 arguments and keeps port 8000 off
+# the public interface.
+NODE_BIN="$(command -v node)"
+pm2 delete blog-next || true
+pm2 start node_modules/next/dist/bin/next \
+  --name blog-next \
+  --interpreter "$NODE_BIN" \
+  -- start -H 127.0.0.1 -p 8000
+pm2 save
 AUTOSCRIPT
 
 echo 'done'
