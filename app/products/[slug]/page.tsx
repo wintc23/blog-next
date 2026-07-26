@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const product = await loadProduct(slug)
   return {
-    title: `${product.name} - 产品 - ${SITE.title}`,
+    title: `${product.name} - 作品集 - ${SITE.title}`,
     description: product.summary || product.tagline || SITE.description,
     openGraph: product.coverUrl ? { images: [product.coverUrl] } : undefined,
   }

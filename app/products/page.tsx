@@ -5,7 +5,7 @@ import { SITE } from '@/lib/config'
 import type { Product } from '@/lib/schemas/product'
 
 export const metadata: Metadata = {
-  title: `产品 - ${SITE.title}`,
+  title: `作品集 - ${SITE.title}`,
   description: '我设计和开发的一些独立产品。',
 }
 
@@ -203,7 +203,7 @@ export default async function ProductsPage() {
               Products · Portfolio
             </div>
             <h1 className="m-0 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-[42px]">
-              我做的产品
+              作品集
             </h1>
             <p className="mb-0 mt-4 max-w-xl text-base leading-7 text-white/65 sm:text-lg">
               把工作和生活中反复遇到的问题，做成真正可以使用的小工具。
