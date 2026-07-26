@@ -206,7 +206,7 @@ export default async function ProductsPage() {
               作品集
             </h1>
             <p className="mb-0 mt-4 max-w-xl text-base leading-7 text-white/65 sm:text-lg">
-              把工作和生活中反复遇到的问题，做成真正可以使用的小工具。
+              从真实需求出发，把想法做成可以使用、值得持续打磨的作品。
             </p>
           </div>
 
