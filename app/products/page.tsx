@@ -105,7 +105,7 @@ function FeaturedProduct({ product }: { product: Product }) {
               className="inline-flex items-center rounded px-5 py-2.5 font-medium text-white transition hover:opacity-90"
               style={{ backgroundColor: product.accentColor }}
             >
-              查看产品详情
+              查看详情
               <span className="ml-2" aria-hidden="true">→</span>
             </Link>
           </div>
