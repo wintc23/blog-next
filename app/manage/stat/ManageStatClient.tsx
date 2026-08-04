@@ -66,6 +66,7 @@ function MetricCard({ label, value, change, icon, color }: {
 }
 
 function TrendChart({ rows }: { rows: AnalyticsDashboard['trend'] }) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const width = 900
   const height = 250
   const padding = 32
@@ -75,6 +76,11 @@ function TrendChart({ rows }: { rows: AnalyticsDashboard['trend'] }) {
     const y = height - padding - row[key] * (height - padding * 2) / max
     return `${x},${y}`
   }).join(' ')
+  const hovered = hoveredIndex === null ? null : rows[hoveredIndex]
+  const hoveredX = hoveredIndex === null
+    ? 0
+    : padding + (rows.length <= 1 ? 0 : hoveredIndex * (width - padding * 2) / (rows.length - 1))
+  const pointY = (value: number) => height - padding - value * (height - padding * 2) / max
   if (!rows.length) return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
   return (
     <div>
@@ -83,19 +89,40 @@ function TrendChart({ rows }: { rows: AnalyticsDashboard['trend'] }) {
         <span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-violet-600" />UV</span>
       </div>
       <div className="overflow-x-auto">
-        <svg viewBox={`0 0 ${width} ${height}`} className="min-w-[680px]" role="img" aria-label="访问趋势图">
+        <div className="relative min-w-[680px]">
+        <svg viewBox={`0 0 ${width} ${height}`} className="block w-full" role="img" aria-label="访问趋势图" onMouseLeave={() => setHoveredIndex(null)}>
           {[0, 1, 2, 3, 4].map((line) => {
             const y = padding + line * (height - padding * 2) / 4
             return <line key={line} x1={padding} x2={width - padding} y1={y} y2={y} stroke="#e2e8f0" strokeWidth="1" />
           })}
           <polyline points={points('pv')} fill="none" stroke="#2563eb" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
           <polyline points={points('uv')} fill="none" stroke="#7c3aed" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
+          {hovered && (
+            <>
+              <line x1={hoveredX} x2={hoveredX} y1={padding} y2={height - padding} stroke="#94a3b8" strokeDasharray="4 4" />
+              <circle cx={hoveredX} cy={pointY(hovered.pv)} r="5" fill="#2563eb" stroke="white" strokeWidth="2" />
+              <circle cx={hoveredX} cy={pointY(hovered.uv)} r="5" fill="#7c3aed" stroke="white" strokeWidth="2" />
+            </>
+          )}
+          {rows.map((row, index) => {
+            const cellWidth = (width - padding * 2) / Math.max(1, rows.length)
+            const x = padding + index * (width - padding * 2) / Math.max(1, rows.length - 1)
+            return <rect key={`hit-${row.bucket}`} x={x - cellWidth / 2} y={padding} width={cellWidth} height={height - padding * 2} fill="transparent" onMouseEnter={() => setHoveredIndex(index)} />
+          })}
           {rows.map((row, index) => {
             if (index % Math.max(1, Math.ceil(rows.length / 7)) !== 0 && index !== rows.length - 1) return null
             const x = padding + (rows.length <= 1 ? 0 : index * (width - padding * 2) / (rows.length - 1))
             return <text key={row.bucket} x={x} y={height - 7} textAnchor="middle" fontSize="10" fill="#94a3b8">{row.bucket.slice(5)}</text>
           })}
         </svg>
+        {hovered && (
+          <div className="pointer-events-none absolute rounded-lg bg-slate-900 px-3 py-2 text-xs text-white shadow-lg" style={{ left: `${hoveredX / width * 100}%`, top: 8, transform: hoveredX > width * 0.78 ? 'translateX(-100%)' : 'translateX(8px)' }}>
+            <div className="mb-1 font-medium">{hovered.bucket}</div>
+            <div>PV：{hovered.pv}</div>
+            <div>UV：{hovered.uv}</div>
+          </div>
+        )}
+        </div>
       </div>
     </div>
   )
@@ -121,7 +148,7 @@ function InteractionBars({ rows }: { rows: AnalyticsDashboard['trend'] }) {
 }
 
 export default function ManageStatClient() {
-  const [preset, setPreset] = useState<'7' | '30' | '90'>('30')
+  const [preset, setPreset] = useState<'7' | '30' | '90' | undefined>('30')
   const [range, setRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(29, 'day'), dayjs()])
   const [data, setData] = useState<AnalyticsDashboard | null>(null)
   const [loading, setLoading] = useState(false)
@@ -131,8 +158,8 @@ export default function ManageStatClient() {
     setLoading(true)
     try {
       setData(await getAnalyticsDashboard({
-        startTime: range[0].startOf('day').unix(),
-        endTime: range[1].add(1, 'day').startOf('day').unix(),
+        start_time: range[0].startOf('day').unix(),
+        end_time: range[1].add(1, 'day').startOf('day').unix(),
       }))
     } catch {
       message.error('数据分析加载失败')
@@ -163,7 +190,7 @@ export default function ManageStatClient() {
             <Segmented value={preset} onChange={applyPreset} options={[{ label: '近 7 天', value: '7' }, { label: '近 30 天', value: '30' }, { label: '近 90 天', value: '90' }]} />
             <DatePicker.RangePicker value={range} allowClear={false} onChange={(value) => {
               if (value?.[0] && value[1]) {
-                setPreset('30')
+                setPreset(undefined)
                 setRange([value[0], value[1]])
               }
             }} />
