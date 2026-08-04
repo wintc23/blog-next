@@ -22,6 +22,7 @@ export const ProductLinkSchema = z.object({
   label: z.string(),
   url: z.string(),
   primary: z.boolean().default(false),
+  analyticsKey: z.string().default(''),
 })
 
 export const ProductSectionSchema = z.object({

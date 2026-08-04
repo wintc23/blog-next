@@ -367,12 +367,15 @@ export default function ProductSectionEditor({ sections, onChange }: Props) {
     return (
       <div className="space-y-3">
         {items.map((item, index) => (
-          <div key={index} className="grid items-center gap-2 rounded border border-[#edf0f4] p-3 sm:grid-cols-[160px_minmax(0,1fr)_110px_auto]">
+          <div key={index} className="grid items-center gap-2 rounded border border-[#edf0f4] p-3 sm:grid-cols-[150px_minmax(0,1fr)_150px_100px_auto]">
             <Input value={item.label} placeholder="按钮名称" onChange={(event) => updateContent(sectionIndex, {
               items: items.map((value, i) => i === index ? { ...value, label: event.target.value } : value),
             })} />
             <Input value={item.url} placeholder="https://" onChange={(event) => updateContent(sectionIndex, {
               items: items.map((value, i) => i === index ? { ...value, url: event.target.value } : value),
+            })} />
+            <Input value={item.analyticsKey} placeholder="统计标识" onChange={(event) => updateContent(sectionIndex, {
+              items: items.map((value, i) => i === index ? { ...value, analyticsKey: event.target.value.trim().replace(/[^a-zA-Z0-9_-]/g, '') } : value),
             })} />
             <div className="flex h-8 items-center px-2">
               <Checkbox className="flex items-center" checked={item.primary} onChange={(event) => updateContent(sectionIndex, {
@@ -382,7 +385,7 @@ export default function ProductSectionEditor({ sections, onChange }: Props) {
             <Button danger icon={<DeleteOutlined />} onClick={() => updateContent(sectionIndex, { items: items.filter((_, i) => i !== index) })} />
           </div>
         ))}
-        <Button type="dashed" block icon={<PlusOutlined />} onClick={() => updateContent(sectionIndex, { items: [...items, { label: '', url: '', primary: false }] })}>
+        <Button type="dashed" block icon={<PlusOutlined />} onClick={() => updateContent(sectionIndex, { items: [...items, { label: '', url: '', primary: false, analyticsKey: '' }] })}>
           添加链接
         </Button>
       </div>

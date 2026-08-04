@@ -1,5 +1,6 @@
 import ArticleContent from '@/components/ArticleContent'
 import ProductScreenshotGallery from '@/components/ProductScreenshotGallery'
+import TrackedProductLink from '@/components/TrackedProductLink'
 import type {
   ProductFeature,
   ProductLink,
@@ -9,6 +10,7 @@ import type {
 } from '@/lib/schemas/product'
 
 interface Props {
+  productId: number
   productName: string
   accentColor: string
   sections: ProductSection[]
@@ -165,7 +167,7 @@ function ImageText({ section, accentColor }: { section: ProductSection; accentCo
   )
 }
 
-function Links({ section, accentColor }: { section: ProductSection; accentColor: string }) {
+function Links({ section, accentColor, productId, productName }: { section: ProductSection; accentColor: string; productId: number; productName: string }) {
   const items = itemsFrom<ProductLink>(section)
   if (!items.length) return null
   return (
@@ -173,18 +175,21 @@ function Links({ section, accentColor }: { section: ProductSection; accentColor:
       <SectionHeading section={section} accentColor={accentColor} />
       <div className="flex flex-wrap gap-3">
         {items.map((link, index) => (
-          <a
+          <TrackedProductLink
             key={`${link.url}-${index}`}
+            productId={productId}
+            productName={productName}
+            linkKey={link.analyticsKey || `section-${section.id || section.sort}-link-${index + 1}`}
+            label={link.label}
             href={link.url}
-            target="_blank"
-            rel="noreferrer"
+            location={`section-${section.id || section.sort}`}
             className={`rounded px-5 py-2.5 font-medium transition hover:opacity-90 ${
               link.primary ? 'text-white' : 'border bg-white text-[#555]'
             }`}
             style={link.primary ? { backgroundColor: accentColor } : undefined}
           >
             {link.label}
-          </a>
+          </TrackedProductLink>
         ))}
       </div>
     </section>
@@ -205,7 +210,7 @@ function Callout({ section, accentColor }: { section: ProductSection; accentColo
   )
 }
 
-export default function ProductSections({ productName, accentColor, sections }: Props) {
+export default function ProductSections({ productId, productName, accentColor, sections }: Props) {
   const visible = sections
     .filter((section) => section.visible)
     .slice()
@@ -220,7 +225,7 @@ export default function ProductSections({ productName, accentColor, sections }: 
         if (section.type === 'gallery') return <Gallery key={key} section={section} productName={productName} accentColor={accentColor} />
         if (section.type === 'rich_text') return <RichText key={key} section={section} accentColor={accentColor} />
         if (section.type === 'image_text') return <ImageText key={key} section={section} accentColor={accentColor} />
-        if (section.type === 'links') return <Links key={key} section={section} accentColor={accentColor} />
+        if (section.type === 'links') return <Links key={key} section={section} accentColor={accentColor} productId={productId} productName={productName} />
         if (section.type === 'callout') return <Callout key={key} section={section} accentColor={accentColor} />
         return null
       })}

@@ -345,9 +345,10 @@ export default function ManageProductEditorClient() {
         <EditorSection title="主视觉按钮" description="显示在作品详情页首屏，可配置官网、商店或代码仓库。">
           <div className="space-y-3">
             {draft.links.map((link, index) => (
-              <div key={index} className="grid items-center gap-2 rounded border border-[#edf0f4] p-3 sm:grid-cols-[160px_minmax(0,1fr)_110px_auto]">
+              <div key={index} className="grid items-center gap-2 rounded border border-[#edf0f4] p-3 sm:grid-cols-[150px_minmax(0,1fr)_150px_100px_auto]">
                 <Input value={link.label} placeholder="按钮名称" onChange={(e) => updateLink(index, { label: e.target.value })} />
                 <Input value={link.url} placeholder="https://" onChange={(e) => updateLink(index, { url: e.target.value })} />
+                <Input value={link.analyticsKey} placeholder="统计标识，如 store" onChange={(e) => updateLink(index, { analyticsKey: e.target.value.trim().replace(/[^a-zA-Z0-9_-]/g, '') })} />
                 <div className="flex h-8 items-center px-2">
                   <Checkbox className="flex items-center" checked={link.primary} onChange={(e) => updateLink(index, { primary: e.target.checked })}>
                     主按钮
@@ -356,7 +357,7 @@ export default function ManageProductEditorClient() {
                 <Button danger icon={<DeleteOutlined />} onClick={() => update({ links: draft.links.filter((_, i) => i !== index) })} />
               </div>
             ))}
-            <Button type="dashed" block icon={<PlusOutlined />} onClick={() => update({ links: [...draft.links, { label: '', url: '', primary: false }] })}>
+            <Button type="dashed" block icon={<PlusOutlined />} onClick={() => update({ links: [...draft.links, { label: '', url: '', primary: false, analyticsKey: '' }] })}>
               添加按钮
             </Button>
           </div>

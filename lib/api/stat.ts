@@ -1,5 +1,9 @@
 import { apiFetch, apiFetchServer } from './client'
-import { SiteStatSummarySchema, StatReportSchema } from '@/lib/schemas'
+import {
+  SiteStatSummarySchema,
+  StatReportSchema,
+  AnalyticsDashboardSchema,
+} from '@/lib/schemas'
 
 export function getSiteStatSummary(server = false) {
   return (server ? apiFetchServer : apiFetch)('/get-site-stat-summary/', {
@@ -19,4 +23,11 @@ export function getStatEventsInfo(params: Record<string, unknown>) {
 
 export function getSiteStatReport(params: Record<string, unknown>) {
   return apiFetch('/get-site-stat-report/', { params, schema: StatReportSchema })
+}
+
+export function getAnalyticsDashboard(params: Record<string, unknown>) {
+  return apiFetch('/analytics/dashboard/', {
+    params,
+    schema: AnalyticsDashboardSchema,
+  })
 }

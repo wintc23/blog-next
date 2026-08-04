@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import ProductSections from '@/components/ProductSections'
+import TrackedProductLink from '@/components/TrackedProductLink'
 import { getProduct } from '@/lib/api/products'
 import { ApiError } from '@/lib/api/client'
 import { SITE } from '@/lib/config'
@@ -87,19 +88,22 @@ export default async function ProductDetailPage({ params }: Props) {
 
             {product.links.length > 0 && (
               <div className="mt-8 flex flex-wrap gap-3">
-                {product.links.map((link) => (
-                  <a
+                {product.links.map((link, index) => (
+                  <TrackedProductLink
                     key={`${link.label}-${link.url}`}
+                    productId={product.id}
+                    productName={product.name}
+                    linkKey={link.analyticsKey || `link-${index + 1}`}
+                    label={link.label}
                     href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
+                    location="hero"
                     className={`rounded px-5 py-2.5 font-medium transition hover:opacity-90 ${
                       link.primary ? 'text-white' : 'border bg-white text-[#555]'
                     }`}
                     style={link.primary ? { backgroundColor: accent } : undefined}
                   >
                     {link.label}
-                  </a>
+                  </TrackedProductLink>
                 ))}
               </div>
             )}
@@ -118,6 +122,7 @@ export default async function ProductDetailPage({ params }: Props) {
         </div>
       </section>
       <ProductSections
+        productId={product.id}
         productName={product.name}
         accentColor={accent}
         sections={product.sections}

@@ -51,7 +51,7 @@ const MENU = [
   { key: '/manage/comment', label: '评论管理', icon: <CommentOutlined /> },
   { key: '/manage/message', label: '留言管理', icon: <MessageOutlined /> },
   { key: '/manage/ai-key', label: 'AI Key', icon: <RobotOutlined /> },
-  { key: '/manage/stat', label: '访问统计', icon: <BarChartOutlined /> },
+  { key: '/manage/stat', label: '数据分析', icon: <BarChartOutlined /> },
 ]
 
 export default function ManageLayoutClient({ children }: { children: React.ReactNode }) {
@@ -110,7 +110,7 @@ export default function ManageLayoutClient({ children }: { children: React.React
           href="/"
           className="ml-4 rounded bg-[#409eff] px-3 py-1 text-sm font-bold text-white"
         >
-          Home
+          站点首页
         </Link>
         <div className="ml-auto">
           <Menu
