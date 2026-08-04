@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu } from 'antd'
+import { Button, Dropdown, Menu } from 'antd'
 import {
   BookOutlined,
   TagsOutlined,
@@ -11,9 +11,9 @@ import {
   BarChartOutlined,
   RobotOutlined,
   AppstoreOutlined,
+  DownOutlined,
 } from '@ant-design/icons'
 import { useEffect } from 'react'
-import { Button } from 'antd'
 import { useUser, useShowLogin } from '@/lib/store'
 
 /**
@@ -110,9 +110,9 @@ export default function ManageLayoutClient({ children }: { children: React.React
           href="/"
           className="ml-4 rounded bg-[#409eff] px-3 py-1 text-sm font-bold text-white"
         >
-          站点首页
+          首页
         </Link>
-        <div className="ml-auto">
+        <div className="ml-auto hidden lg:block">
           <Menu
             mode="horizontal"
             selectedKeys={[selectedKey]}
@@ -123,6 +123,25 @@ export default function ManageLayoutClient({ children }: { children: React.React
             }))}
             style={{ borderBottom: 'none', minWidth: 820 }}
           />
+        </div>
+        <div className="ml-auto mr-4 lg:hidden">
+          <Dropdown
+            trigger={['click']}
+            menu={{
+              selectedKeys: [selectedKey],
+              onClick: ({ key }) => router.push(key),
+              items: MENU.map((m) => ({
+                key: m.key,
+                icon: m.icon,
+                label: m.label,
+              })),
+            }}
+          >
+            <Button type="text">
+              {MENU.find((item) => item.key === selectedKey)?.label || '管理菜单'}
+              <DownOutlined className="ml-1 text-xs" />
+            </Button>
+          </Dropdown>
         </div>
       </div>
       <div className="flex-1 overflow-auto bg-white">{children}</div>
