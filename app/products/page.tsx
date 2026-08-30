@@ -89,6 +89,13 @@ function ProductCard({ product }: { product: Product }) {
         {product.summary && (
           <p className="mb-0 mt-2 line-clamp-3 leading-6 text-[#666]">{product.summary}</p>
         )}
+        <span
+          className="mt-5 inline-flex items-center rounded px-4 py-2 text-sm font-medium text-white transition group-hover:opacity-90"
+          style={{ backgroundColor: product.accentColor }}
+        >
+          查看详情
+          <span className="ml-2" aria-hidden="true">→</span>
+        </span>
       </div>
     </a>
   )
