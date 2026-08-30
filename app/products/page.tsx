@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { getProducts } from '@/lib/api/products'
 import { SITE } from '@/lib/config'
 import type { Product } from '@/lib/schemas/product'
@@ -56,86 +55,11 @@ function ProductBadges({ product }: { product: Product }) {
   )
 }
 
-function FeaturedProduct({ product }: { product: Product }) {
-  return (
-    <article className="ws overflow-hidden rounded-sm">
-      <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="flex flex-col justify-center p-7 sm:p-10 lg:p-12">
-          <div className="flex items-center gap-4">
-            <ProductLogo product={product} large />
-            <div>
-              <h2 className="m-0 text-3xl font-bold text-[#222]">{product.name}</h2>
-              <div className="mt-2">
-                <ProductBadges product={product} />
-              </div>
-            </div>
-          </div>
-
-          {product.tagline && (
-            <h3 className="mb-0 mt-7 text-2xl font-semibold leading-tight text-[#222]">
-              {product.tagline}
-            </h3>
-          )}
-          {product.summary && (
-            <p className="mb-0 mt-4 text-base leading-7 text-[#666]">
-              {product.summary}
-            </p>
-          )}
-
-          {product.highlights.length > 0 && (
-            <div className="mt-6 flex flex-wrap gap-2">
-              {product.highlights.map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full px-3 py-1.5 text-sm"
-                  style={{
-                    color: product.accentColor,
-                    backgroundColor: `${product.accentColor}12`,
-                  }}
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-8">
-            <Link
-              href={`/products/${product.slug}`}
-              className="inline-flex items-center rounded px-5 py-2.5 font-medium text-white transition hover:opacity-90"
-              style={{ backgroundColor: product.accentColor }}
-            >
-              查看详情
-              <span className="ml-2" aria-hidden="true">→</span>
-            </Link>
-          </div>
-        </div>
-
-        <Link
-          href={`/products/${product.slug}`}
-          className="relative flex min-h-64 items-center justify-center overflow-hidden bg-[#eef4ff] p-5 sm:p-8"
-          style={{ backgroundColor: `${product.accentColor}0d` }}
-        >
-          {product.coverUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={product.coverUrl}
-              alt={`${product.name} 产品界面`}
-              className="w-full rounded-lg shadow-xl transition duration-500 hover:scale-[1.015]"
-            />
-          ) : (
-            <ProductLogo product={product} large />
-          )}
-        </Link>
-      </div>
-    </article>
-  )
-}
-
 function ProductCard({ product }: { product: Product }) {
   return (
-    <Link
+    <a
       href={`/products/${product.slug}`}
+      aria-label={`查看 ${product.name} 详情`}
       className="ws group block overflow-hidden rounded-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
     >
       {product.coverUrl && (
@@ -166,15 +90,12 @@ function ProductCard({ product }: { product: Product }) {
           <p className="mb-0 mt-2 line-clamp-3 leading-6 text-[#666]">{product.summary}</p>
         )}
       </div>
-    </Link>
+    </a>
   )
 }
 
 export default async function ProductsPage() {
   const { list } = await getProducts(true)
-  const featured = list.find((item) => item.featured) || list[0]
-  const others = featured ? list.filter((item) => item.id !== featured.id) : []
-
   return (
     <div className="space-y-4">
       <section className="relative overflow-hidden rounded-sm bg-[#101828] text-white shadow-[0_16px_45px_rgba(16,24,40,0.18)]">
@@ -243,20 +164,12 @@ export default async function ProductsPage() {
         </div>
       </section>
 
-      {featured ? (
-        <>
-          <FeaturedProduct product={featured} />
-          {others.length > 0 && (
-            <section>
-              <h2 className="mb-4 mt-8 text-xl text-[#333]">更多作品</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {others.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            </section>
-          )}
-        </>
+      {list.length > 0 ? (
+        <section className="grid gap-4 sm:grid-cols-2">
+          {list.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </section>
       ) : (
         <div className="ws rounded-sm px-6 py-16 text-center text-[#888]">
           作品正在整理中，稍后再来看看吧。
