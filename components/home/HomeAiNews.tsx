@@ -21,8 +21,10 @@ export default function HomeAiNews({ data }: { data: AiDigestHome }) {
             <div className={styles.meta}><span className={styles.today}>{isToday ? '今日动态' : '最新动态'}</span><time dateTime={featured.issueDate}>{featured.issueDate.replaceAll('-', '.')}</time><span>{formatCount(featured.readTimes)} 次阅读</span></div>
             <h3><Link href={`/ai-news/${featured.id}`}>{featured.title}</Link></h3>
             <p>{featured.summary}</p>
-            {!!featured.groups?.length && <div className={styles.groups}>{featured.groups.map(group => <Link key={group.id} href={`/ai-news/${featured.id}#digest-group-${group.id}`}>{group.title}<span>{group.count}</span></Link>)}</div>}
-            <Link href={`/ai-news/${featured.id}`} className={styles.read}>阅读全文 <span aria-hidden="true">↗</span></Link>
+            <div className={styles.actions}>
+              {!!featured.groups?.length && <div className={styles.groups}>{featured.groups.map(group => <Link key={group.id} href={`/ai-news/${featured.id}#digest-group-${group.id}`}>{group.title}<span>{group.count}</span></Link>)}</div>}
+              <Link href={`/ai-news/${featured.id}`} className={styles.read}>阅读全文 <span aria-hidden="true">↗</span></Link>
+            </div>
           </div>
         </article>
         <aside className={styles.history} aria-labelledby="ai-news-history-title">
