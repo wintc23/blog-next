@@ -32,6 +32,8 @@ export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params
   const product = await loadProduct(slug)
   const accent = product.accentColor || '#2d8cf0'
+  const primaryLinkIndex = Math.max(0, product.links.findIndex((link) => link.primary))
+  const primaryLink = product.links[primaryLinkIndex]
 
   return (
     <div className="space-y-4">
@@ -53,24 +55,24 @@ export default async function ProductDetailPage({ params }: Props) {
           <span className="truncate text-[#98a2b3]">{product.name}</span>
         </div>
         <div
-          className="grid lg:grid-cols-[0.85fr_1.15fr]"
+          className="grid lg:grid-cols-2"
           style={{ background: `linear-gradient(135deg, #fff 45%, ${accent}0d)` }}
         >
-          <div className="flex flex-col justify-center p-7 sm:p-10 lg:p-12">
-            <div className="flex items-center gap-4">
+          <div className="flex min-w-0 flex-col justify-center p-6 sm:p-10 lg:p-12">
+            <div className="flex items-center gap-3 sm:gap-4">
               {product.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={product.logoUrl} alt="" className="h-16 w-16 rounded-2xl shadow-sm" />
+                <img src={product.logoUrl} alt="" className="h-12 w-12 shrink-0 rounded-xl shadow-sm sm:h-16 sm:w-16 sm:rounded-2xl" />
               ) : (
                 <div
-                  className="flex h-16 w-16 items-center justify-center rounded-2xl text-2xl font-bold text-white"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl font-bold text-white sm:h-16 sm:w-16 sm:rounded-2xl"
                   style={{ backgroundColor: accent }}
                 >
                   {product.name.slice(0, 1)}
                 </div>
               )}
-              <div>
-                <h1 className="m-0 text-4xl font-bold text-[#222]">{product.name}</h1>
+              <div className="min-w-0">
+                <h1 className="m-0 break-words text-2xl font-bold text-[#222] sm:text-3xl">{product.name}</h1>
                 <div className="mt-2 flex flex-wrap gap-2 text-xs text-[#666]">
                   {product.platform && <span>{product.platform}</span>}
                   {product.version && <span>· v{product.version}</span>}
@@ -86,26 +88,38 @@ export default async function ProductDetailPage({ params }: Props) {
               <p className="mb-0 mt-4 text-base leading-7 text-[#666]">{product.summary}</p>
             )}
 
-            {product.links.length > 0 && (
-              <div className="mt-8 flex flex-wrap gap-3">
-                {product.links.map((link, index) => (
-                  <TrackedProductLink
-                    key={`${link.label}-${link.url}`}
-                    productId={product.id}
-                    productName={product.name}
-                    linkKey={link.analyticsKey || `link-${index + 1}`}
-                    label={link.label}
-                    href={link.url}
-                    location="hero"
-                    className={`rounded px-5 py-2.5 font-medium transition hover:opacity-90 ${
-                      link.primary ? 'text-white' : 'border bg-white text-[#555]'
-                    }`}
-                    style={link.primary ? { backgroundColor: accent } : undefined}
-                  >
-                    {link.label}
-                  </TrackedProductLink>
-                ))}
-              </div>
+            {primaryLink && (
+              <nav aria-label="作品相关链接" className="mt-7 flex flex-col items-start gap-2">
+                <TrackedProductLink
+                  productId={product.id}
+                  productName={product.name}
+                  linkKey={primaryLink.analyticsKey || `link-${primaryLinkIndex + 1}`}
+                  label={primaryLink.label}
+                  href={primaryLink.url}
+                  location="hero"
+                  className="inline-flex min-h-11 max-w-full items-center justify-center rounded bg-[#2d8cf0] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#57a3f3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2d8cf0]"
+                >
+                  <span className="min-w-0 break-words">{primaryLink.label}</span>
+                </TrackedProductLink>
+                {product.links.length > 1 && (
+                  <div className="flex max-w-full flex-wrap gap-x-6 gap-y-1">
+                    {product.links.map((link, index) => index !== primaryLinkIndex && (
+                      <TrackedProductLink
+                        key={`${link.label}-${link.url}`}
+                        productId={product.id}
+                        productName={product.name}
+                        linkKey={link.analyticsKey || `link-${index + 1}`}
+                        label={link.label}
+                        href={link.url}
+                        location="hero"
+                        className="inline-flex min-h-11 max-w-full items-center rounded-sm text-sm text-[#667085] underline-offset-4 transition-colors hover:text-[#222] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2d8cf0]"
+                      >
+                        <span className="min-w-0 break-words">{link.label}</span>
+                      </TrackedProductLink>
+                    ))}
+                  </div>
+                )}
+              </nav>
             )}
           </div>
 
@@ -114,8 +128,8 @@ export default async function ProductDetailPage({ params }: Props) {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={product.coverUrl}
-                alt={`${product.name} 产品界面`}
-                className="w-full rounded-lg shadow-xl"
+                alt={`${product.name} 作品概念封面`}
+                className="block aspect-[5/2] w-full rounded-lg object-contain shadow-xl"
               />
             )}
           </div>

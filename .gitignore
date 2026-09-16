@@ -1,9 +1,9 @@
 node_modules
 .next
+.next-*/
 out
 .env*.local
 .env.playwright
 next-env.d.ts
 .DS_Store
 *.tsbuildinfo
-

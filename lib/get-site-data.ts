@@ -1,4 +1,5 @@
 import { getAdminInfo } from './api/users'
+import { getPersonalProfile } from './api/personal-profile'
 import { getSiteStatSummary } from './api/stat'
 import { getTagList } from './api/tags'
 import { getTopicList } from './api/topics'
@@ -16,9 +17,10 @@ export async function getSiteData(): Promise<SiteData> {
     }
   }
 
-  const [admin, siteStatSummary, tags, topTenRes, topics, links, postTypes] =
+  const [admin, personalProfile, siteStatSummary, tags, topTenRes, topics, links, postTypes] =
     await Promise.all([
       safe(getAdminInfo(true), null),
+      safe(getPersonalProfile(true), null),
       safe(getSiteStatSummary(true), null),
       safe(getTagList(true), { list: [] as SiteData['tagList'] }),
       safe(getTopTen(true), { list: [] as SiteData['topTen'] }),
@@ -29,6 +31,7 @@ export async function getSiteData(): Promise<SiteData> {
 
   return {
     admin,
+    personalProfile,
     siteStatSummary,
     tagList: tags.list || [],
     topTen: topTenRes.list || [],

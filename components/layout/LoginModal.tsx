@@ -81,10 +81,14 @@ export default function LoginModal() {
       }
       if (type !== 'login-state') return
       if (state) {
-        hideLogin()
-        refresh().then(() => {
-          message.info('请设置邮箱,以便及时收到关于您的消息')
-        })
+        refresh()
+          .then((user) => {
+            hideLogin()
+            if (!user.email) message.info('请设置邮箱,以便及时收到关于您的消息')
+          })
+          .catch((error) => {
+            message.error(error instanceof Error ? `登录信息获取失败：${error.message}` : '登录信息获取失败，请重试')
+          })
       } else {
         message.error('登录失败,请重试')
       }

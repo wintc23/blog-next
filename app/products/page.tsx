@@ -11,7 +11,9 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 function ProductLogo({ product, large = false }: { product: Product; large?: boolean }) {
-  const size = large ? 'h-16 w-16 rounded-2xl' : 'h-12 w-12 rounded-xl'
+  const size = large
+    ? 'h-12 w-12 shrink-0 rounded-xl sm:h-16 sm:w-16 sm:rounded-2xl'
+    : 'h-12 w-12 shrink-0 rounded-xl'
   if (product.logoUrl) {
     return (
       // Product logos are managed URLs and may come from different CDNs.
@@ -64,14 +66,14 @@ function ProductCard({ product }: { product: Product }) {
     >
       {product.coverUrl && (
         <div
-          className="aspect-[16/9] overflow-hidden p-4"
+          className="aspect-[5/2] overflow-hidden"
           style={{ backgroundColor: `${product.accentColor}0d` }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={product.coverUrl}
-            alt={`${product.name} 产品界面`}
-            className="h-full w-full rounded object-cover shadow-sm transition duration-500 group-hover:scale-[1.02]"
+            alt={`${product.name} 作品概念封面`}
+            className="block h-full w-full object-contain"
           />
         </div>
       )}

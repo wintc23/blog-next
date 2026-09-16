@@ -1,0 +1,136 @@
+.shell {
+  --ink: #333;
+  --muted: #777;
+  --line: #e9eef5;
+  --accent: #2d8cf0;
+  background: #f6f9fd;
+}
+
+.layout:global(.layout-main) {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 1040px;
+  padding: 32px 20px 44px;
+}
+.layout :global(.nuxt-container) { padding: 0; overflow: visible; }
+.home { color: var(--ink); }
+.profile {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 370px);
+  align-items: start;
+  gap: 48px;
+  padding-block: 20px 38px;
+  margin-block-end: 32px;
+  border-block-end: 1px solid #e1eaf6;
+}
+.profileMain { min-inline-size: 0; }
+.profileIdentity { display: flex; align-items: center; gap: 24px; }
+.avatar { display: block; flex-shrink: 0; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 2px 12px #2d8cf014; }
+.profileContent { min-inline-size: 0; }
+.profileContent h1 { margin: 0; font-size: 32px; line-height: 1.4; font-weight: 500; color: #333; overflow-wrap: anywhere; }
+.bio { margin: 7px 0 0; font-size: 15px; line-height: 1.8; color: #707b8a; }
+.profileIntroduction { max-inline-size: 760px; margin-block-start: 26px; overflow-wrap: anywhere; }
+.profileIntroduction p { margin: 10px 0 0; color: #5c6674; font-size: 15px; line-height: 1.9; white-space: pre-line; text-wrap: pretty; }
+.profileIntroduction .introductionLead { margin-block-start: 0; color: var(--ink); font-size: 19px; }
+.affiliations { display: flex; flex-wrap: wrap; gap: 12px 36px; margin: 20px 0 0; padding: 0; list-style: none; }
+.affiliations + .profileIntroduction { margin-block-start: 20px; }
+.affiliations li { min-inline-size: 0; max-inline-size: 100%; }
+.affiliation { display: flex; align-items: center; gap: 10px; min-block-size: 44px; border-radius: 4px; color: #536173; }
+.affiliation > span:last-child { min-inline-size: 0; }
+.affiliationLogo { display: grid; place-items: center; flex-shrink: 0; inline-size: 32px; block-size: 32px; }
+.affiliationLogo img { display: block; inline-size: 100%; block-size: 100%; object-fit: contain; }
+.affiliationLabel { display: block; color: #7b8796; font-size: 0.6875rem; line-height: 1.6; }
+.affiliationName { display: block; font-size: 0.875rem; font-weight: 500; line-height: 1.6; overflow-wrap: anywhere; }
+.profileLinks { display: flex; align-items: center; flex-wrap: wrap; gap: 22px; margin-block-start: 22px; font-size: 13px; }
+.profileLinks a { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); overflow-wrap: anywhere; }
+.profileLinks a:hover { text-decoration: underline; }
+.communityLinks, .navigationLinks { display: flex; align-items: center; flex-wrap: wrap; min-inline-size: 0; }
+.communityLinks { gap: 10px; }
+.navigationLinks { gap: 8px 22px; }
+.communityLinks + .navigationLinks { padding-inline-start: 22px; border-inline-start: 1px solid #dce5f0; }
+.navigationLinks > a, .navigationLinks > button { min-block-size: 36px; }
+.profileLinks .communityLink { min-block-size: 36px; max-inline-size: 100%; padding: 6px 12px; border: 1px solid #dce5f0; border-radius: 6px; background: #fff; color: #536173; }
+.communityLink :global(.anticon) { flex-shrink: 0; font-size: 17px; }
+.profileLinks .communityLink:hover { border-color: #b7d6fa; color: var(--accent); text-decoration: none; }
+.home a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.sectionHeader { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-block-end: 18px; }
+.sectionHeader h2 { margin: 0; font-size: 24px; line-height: 1.5; font-weight: 500; color: var(--accent); }
+.textLink { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--accent); }
+.textLink:hover { text-decoration: underline; }
+.carouselStage { position: relative; }
+.carouselViewport { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; border-radius: 8px; }
+.carouselViewport::-webkit-scrollbar { display: none; }
+.coverNavigation { position: absolute; inset-block-start: 0; inset-inline: 0; aspect-ratio: 2.5; display: flex; align-items: center; justify-content: space-between; padding-inline: 14px; pointer-events: none; }
+.coverButton { display: grid; place-items: center; flex-shrink: 0; inline-size: 40px; block-size: 40px; padding: 0; border: 1px solid #dce5ef; border-radius: 50%; background: #fffffff0; color: #536173; box-shadow: 0 2px 8px #24395014; font-size: 15px; cursor: pointer; pointer-events: auto; }
+.coverButton:hover { border-color: #b7d6fa; background: #fff; color: var(--accent); }
+.coverButton:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.productCard { min-inline-size: 0; scroll-snap-align: start; border: 1px solid #e3eaf4; border-radius: 8px; background: #fff; }
+.carouselControls { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-block-start: 12px; }
+.carouselDots, .carouselNavigation { display: flex; align-items: center; }
+.carouselNavigation { gap: 6px; }
+.carouselDot, .carouselButton { display: grid; place-items: center; flex-shrink: 0; inline-size: 36px; block-size: 36px; padding: 0; border: 0; border-radius: 5px; background: transparent; color: #7c899a; cursor: pointer; }
+.carouselDot { inline-size: 28px; }
+.carouselDot span { inline-size: 6px; block-size: 6px; border-radius: 6px; background: #cbd8e8; }
+.carouselDot[aria-current] span { inline-size: 20px; background: var(--accent); }
+.carouselButton { border: 1px solid #e3eaf4; background: #fff; font-size: 12px; }
+.carouselButton:hover { color: var(--accent); border-color: #b7d6fa; }
+.carouselCount { margin-inline-end: 10px; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.carouselDot:focus-visible, .carouselButton:focus-visible, .carouselViewport:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.productCard a:focus-visible { outline-offset: -3px; }
+.productVisual { border-radius: 7px 7px 0 0; display: block; aspect-ratio: 2.5; overflow: clip; background: #edf3fd; }
+.productVisual img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; }
+.coverFallback { display: grid; place-items: center; block-size: 100%; padding: 20px; overflow-wrap: anywhere; font-size: clamp(24px, 5vw, 48px); color: var(--accent); }
+.productInfo { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 24px 28px; overflow-wrap: anywhere; }
+.productIdentity { display: flex; align-items: center; gap: 12px; max-inline-size: 100%; }
+.productLogo { display: block; flex-shrink: 0; border-radius: 8px; }
+.productHeading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 16px; min-inline-size: 0; }
+.productMeta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.productIdentity h3 { margin: 0; font-size: 22px; font-weight: 500; line-height: 1.4; }
+.productIdentity h3 a { color: var(--ink); }
+.productIdentity h3 a:hover { color: var(--accent); }
+.summary { max-inline-size: 860px; margin: 0; color: #667180; font-size: 14px; line-height: 1.85; text-wrap: pretty; }
+.highlights { display: flex; flex-wrap: wrap; gap: 6px 12px; margin: 0; padding: 0; list-style: none; }
+.highlights li { display: inline-flex; align-items: center; gap: 12px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.highlights li:not(:last-child)::after { content: '·'; color: #aeb9c7; }
+.primaryLink { display: inline-flex; align-items: center; gap: 8px; min-block-size: 36px; color: var(--accent); font-size: 13px; font-weight: 500; }
+.primaryLink:hover { color: #1674d5; text-decoration: underline; text-underline-offset: 3px; }
+.emptyWork { padding: 30px; border-radius: 2px; background: #fff; color: var(--muted); }
+
+@media (max-width: 780px) {
+  .profile { grid-template-columns: minmax(0, 1fr); gap: 30px; }
+}
+
+@media (max-width: 700px) {
+  .layout:global(.layout-main) { padding-block: 24px 30px; }
+  .profile { padding-block: 12px 28px; margin-block-end: 26px; }
+  .profileIdentity { gap: 18px; }
+  .avatar { inline-size: 72px; block-size: 72px; }
+  .profileContent h1 { font-size: 27px; }
+  .bio { font-size: 13px; margin-block-start: 5px; }
+  .profileIntroduction { margin-block-start: 23px; }
+  .profileIntroduction p { font-size: 14px; }
+  .profileIntroduction .introductionLead { font-size: 17px; }
+  .affiliations { column-gap: 28px; margin-block-start: 20px; }
+  .profileLinks { flex-direction: column; align-items: flex-start; gap: 12px; margin-block-start: 20px; }
+  .communityLinks + .navigationLinks { padding-inline-start: 0; border-inline-start: 0; }
+  .sectionHeader h2 { font-size: 21px; }
+  .productInfo { padding: 20px; }
+  .productIdentity h3 { font-size: 20px; }
+  .coverNavigation { padding-inline: 0; }
+  .coverButton:first-child { transform: translateX(calc(-50% + 2px)); }
+  .coverButton:last-child { transform: translateX(calc(50% - 2px)); }
+  .coverButton:focus-visible { outline-offset: -3px; }
+}
+
+@media (max-width: 599px) {
+  .shell:global(.layout) { padding-block-start: 124px; }
+  .layout:global(.layout-main) { padding-block-start: 16px; }
+}
+
+@media (pointer: coarse) {
+  .profileLinks a, .navigationLinks > button { min-block-size: 44px; }
+  .primaryLink { min-block-size: 44px; }
+  .carouselButton { inline-size: 44px; block-size: 44px; }
+  .coverButton { inline-size: 44px; block-size: 44px; }
+  .carouselDot { block-size: 44px; }
+}

@@ -43,10 +43,8 @@ function LoginInner() {
     if (processedCodes.has(code)) return
     processedCodes.add(code)
 
-    console.log('[login] exchanging code', code.slice(0, 6) + '…')
     githubLogin(code)
       .then((res) => {
-        console.log('[login] backend response', res)
         if (res?.token) {
           setTokenClient(res.token)
           setStatus('登录成功,正在跳转…')
@@ -57,7 +55,6 @@ function LoginInner() {
         }
       })
       .catch((err) => {
-        console.error('[login] failed', err)
         setStatus(`登录失败: ${err?.message || '未知错误'}`)
         notify(false)
       })

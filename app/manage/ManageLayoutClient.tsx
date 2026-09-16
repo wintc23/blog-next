@@ -12,6 +12,8 @@ import {
   RobotOutlined,
   AppstoreOutlined,
   DownOutlined,
+  UserOutlined,
+  CameraOutlined,
 } from '@ant-design/icons'
 import { useEffect } from 'react'
 import { useUser, useShowLogin } from '@/lib/store'
@@ -46,7 +48,11 @@ function ArticleEditorShell({ children }: { children: React.ReactNode }) {
 
 const MENU = [
   { key: '/manage', label: '文章管理', icon: <BookOutlined /> },
+  { key: '/manage/profile', label: '个人信息', icon: <UserOutlined /> },
+  { key: '/manage/moments', label: '生活动态', icon: <CameraOutlined /> },
   { key: '/manage/product', label: '作品管理', icon: <AppstoreOutlined /> },
+  { key: '/manage/generation', label: '生成管理', icon: <RobotOutlined /> },
+  { key: '/manage/content', label: '内容管理', icon: <BookOutlined /> },
   { key: '/manage/topic', label: '标签/分类', icon: <TagsOutlined /> },
   { key: '/manage/comment', label: '评论管理', icon: <CommentOutlined /> },
   { key: '/manage/message', label: '留言管理', icon: <MessageOutlined /> },
@@ -104,7 +110,7 @@ export default function ManageLayoutClient({ children }: { children: React.React
       .find((k) => pathname === k || pathname?.startsWith(k + '/')) || '/manage'
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col">
+    <div className={`flex flex-col ${pathname?.startsWith('/manage/ai-digest') ? 'h-dvh' : 'h-[calc(100vh-4rem)]'}`}>
       <div className="relative z-[1] flex items-center bg-white shadow">
         <Link
           href="/"

@@ -20,7 +20,7 @@ export const ALGOLIA_INDEX_NAME =
 export const SITE_NAME = '沐码小站'
 export const SITE_SLOGON = '分享编程与生活'
 export const SITE_KEYWORDS =
-  '沐码小站,编程,JS,HTML,CSS,Python,技术博客,wintc,牛书书,木马啊'
+  '沐码小站,编程,JS,HTML,CSS,Python,技术博客,wintc,木马啊'
 export const SITE_DESCRIPTION = `${SITE_NAME}，${SITE_SLOGON}。`
 
 export const SITE = {
@@ -30,7 +30,7 @@ export const SITE = {
   url: 'https://wintc.top',
   keywords: SITE_KEYWORDS,
   description: `${SITE_NAME},${SITE_SLOGON}。`,
-  copyright: `Copyright © 2019-${new Date().getUTCFullYear()} 牛书书`,
+  copyright: `Copyright © 2019-${new Date().getUTCFullYear()}`,
   githubHomePage: 'https://github.com/wintc23',
   location: '深圳',
 }

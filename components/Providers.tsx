@@ -1,5 +1,6 @@
 'use client'
 
+import '@ant-design/v5-patch-for-react-19'
 import { ConfigProvider, App as AntdApp } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { SWRConfig } from 'swr'

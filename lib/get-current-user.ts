@@ -1,4 +1,5 @@
 import { apiFetchServer } from './api/client'
+import { cookies } from 'next/headers'
 import { UserSchema } from './schemas'
 import type { User } from './schemas'
 
@@ -9,7 +10,9 @@ import type { User } from './schemas'
  */
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    return (await apiFetchServer('/get-self/', { schema: UserSchema })) as User
+    const token = (await cookies()).get('token')?.value
+    if (!token) return null
+    return await apiFetchServer('/get-self/', { schema: UserSchema, token })
   } catch {
     return null
   }

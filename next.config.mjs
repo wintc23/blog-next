@@ -1,6 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  distDir: process.env.NEXT_DIST_DIR || '.next',
+  async redirects() {
+    if (process.env.NODE_ENV !== 'development') return []
+    // GitHub's local callback uses 127.0.0.1. Keep the page on that
+    // host too, so the popup and opener share the login cookie.
+    return [{
+      source: '/:path*',
+      has: [{ type: 'host', value: 'localhost' }],
+      destination: 'http://127.0.0.1:8000/:path*',
+      permanent: false,
+    }]
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'file.wintc.top' },

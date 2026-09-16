@@ -184,9 +184,8 @@ function Links({ section, accentColor, productId, productName }: { section: Prod
             href={link.url}
             location={`section-${section.id || section.sort}`}
             className={`rounded px-5 py-2.5 font-medium transition hover:opacity-90 ${
-              link.primary ? 'text-white' : 'border bg-white text-[#555]'
+              link.primary ? 'bg-[#2d8cf0] text-white' : 'border bg-white text-[#555]'
             }`}
-            style={link.primary ? { backgroundColor: accentColor } : undefined}
           >
             {link.label}
           </TrackedProductLink>

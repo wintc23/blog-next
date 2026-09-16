@@ -43,11 +43,12 @@ export default function Header() {
   }, [setHeaderOffset])
 
   const navList = [
+    { title: '首页', path: '/', active: pathname === '/' },
     {
       title: '博客',
-      path: '/',
+      path: '/article',
       active:
-        pathname === '/' ||
+        pathname === '/article' ||
         pathname?.startsWith('/article/') ||
         pathname?.startsWith('/tag/'),
     },
@@ -55,11 +56,6 @@ export default function Header() {
       title: '作品',
       path: '/products',
       active: pathname === '/products' || pathname?.startsWith('/products/'),
-    },
-    {
-      title: '关于',
-      path: '/about',
-      active: pathname === '/about' || pathname?.startsWith('/about/'),
     },
     {
       title: '留言',
@@ -78,12 +74,12 @@ export default function Header() {
   return (
     <header ref={ref} className={`layout-header ${state}`}>
       <div className="layout-header-main">
-        <h1 className="site-title">
+        <div className="site-title">
           <Link href="/" className="title-content">
             {SITE.title}
           </Link>
-        </h1>
-        <nav className="nav-list">
+        </div>
+        <nav className="nav-list" aria-label="主导航">
           {navList.map((nav) => (
             <Link
               key={nav.path}

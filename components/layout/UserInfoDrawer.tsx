@@ -101,9 +101,12 @@ export default function UserInfoDrawer() {
     const r = await setEmailAction({ userId: detail.id, email: emailValue })
     if (r.ok) {
       setEditingEmail(false)
-      load(detail.id)
-      refresh()
-      message.success('保存成功')
+      try {
+        await Promise.all([load(detail.id), refresh()])
+        message.success('保存成功')
+      } catch {
+        message.warning('邮箱已保存，用户信息暂时无法刷新，请稍后重试')
+      }
     } else {
       message.error(r.error || '保存失败')
     }

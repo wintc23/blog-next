@@ -14,7 +14,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const routes: MetadataRoute.Sitemap = [
     { url: `${base}/`, lastModified: now, changeFrequency: 'daily', priority: 1 },
-    { url: `${base}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${base}/products`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${base}/moments`, lastModified: now, changeFrequency: 'weekly', priority: 0.5 },
+    { url: `${base}/article`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${base}/ai-news`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
     { url: `${base}/message`, lastModified: now, changeFrequency: 'daily', priority: 0.6 },
     { url: `${base}/link`, lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
     { url: `${base}/recommendation`, lastModified: now, changeFrequency: 'monthly', priority: 0.4 },

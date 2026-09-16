@@ -5,6 +5,8 @@ import type { ReactNode } from 'react'
 import Header from './layout/Header'
 import Sidebar from './layout/Sidebar'
 import Footer from './layout/Footer'
+import homeStyles from './home/Home.module.css'
+import newsStyles from './ai-digest/PublicNews.module.css'
 
 /** Routes that opt out of the global header/sidebar/footer. */
 const BARE_ROUTES = ['/login', '/qqtoken']
@@ -17,6 +19,7 @@ const HIDE_SIDEBAR_PREFIXES = [
   '/message',
   '/about',
   '/products',
+  '/moments',
   '/recommendation',
 ]
 
@@ -36,12 +39,14 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const hideModules = HIDE_SIDEBAR_PREFIXES.some(
     (p) => pathname === p || pathname?.startsWith(p + '/'),
   )
+  const isHome = pathname === '/'
+  const isNews = pathname === '/ai-news' || pathname?.startsWith('/ai-news/')
 
   return (
-    <div className="layout">
+    <div className={`layout ${isHome ? homeStyles.shell : ''} ${isNews ? newsStyles.shell : ''}`}>
       <Header />
-      <main className={`layout-main ${hideModules ? 'hide-modules' : ''}`}>
-        <Sidebar />
+      <main className={`layout-main ${hideModules ? 'hide-modules' : ''} ${isHome ? homeStyles.layout : ''} ${isNews ? newsStyles.layout : ''}`}>
+        {!isHome && !isNews && <Sidebar />}
         <div className="nuxt-container">{children}</div>
       </main>
       <Footer />

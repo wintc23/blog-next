@@ -30,6 +30,7 @@ import type {
   User,
   SiteStatSummary,
 } from './schemas'
+import type { PersonalProfile } from './schemas/personal-profile'
 
 export interface Paginated<T> {
   list: T[]
@@ -40,6 +41,7 @@ export interface Paginated<T> {
 
 export interface SiteData {
   admin: User | null
+  personalProfile: PersonalProfile | null
   siteStatSummary: SiteStatSummary | null
   topTen: Post[]
   tagList: Tag[]

@@ -19,6 +19,7 @@ import {
 import type { User } from '@/lib/schemas'
 import type { SiteData } from '@/lib/types'
 import { getUserInfoByToken } from '@/lib/api/users'
+import { ApiError } from '@/lib/api/client'
 import { clearTokenClient } from '@/lib/utils'
 
 export interface OutlineItem {
@@ -48,7 +49,7 @@ export interface AppState {
 
   // --- actions ---
   setUser: (user: User | null) => void
-  refreshUser: () => Promise<void>
+  refreshUser: () => Promise<User>
   logout: () => void
   showLogin: () => void
   hideLogin: () => void
@@ -79,9 +80,13 @@ export function createAppStore(initial: InitialState) {
       try {
         const user = await getUserInfoByToken()
         set({ user })
-      } catch {
-        clearTokenClient()
-        set({ user: null })
+        return user
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+          clearTokenClient()
+          set({ user: null })
+        }
+        throw error
       }
     },
     logout: () => {
