@@ -7,15 +7,15 @@ import LoginModal from '@/components/layout/LoginModal'
 import UserInfoDrawer from '@/components/layout/UserInfoDrawer'
 import { getSiteData } from '@/lib/get-site-data'
 import { getCurrentUser } from '@/lib/get-current-user'
-import { getPersonalProfile } from '@/lib/api/personal-profile'
+import { getSiteIdentity } from '@/lib/get-site-identity'
 import { SITE } from '@/lib/config'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const profile = await getPersonalProfile(true).catch(() => null)
+  const identity = await getSiteIdentity()
   return {
-    title: `${SITE.title} - ${SITE.slogon}`,
-    description: SITE.description,
-    keywords: [SITE.keywords, profile?.displayName].filter(Boolean).join(','),
+    title: [identity.title, identity.slogon].filter(Boolean).join(' - '),
+    description: identity.description,
+    keywords: identity.keywords,
     icons: { icon: SITE.icon },
   }
 }

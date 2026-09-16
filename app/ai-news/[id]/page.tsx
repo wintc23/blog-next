@@ -4,6 +4,7 @@ import { getAiNewsDetail } from '@/lib/api/ai-news'
 import { ApiError } from '@/lib/api/client'
 import DigestArticle from '@/components/ai-digest/DigestArticle'
 import { SITE } from '@/lib/config'
+import { getSiteIdentity } from '@/lib/get-site-identity'
 
 export const dynamic = 'force-dynamic'
 type Props = { params: Promise<{ id: string }> }
@@ -22,11 +23,11 @@ async function getPublishedIssue(params: Props['params']) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const detail = await getPublishedIssue(params)
+  const [detail, identity] = await Promise.all([getPublishedIssue(params), getSiteIdentity()])
   return {
-    title: `${detail.title} - ${detail.channelTitle} - ${SITE.title}`, description: detail.summary,
+    title: `${detail.title} - ${detail.channelTitle} - ${identity.title}`, description: detail.summary,
     alternates: { canonical: `${SITE.url}/ai-news/${detail.id}` },
-    openGraph: { type: 'article', title: detail.title, description: detail.summary,
+    openGraph: { type: 'article', title: detail.title, siteName: identity.title, description: detail.summary,
       publishedTime: detail.publishedAt || undefined, modifiedTime: detail.updatedAt,
       images: detail.cover ? [{ url: detail.cover.url, alt: detail.cover.alt }] : [] },
   }

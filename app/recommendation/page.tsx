@@ -1,4 +1,4 @@
-import { RECOMMENDATION_TITLE } from '@/lib/config'
+import { getSiteIdentity } from '@/lib/get-site-identity'
 
 const LIST = [
   {
@@ -21,10 +21,11 @@ const LIST = [
   },
 ]
 
-export default function RecommendationPage() {
+export default async function RecommendationPage() {
+  const identity = await getSiteIdentity()
   return (
     <div>
-      <div className="sub-page-header ws">{RECOMMENDATION_TITLE}</div>
+      <div className="sub-page-header ws">{identity.displayName ? `${identity.displayName}的推荐` : '推荐'}</div>
       <div className="space-y-3">
         {LIST.map((item) => (
           <a

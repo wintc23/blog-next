@@ -7,14 +7,18 @@ import { getPersonalProfile, savePersonalProfile } from '@/lib/api/personal-prof
 import type { PersonalProfileInput } from '@/lib/schemas/personal-profile'
 import { PROFILE_LINK_ICONS } from '@/lib/schemas/personal-profile'
 import { uploadToQiniu } from '@/lib/upload'
+import { useAppStore } from '@/lib/store'
+import { useRouter } from 'next/navigation'
 import styles from './ProfileEditor.module.css'
 
 const EMPTY_PROFILE: PersonalProfileInput = {
-  displayName: '', avatarUrl: '', tagline: '', introduction: '', bio: '', links: [],
+  siteName: '', displayName: '', avatarUrl: '', tagline: '', introduction: '', bio: '', links: [],
   contactEmail: '', wechatId: '', wechatQrUrl: '', contactNote: '',
 }
 
 export default function ManageProfileClient() {
+  const router = useRouter()
+  const setPersonalProfile = useAppStore((state) => state.setPersonalProfile)
   const { message } = App.useApp()
   const [form] = Form.useForm<PersonalProfileInput>()
   const [loading, setLoading] = useState(true)
@@ -59,8 +63,11 @@ export default function ManageProfileClient() {
   const save = async (values: PersonalProfileInput) => {
     setSaving(true)
     try {
-      form.setFieldsValue(await savePersonalProfile(values))
-      message.success('个人信息已保存，刷新首页即可看到更新')
+      const profile = await savePersonalProfile(values)
+      form.setFieldsValue(profile)
+      setPersonalProfile(profile)
+      router.refresh()
+      message.success('站点和个人信息已保存')
     } catch (error) {
       message.error(error instanceof Error ? error.message : '保存失败，请重试')
     } finally {
@@ -73,7 +80,7 @@ export default function ManageProfileClient() {
       <header className={styles.heading}>
         <div>
           <h1>个人信息</h1>
-          <p>编辑首页的个人介绍、生活动态、联系卡片和链接。</p>
+          <p>编辑站点名称、个人介绍、生活动态、联系卡片和链接。</p>
         </div>
         <Button href="/" target="_blank" rel="noreferrer">预览首页</Button>
       </header>
@@ -89,8 +96,11 @@ export default function ManageProfileClient() {
           >
             <fieldset className={styles.section}>
               <legend>基本信息</legend>
-              <Form.Item name="displayName" label="显示名称" rules={[{ required: true, whitespace: true, message: '请填写显示名称' }]}>
-                <Input name="displayName" autoComplete="nickname" maxLength={128} />
+              <Form.Item name="siteName" label="站点名称" extra="用于导航、页面标题、友链资料和图片水印。" rules={[{ required: true, whitespace: true, message: '请填写站点名称' }]}>
+                <Input name="siteName" maxLength={128} />
+              </Form.Item>
+              <Form.Item name="displayName" label="显示名称" extra="用于个人主页、管理员昵称和页脚。" rules={[{ required: true, whitespace: true, message: '请填写显示名称' }]}>
+                <Input name="displayName" autoComplete="nickname" maxLength={64} />
               </Form.Item>
               <Form.Item label="头像地址" name="avatarUrl" rules={[{ type: 'url', message: '请填写完整的 http 或 https 图片地址' }]}>
                 <Input name="avatarUrl" type="url" maxLength={2048} />

@@ -22,6 +22,7 @@ const { ApiError } = load('lib/api/client.ts', {
   '@/lib/config': {},
 })
 const currentUser = { id: 1, username: 'Existing user', avatar: '' }
+const identity = load('lib/site-identity.ts', {})
 
 function fixture(getUserInfoByToken) {
   let clears = 0
@@ -29,10 +30,26 @@ function fixture(getUserInfoByToken) {
     '@/lib/api/users': { getUserInfoByToken },
     '@/lib/api/client': { ApiError },
     '@/lib/utils': { clearTokenClient: () => { clears++ } },
+    '@/lib/site-identity': identity,
   })
   const store = createAppStore({ user: currentUser, site: {} })
   return { store, clears: () => clears }
 }
+
+test('saving a profile updates site identity and the owner without renaming other users', () => {
+  const { store } = fixture(async () => currentUser)
+  store.setState({ site: { admin: currentUser, tagList: ['preserved'] } })
+  const profile = { siteName: 'Database site', displayName: 'Database name', tagline: 'Database tagline' }
+  store.getState().setPersonalProfile(profile)
+  assert.equal(store.getState().site.admin.username, profile.displayName)
+  assert.equal(store.getState().user.username, profile.displayName)
+  assert.deepEqual(store.getState().site.tagList, ['preserved'])
+  assert.equal(identity.siteIdentityFromProfile(store.getState().site.personalProfile).title, profile.siteName)
+  store.setState({ user: { id: 2, username: 'Another account' } })
+  store.getState().setPersonalProfile({ ...profile, displayName: 'Updated name' })
+  assert.equal(store.getState().user.username, 'Another account')
+  assert.equal(store.getState().site.admin.username, 'Updated name')
+})
 
 test('a successful refresh returns and stores the authenticated user', async () => {
   const user = { id: 2, username: 'Signed-in user', avatar: '' }

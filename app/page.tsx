@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { getProducts } from '@/lib/api/products'
 import { getPersonalProfile } from '@/lib/api/personal-profile'
 import type { Metadata } from 'next'
-import { SITE } from '@/lib/config'
+import { getSiteIdentity } from '@/lib/get-site-identity'
 import styles from '@/components/home/Home.module.css'
 import HomeProfile from '@/components/home/HomeProfile'
 import ProductCarousel from '@/components/home/ProductCarousel'
@@ -11,9 +11,12 @@ import HomeAiNews from '@/components/home/HomeAiNews'
 import { getAiNewsHome } from '@/lib/api/ai-news'
 import { getLifeMoments } from '@/lib/api/life-moments'
 
-export const metadata: Metadata = {
-  title: `${SITE.title} - 个人主页`,
-  description: '个人作品、AI 应用、技术笔记与日常记录。',
+export async function generateMetadata(): Promise<Metadata> {
+  const identity = await getSiteIdentity()
+  return {
+    title: `${identity.title} - 个人主页`,
+    description: '个人作品、AI 应用、技术笔记与日常记录。',
+  }
 }
 
 export const dynamic = 'force-dynamic'

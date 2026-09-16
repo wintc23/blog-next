@@ -1,11 +1,14 @@
 import type { Metadata } from 'next'
 import { getPosts } from '@/lib/api/posts'
-import { SITE } from '@/lib/config'
+import { getSiteIdentity } from '@/lib/get-site-identity'
 import PostList from '@/components/PostList'
 
-export const metadata: Metadata = {
-  title: `博客 - ${SITE.title}`,
-  description: '技术笔记与开发实践。',
+export async function generateMetadata(): Promise<Metadata> {
+  const identity = await getSiteIdentity()
+  return {
+    title: `博客 - ${identity.title}`,
+    description: '技术笔记与开发实践。',
+  }
 }
 
 export const dynamic = 'force-dynamic'

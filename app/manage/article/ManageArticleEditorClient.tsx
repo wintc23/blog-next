@@ -19,7 +19,7 @@ import {
   EyeOutlined,
   SaveOutlined,
 } from '@ant-design/icons'
-import { SITE } from '@/lib/config'
+import { useSiteIdentity } from '@/lib/store'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import BlockNoteEditor, {
@@ -37,6 +37,9 @@ import type { Post, PostType, Tag as TagType, Topic } from '@/lib/types'
 type PostFull = Post
 
 export default function ManageArticleEditorClient() {
+  const identity = useSiteIdentity()
+  const siteTitleRef = useRef(identity.title)
+  siteTitleRef.current = identity.title
   const router = useRouter()
   const sp = useSearchParams()
   const postId = sp?.get('postId')
@@ -195,8 +198,8 @@ export default function ManageArticleEditorClient() {
       // line up into vertical stripes.
       const offset = (Math.round(y / stepY) % 2) * (stepX / 2)
       for (let x = -reach + offset; x <= reach; x += stepX) {
-        ctx.strokeText(SITE.title, x, y)
-        ctx.fillText(SITE.title, x, y)
+        ctx.strokeText(siteTitleRef.current, x, y)
+        ctx.fillText(siteTitleRef.current, x, y)
       }
     }
     ctx.restore()
@@ -222,9 +225,9 @@ export default function ManageArticleEditorClient() {
     const yBottom = canvas.height - 12
     const yTop = yBottom - stampSize - stampGap
     // Site title on the upper line
-    ctx.strokeText(SITE.title, xRight, yTop)
+    ctx.strokeText(siteTitleRef.current, xRight, yTop)
     ctx.fillStyle = '#FFC82C'
-    ctx.fillText(SITE.title, xRight, yTop)
+    ctx.fillText(siteTitleRef.current, xRight, yTop)
     // Article URL on the lower line
     ctx.strokeText(url, xRight, yBottom)
     ctx.fillText(url, xRight, yBottom)

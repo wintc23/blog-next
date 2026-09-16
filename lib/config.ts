@@ -17,22 +17,8 @@ export const ALGOLIA_SEARCH_KEY =
 export const ALGOLIA_INDEX_NAME =
   process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME || 'dev_wintc'
 
-export const SITE_NAME = '沐码小站'
-export const SITE_SLOGON = '分享编程与生活'
-export const SITE_KEYWORDS =
-  '沐码小站,编程,JS,HTML,CSS,Python,技术博客,wintc,木马啊'
-export const SITE_DESCRIPTION = `${SITE_NAME}，${SITE_SLOGON}。`
-
 export const SITE = {
-  title: SITE_NAME,
-  slogon: SITE_SLOGON,
   icon: 'https://file.wintc.top/logo.jpeg',
   url: 'https://wintc.top',
-  keywords: SITE_KEYWORDS,
-  description: `${SITE_NAME},${SITE_SLOGON}。`,
   copyright: `Copyright © 2019-${new Date().getUTCFullYear()}`,
-  githubHomePage: 'https://github.com/wintc23',
-  location: '深圳',
 }
-
-export const RECOMMENDATION_TITLE = '书书推荐'

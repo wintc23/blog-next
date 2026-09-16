@@ -41,6 +41,7 @@ export type ProfileMoment = z.infer<typeof ProfileMomentSchema>
 
 export const PersonalProfileSchema = z.object({
   id: z.literal(1),
+  siteName: z.string().default(''),
   displayName: z.string(),
   avatarUrl: z.string(),
   tagline: z.string(),

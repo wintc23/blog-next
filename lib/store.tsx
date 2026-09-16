@@ -21,6 +21,8 @@ import type { SiteData } from '@/lib/types'
 import { getUserInfoByToken } from '@/lib/api/users'
 import { ApiError } from '@/lib/api/client'
 import { clearTokenClient } from '@/lib/utils'
+import type { PersonalProfile } from '@/lib/schemas/personal-profile'
+import { siteIdentityFromProfile } from '@/lib/site-identity'
 
 export interface OutlineItem {
   id: string
@@ -44,7 +46,7 @@ export interface AppState {
   // the header instead of leaving a visible blank below.
   headerOffset: number
 
-  // --- site (server-fetched, treated as read-only after init) ---
+  // --- site (server-fetched; editable profile can be refreshed after saving) ---
   site: SiteData
 
   // --- actions ---
@@ -57,6 +59,7 @@ export interface AppState {
   hideUserDrawer: () => void
   setOutlineItems: (items: OutlineItem[]) => void
   setHeaderOffset: (offset: number) => void
+  setPersonalProfile: (profile: PersonalProfile) => void
 }
 
 type AppStore = ReturnType<typeof createAppStore>
@@ -99,6 +102,16 @@ export function createAppStore(initial: InitialState) {
     hideUserDrawer: () => set({ drawerUserId: null }),
     setOutlineItems: (outlineItems) => set({ outlineItems }),
     setHeaderOffset: (headerOffset) => set({ headerOffset }),
+    setPersonalProfile: (personalProfile) => set((state) => ({
+      site: {
+        ...state.site,
+        personalProfile,
+        admin: state.site.admin ? { ...state.site.admin, username: personalProfile.displayName } : null,
+      },
+      user: state.user && state.user.id === state.site.admin?.id
+        ? { ...state.user, username: personalProfile.displayName }
+        : state.user,
+    })),
   }))
 }
 
@@ -157,3 +170,4 @@ export const useSetHeaderOffset = () => useAppStore((s) => s.setHeaderOffset)
 
 // site (stable snapshot)
 export const useSite = () => useAppStore((s) => s.site)
+export const useSiteIdentity = () => siteIdentityFromProfile(useSite().personalProfile)

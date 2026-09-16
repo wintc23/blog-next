@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { EyeOutlined, GithubOutlined, EnvironmentOutlined } from '@ant-design/icons'
+import { EyeOutlined } from '@ant-design/icons'
 import { Tag, Tooltip } from 'antd'
 import { usePathname } from 'next/navigation'
 import {
@@ -9,8 +9,8 @@ import {
   useShowUserDrawer,
   useOutlineItems,
   useHeaderOffset,
+  useSiteIdentity,
 } from '@/lib/store'
-import { SITE } from '@/lib/config'
 import { pseudoRandom, formatCount } from '@/lib/utils'
 
 const HIDE_SIDEBAR_PREFIXES = [
@@ -42,6 +42,7 @@ const TAG_COLORS = [
 ]
 
 export default function Sidebar() {
+  const identity = useSiteIdentity()
   const site = useSite()
   const showUserDrawer = useShowUserDrawer()
   const outline = useOutlineItems()
@@ -77,7 +78,7 @@ export default function Sidebar() {
       {admin && (
         <div className="ws mb-[10px] rounded-sm">
           <div className="flex items-center justify-between border-b border-[#eee] px-[15px] py-2 text-[#666]">
-            <span>{SITE.title}</span>
+            <span>{identity.title}</span>
             {summary && (
               <Tooltip
                 title={`自 ${summary.visitStartDate} 起累计访问 ${summary.visitCount} 次，累计访客 ${summary.visitorCount || 0} 人`}
@@ -105,21 +106,6 @@ export default function Sidebar() {
               <div className="overflow-hidden py-[5px] text-sm">
                 共<span className="text-[#3361d8]">{admin.postCount || 0}</span>篇文章
               </div>
-            </div>
-            <div className="flex items-center py-1 pl-5 text-[20px]">
-              <GithubOutlined />
-              <a
-                target="_blank"
-                rel="noreferrer"
-                href={SITE.githubHomePage}
-                className="ml-[10px] text-base hover:underline"
-              >
-                github
-              </a>
-            </div>
-            <div className="flex items-center py-1 pl-5 text-[20px]">
-              <EnvironmentOutlined />
-              <span className="ml-[10px] text-base">{SITE.location}</span>
             </div>
             {admin.aboutMe && (
               <div className="mt-2 text-sm text-[#666]">{admin.aboutMe}</div>

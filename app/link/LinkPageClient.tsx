@@ -9,12 +9,13 @@ import {
   CopyOutlined,
 } from '@ant-design/icons'
 import { saveLinkAction, deleteLinkAction } from '@/app/actions/links'
-import { useUser, useShowLogin } from '@/lib/store'
+import { useUser, useShowLogin, useSiteIdentity } from '@/lib/store'
 import { useRouter } from 'next/navigation'
 import { SITE } from '@/lib/config'
 import type { Link as LinkType } from '@/lib/types'
 
 export default function LinkPageClient({ initial }: { initial: LinkType[] }) {
+  const identity = useSiteIdentity()
   const [list, setList] = useState<LinkType[]>(initial)
   const [editing, setEditing] = useState<Partial<LinkType> | null>(null)
   const user = useUser()
@@ -24,8 +25,8 @@ export default function LinkPageClient({ initial }: { initial: LinkType[] }) {
 
   const siteInfoJson = JSON.stringify(
     {
-      name: SITE.title,
-      slogon: SITE.slogon,
+      name: identity.title,
+      slogon: identity.slogon,
       url: SITE.url,
       icon: SITE.icon,
     },
@@ -102,8 +103,8 @@ export default function LinkPageClient({ initial }: { initial: LinkType[] }) {
           </Tooltip>
         </div>
         <div className="text-sm">
-          <div>名称: {SITE.title}</div>
-          <div>简介: {SITE.slogon}</div>
+          <div>名称: {identity.title}</div>
+          <div>简介: {identity.slogon}</div>
           <div>地址: {SITE.url}</div>
           <div>图标: {SITE.icon}</div>
         </div>

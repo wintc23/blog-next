@@ -1,13 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { SITE } from '@/lib/config'
-import { useUser, useSetHeaderOffset } from '@/lib/store'
+import { useUser, useSetHeaderOffset, useSiteIdentity } from '@/lib/store'
 import SiteSearch from './SiteSearch'
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 
 export default function Header() {
+  const identity = useSiteIdentity()
   const user = useUser()
   const pathname = usePathname()
   const setHeaderOffset = useSetHeaderOffset()
@@ -76,7 +76,7 @@ export default function Header() {
       <div className="layout-header-main">
         <div className="site-title">
           <Link href="/" className="title-content">
-            {SITE.title}
+            {identity.title}
           </Link>
         </div>
         <nav className="nav-list" aria-label="主导航">

@@ -5,7 +5,7 @@ import ProductSections from '@/components/ProductSections'
 import TrackedProductLink from '@/components/TrackedProductLink'
 import { getProduct } from '@/lib/api/products'
 import { ApiError } from '@/lib/api/client'
-import { SITE } from '@/lib/config'
+import { getSiteIdentity } from '@/lib/get-site-identity'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -20,10 +20,10 @@ async function loadProduct(slug: string) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const product = await loadProduct(slug)
+  const [product, identity] = await Promise.all([loadProduct(slug), getSiteIdentity()])
   return {
-    title: `${product.name} - 作品集 - ${SITE.title}`,
-    description: product.summary || product.tagline || SITE.description,
+    title: `${product.name} - 作品集 - ${identity.title}`,
+    description: product.summary || product.tagline || identity.description,
     openGraph: product.coverUrl ? { images: [product.coverUrl] } : undefined,
   }
 }
