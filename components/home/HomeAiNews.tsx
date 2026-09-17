@@ -10,8 +10,17 @@ export default function HomeAiNews({ data }: { data: AiDigestHome }) {
     <section className={styles.section} aria-labelledby="ai-news-title">
       <header className={styles.header}>
         <h2 id="ai-news-title">{settings?.title || featured.channelTitle}</h2>
-        <span>AI NEWS <i aria-hidden="true" /> {settings?.publishTime} 北京时间</span>
+        <span>AI NEWS{!settings?.introduction && <><i aria-hidden="true" /> {settings?.publishTime} 北京时间</>}</span>
       </header>
+      {settings?.introduction && <div className={styles.introduction}>
+        <div className={styles.introHeading}>
+          <p>{settings.introduction.summary}</p>
+          {settings.introduction.note && <span>{settings.introduction.note}</span>}
+        </div>
+        <dl>{settings.introduction.groups.map(group => <div key={group.id}>
+          <dt>{group.title}</dt><dd>{group.description}</dd>
+        </div>)}</dl>
+      </div>}
       <div className={styles.grid}>
         <article className={styles.featured}>
           <Link href={`/ai-news/${featured.id}`} className={styles.visual} aria-label={`阅读${isToday ? '今日' : '最新'}动态：${featured.title}`}>

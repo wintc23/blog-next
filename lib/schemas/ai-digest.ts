@@ -19,13 +19,19 @@ export const aiDigestSchema = z.object({
   readTimes: z.number().int().nonnegative().default(0),
   groups: z.array(aiDigestGroupSchema.extend({ count: z.number().int().positive() })).optional(),
 })
-const settingsSchema = z.object({ title: z.string(), timezone: z.string(), publishTime: z.string() }).nullable()
+export const aiDigestIntroductionSchema = z.object({
+  summary: z.string().min(1).max(200), groups: z.array(aiDigestGroupSchema).length(2), note: z.string().max(120),
+})
+export const aiDigestSettingsSchema = z.object({
+  title: z.string(), timezone: z.string(), publishTime: z.string(),
+  introduction: aiDigestIntroductionSchema.nullable().optional(),
+}).nullable()
 export const aiDigestListSchema = z.object({
-  list: z.array(aiDigestSchema), total: z.number(), page: z.number(), perPage: z.number(), settings: settingsSchema,
+  list: z.array(aiDigestSchema), total: z.number(), page: z.number(), perPage: z.number(), settings: aiDigestSettingsSchema,
 })
 export const aiDigestHomeSchema = z.object({
   featured: aiDigestSchema.nullable(), previous: z.array(aiDigestSchema).max(5),
-  isToday: z.boolean(), today: z.string(), settings: settingsSchema,
+  isToday: z.boolean(), today: z.string(), settings: aiDigestSettingsSchema,
 })
 export const aiDigestDetailSchema = aiDigestSchema.extend({
   content: z.object({

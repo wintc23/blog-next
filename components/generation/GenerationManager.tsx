@@ -9,6 +9,7 @@ import { apiFetch } from '@/lib/api/client'
 import { generationMetaSchema, taskListSchema, sourceListSchema, jobListSchema, jobDetailSchema, type GenerationTask, type GenerationSource, type GenerationJobDetail } from '@/lib/schemas/generation'
 import { formatTime } from '@/components/ai-digest/DigestShared'
 import styles from './Generation.module.css'
+import ChannelSettings from './ChannelSettings'
 
 export const jobLabels: Record<string, string> = { queued: '等待执行', running: '执行中', retry_wait: '等待重试', succeeded: '已完成', failed: '失败', cancelled: '已取消' }
 export const stageLabels: Record<string, string> = { collect: '采集资料', text: '生成正文', image: '生成配图', upload: '上传图片', validate: '核对来源', persist: '保存内容', complete: '完成' }
@@ -92,6 +93,7 @@ export default function GenerationManager({ initialJobId }: { initialJobId?: num
         { title: '最近采集', render: (_, s) => <span>{time(s.lastSuccessAt)}{s.lastError && <p>{s.lastError}</p>}</span> },
         { title: '操作', render: (_, s) => s.kind === 'rss' && <div className={styles.actions}><Button onClick={() => { setEditingSource(s); sourceForm.setFieldsValue(s) }}>编辑</Button><Button onClick={async () => { try { const r = await apiFetch(`/generation/sources/${s.id}/probe/`, { method: 'POST', schema: z.object({ count: z.number() }) }); messages.success(`读取到 ${r.count} 条带日期的资料`) } catch (error) { messages.error(errorText(error)) } }}>测试来源</Button></div> },
       ]} /></div></> },
+      { key: 'channel', label: '栏目介绍', children: <ChannelSettings /> },
       { key: 'jobs', label: '执行记录', children: <div className={styles.table}><Table rowKey="id" dataSource={jobs.data?.list} loading={jobs.isLoading} pagination={{ current: page, pageSize: 20, total: jobs.data?.total, showSizeChanger: false, onChange: setPage }} columns={[
         { title: '期次', dataIndex: 'edition' }, { title: '任务', render: (_, j) => tasks.data?.list.find(t => t.id === j.taskId)?.name || `#${j.taskId}` },
         { title: '触发方式', render: (_, j) => j.purpose === 'scheduled' ? '定时' : '手动' },
