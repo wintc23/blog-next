@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { aiDigestDetailSchema, aiDigestGroupSchema } from './ai-digest'
 
-const model = z.object({ provider: z.enum(['openai_compatible', 'codex']).default('openai_compatible'), baseUrl: z.string(), model: z.string(), credentialRef: z.string(), timeout: z.number() })
+const model = z.object({ provider: z.enum(['openai_compatible', 'codex', 'cpa']).default('openai_compatible'), baseUrl: z.string(), model: z.string(), credentialRef: z.string(), timeout: z.number() })
 export const generationConfigSchema = z.object({
   timezone: z.string(), generateTime: z.string(), publishTime: z.string(), lateMinutes: z.number(),
   maxRetries: z.number(), autoPublish: z.boolean(), sourceIds: z.array(z.number()),

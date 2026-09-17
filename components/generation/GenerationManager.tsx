@@ -15,7 +15,7 @@ export const jobLabels: Record<string, string> = { queued: '等待执行', runni
 export const stageLabels: Record<string, string> = { collect: '采集资料', text: '生成正文', image: '生成配图', upload: '上传图片', validate: '核对来源', persist: '保存内容', complete: '完成' }
 const errorText = (error: unknown) => error instanceof Error ? error.message : '操作失败'
 const time = (value?: string | null) => value ? formatTime(value) : '—'
-const missingLabel = (value: string) => ({ 'text_model.base_url': '文字 API 地址', 'text_model.model': '文字模型', 'image_model.base_url': '图片 API 地址', 'image_model.model': '图片模型', CONTENT_TEXT_API_KEY: '文字服务密钥', CONTENT_IMAGE_API_KEY: '图片服务密钥', CONTENT_CODEX_BIN: 'Codex CLI', CONTENT_IMAGE_CODEX_LOGIN: 'Codex 配图账号登录', source_ids: '采集来源' }[value] || value)
+const missingLabel = (value: string) => ({ 'text_model.base_url': '文字 API 地址', 'text_model.model': '文字模型', 'image_model.base_url': '图片 API 地址', 'image_model.model': '图片模型', CONTENT_TEXT_API_KEY: '文字服务密钥', CONTENT_IMAGE_API_KEY: '图片服务密钥', CONTENT_CPA_API_KEY: 'CPA 服务密钥', CONTENT_CPA_BASE_URL: 'CPA 本机服务地址', CONTENT_CODEX_BIN: 'Codex CLI', CONTENT_IMAGE_CODEX_LOGIN: 'Codex 配图账号登录', source_ids: '采集来源' }[value] || value)
 
 export default function GenerationManager({ initialJobId }: { initialJobId?: number }) {
   const [messages, contextHolder] = message.useMessage()
@@ -51,9 +51,14 @@ export default function GenerationManager({ initialJobId }: { initialJobId?: num
     try {
       const baseConfig = selectedTask?.config || meta.data!.defaultConfig
       const edits = values.config as typeof baseConfig
+      const imageModel = { ...baseConfig.imageModel, ...edits.imageModel }
+      if (imageModel.provider === 'cpa') {
+        imageModel.baseUrl = ''
+        imageModel.credentialRef = 'CONTENT_CPA_API_KEY'
+      }
       await apiFetch(selectedTask ? `/generation/tasks/${selectedTask.id}/` : '/generation/tasks/', {
         method: selectedTask ? 'PUT' : 'POST', data: { ...values, config: { ...baseConfig, ...edits,
-          textModel: { ...baseConfig.textModel, ...edits.textModel }, imageModel: { ...baseConfig.imageModel, ...edits.imageModel } }, ...(selectedTask ? { version: selectedTask.version } : {}) },
+          textModel: { ...baseConfig.textModel, ...edits.textModel }, imageModel }, ...(selectedTask ? { version: selectedTask.version } : {}) },
       })
       setEditing(null); refresh(); messages.success('任务配置已保存')
     } catch (error) { messages.error(errorText(error)) } finally { setBusy(false) }
@@ -123,11 +128,18 @@ export default function GenerationManager({ initialJobId }: { initialJobId?: num
         </fieldset>
         {(['textModel', 'imageModel'] as const).map(key => {
           const isCodex = (key === 'textModel' ? textProvider : imageProvider) === 'codex'
+          const isCpa = key === 'imageModel' && imageProvider === 'cpa'
           return <fieldset key={key}><legend>{key === 'textModel' ? '文字模型' : '图片模型'}</legend>
-          <Form.Item name={['config', key, 'provider']} label="生成方式"><Radio.Group options={[{ value: 'codex', label: 'Codex CLI' }, { value: 'openai_compatible', label: '兼容 API' }]} /></Form.Item>
-          {!isCodex ? <><Form.Item name={['config', key, 'baseUrl']} label="兼容 API 地址（包含 /v1）"><Input type="url" placeholder="https://服务地址/v1" /></Form.Item>
+          <Form.Item name={['config', key, 'provider']} label="生成方式"><Radio.Group options={[...(key === 'imageModel' ? [{ value: 'cpa', label: 'Codex 登录（CPA）' }] : []), { value: 'codex', label: 'Codex CLI' }, { value: 'openai_compatible', label: '兼容 API' }]} onChange={event => {
+            if (event.target.value === 'cpa') {
+              form.setFieldsValue({ config: { imageModel: { baseUrl: '', credentialRef: 'CONTENT_CPA_API_KEY', model: 'gpt-image-2.5-flare', responseFormat: 'auto', timeout: 600 } } })
+            } else if (isCpa) {
+              form.setFieldsValue({ config: { imageModel: { credentialRef: 'CONTENT_IMAGE_API_KEY', model: '' } } })
+            }
+          }} /></Form.Item>
+          {isCpa ? <p className={styles.muted}>通过服务器 CPA 复用 ChatGPT 登录生成配图，连接与凭据由服务器管理。</p> : !isCodex ? <><Form.Item name={['config', key, 'baseUrl']} label="兼容 API 地址（包含 /v1）"><Input type="url" placeholder="https://服务地址/v1" /></Form.Item>
             <Form.Item name={['config', key, 'credentialRef']} label="服务端密钥环境变量名" extra="只填写变量名，密钥在服务器配置。"><Input autoComplete="off" /></Form.Item></> : <p className={styles.muted}>{key === 'imageModel' ? '使用 Codex 内置图片工具。服务器需配置支持图片生成的 ChatGPT 登录。' : '使用服务账户已登录的 Codex CLI。服务器需安装 Codex，并完成登录。'}</p>}
-          <Form.Item name={['config', key, 'model']} label={key === 'imageModel' && isCodex ? 'Codex 调度模型' : '模型名称'} extra={isCodex ? '留空使用 Codex 默认模型。' : undefined}><Input /></Form.Item>
+          <Form.Item name={['config', key, 'model']} label={key === 'imageModel' && isCodex ? 'Codex 调度模型' : '模型名称'} rules={isCpa ? [{ required: true, message: '请输入图片模型名称' }] : undefined} extra={isCodex ? '留空使用 Codex 默认模型。' : undefined}><Input /></Form.Item>
           <Form.Item name={['config', key, 'timeout']} label="请求超时（秒）"><InputNumber min={30} max={600} /></Form.Item>
           {key === 'imageModel' && <><Form.Item name={['config', key, 'size']} label={isCodex ? '期望图片尺寸' : '图片尺寸'} extra={isCodex ? '作为画面要求交给 Codex，最终尺寸以生成结果为准。' : undefined}><Input /></Form.Item>{!isCodex && <Form.Item name={['config', key, 'responseFormat']} label="图片返回格式"><Radio.Group options={[{ value: 'auto', label: '服务商默认' }, { value: 'b64_json', label: 'Base64' }]} /></Form.Item>}</>}
         </fieldset>})}
