@@ -1,13 +1,13 @@
 import { z } from 'zod'
 import { aiDigestDetailSchema, aiDigestGroupSchema } from './ai-digest'
 
-const model = z.object({ baseUrl: z.string(), model: z.string(), credentialRef: z.string(), timeout: z.number() })
+const model = z.object({ provider: z.enum(['openai_compatible', 'codex']).default('openai_compatible'), baseUrl: z.string(), model: z.string(), credentialRef: z.string(), timeout: z.number() })
 export const generationConfigSchema = z.object({
   timezone: z.string(), generateTime: z.string(), publishTime: z.string(), lateMinutes: z.number(),
   maxRetries: z.number(), autoPublish: z.boolean(), sourceIds: z.array(z.number()),
   lookbackHours: z.number(), maxLookbackHours: z.number(), minChars: z.number(), maxChars: z.number(), maxItems: z.number(),
   digestGroups: z.array(aiDigestGroupSchema),
-  prompt: z.string(), imagePrompt: z.string(), textModel: model.extend({ provider: z.enum(['openai_compatible', 'codex']).default('openai_compatible') }),
+  prompt: z.string(), imagePrompt: z.string(), textModel: model,
   imageModel: model.extend({ size: z.string(), responseFormat: z.string() }),
 })
 export const jobSchema = z.object({
