@@ -137,7 +137,7 @@ export default function GenerationManager({ initialJobId }: { initialJobId?: num
               form.setFieldsValue({ config: { imageModel: { credentialRef: 'CONTENT_IMAGE_API_KEY', model: '' } } })
             }
           }} /></Form.Item>
-          {isCpa ? <p className={styles.muted}>通过服务器 CPA 复用 ChatGPT 登录生成配图，连接与凭据由服务器管理。</p> : !isCodex ? <><Form.Item name={['config', key, 'baseUrl']} label="兼容 API 地址（包含 /v1）"><Input type="url" placeholder="https://服务地址/v1" /></Form.Item>
+          {isCpa ? <p className={styles.muted}>通过 CPA 复用服务器 Codex 的凭据和模型服务生成配图，连接由服务器管理。</p> : !isCodex ? <><Form.Item name={['config', key, 'baseUrl']} label="兼容 API 地址（包含 /v1）"><Input type="url" placeholder="https://服务地址/v1" /></Form.Item>
             <Form.Item name={['config', key, 'credentialRef']} label="服务端密钥环境变量名" extra="只填写变量名，密钥在服务器配置。"><Input autoComplete="off" /></Form.Item></> : <p className={styles.muted}>{key === 'imageModel' ? '使用 Codex 内置图片工具。服务器需配置支持图片生成的 ChatGPT 登录。' : '使用服务账户已登录的 Codex CLI。服务器需安装 Codex，并完成登录。'}</p>}
           <Form.Item name={['config', key, 'model']} label={key === 'imageModel' && isCodex ? 'Codex 调度模型' : '模型名称'} rules={isCpa ? [{ required: true, message: '请输入图片模型名称' }] : undefined} extra={isCodex ? '留空使用 Codex 默认模型。' : undefined}><Input /></Form.Item>
           <Form.Item name={['config', key, 'timeout']} label="请求超时（秒）"><InputNumber min={30} max={600} /></Form.Item>
