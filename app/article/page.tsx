@@ -1,14 +1,10 @@
 import type { Metadata } from 'next'
 import { getPosts } from '@/lib/api/posts'
-import { getSiteIdentity } from '@/lib/get-site-identity'
 import PostList from '@/components/PostList'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const identity = await getSiteIdentity()
-  return {
-    title: `博客 - ${identity.title}`,
-    description: '技术笔记与开发实践。',
-  }
+export const metadata: Metadata = {
+  title: '博客归档',
+  description: '过往的技术笔记与开发实践。',
 }
 
 export const dynamic = 'force-dynamic'
@@ -25,7 +21,12 @@ export default async function ArticlePage({ searchParams }: { searchParams: Prom
       page={data.page}
       perPage={data.perPage}
       basePath="/article"
-      header={<h1 className="sr-only">博客</h1>}
+      header={
+        <header className="sub-page-header">
+          <h1 className="mb-2 mt-0 text-2xl font-semibold">博客归档</h1>
+          <p className="m-0 text-sm leading-6 text-[#777]">过往的技术笔记与开发实践。</p>
+        </header>
+      }
     />
   )
 }

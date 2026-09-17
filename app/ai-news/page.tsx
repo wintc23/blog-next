@@ -3,15 +3,14 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getAiNews } from '@/lib/api/ai-news'
 import { IssueDate } from '@/components/ai-digest/DigestShared'
-import { getSiteIdentity } from '@/lib/get-site-identity'
 import { formatCount } from '@/lib/utils'
 import styles from '@/components/ai-digest/DigestPreview.module.css'
 
 export const dynamic = 'force-dynamic'
 export async function generateMetadata(): Promise<Metadata> {
-  const [{ settings }, identity] = await Promise.all([getAiNews(), getSiteIdentity()])
+  const { settings } = await getAiNews()
   return {
-    title: `${settings?.title || 'AI 行业动态'} - ${identity.title}`,
+    title: settings?.title.trim() || 'AI 行业动态',
     description: 'AI 产品、模型与开发工具的图文动态。',
   }
 }

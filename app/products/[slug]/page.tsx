@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const [product, identity] = await Promise.all([loadProduct(slug), getSiteIdentity()])
   return {
-    title: `${product.name} - 作品集 - ${identity.title}`,
+    title: `${product.name.trim()} - 作品集`,
     description: product.summary || product.tagline || identity.description,
     openGraph: product.coverUrl ? { images: [product.coverUrl] } : undefined,
   }

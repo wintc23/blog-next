@@ -45,7 +45,7 @@ export default function Header() {
   const navList = [
     { title: '首页', path: '/', active: pathname === '/' },
     {
-      title: '博客',
+      title: '博客归档',
       path: '/article',
       active:
         pathname === '/article' ||

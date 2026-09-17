@@ -1,14 +1,10 @@
 import type { Metadata } from 'next'
 import { getProducts } from '@/lib/api/products'
-import { getSiteIdentity } from '@/lib/get-site-identity'
 import type { Product } from '@/lib/schemas/product'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const identity = await getSiteIdentity()
-  return {
-    title: `作品集 - ${identity.title}`,
-    description: '我设计和开发的一些独立产品。',
-  }
+export const metadata: Metadata = {
+  title: '作品集',
+  description: '我设计和开发的一些独立产品。',
 }
 
 export const dynamic = 'force-dynamic'

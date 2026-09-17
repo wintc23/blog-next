@@ -5,6 +5,13 @@ import { getTagList } from '@/lib/api/tags'
 
 export const dynamic = 'force-dynamic'
 
+export async function generateMetadata({ params }: { params: Promise<{ tagId: string }> }) {
+  const { tagId } = await params
+  const { list: tags } = await getTagList(true).catch(() => ({ list: [] }))
+  const tag = tags.find((item) => String(item.id) === tagId)
+  return { title: tag ? `${tag.title} - 博客归档` : '博客归档' }
+}
+
 export default async function TagPage({
   params,
   searchParams,

@@ -1,5 +1,7 @@
 import { getSiteIdentity } from '@/lib/get-site-identity'
 
+export const metadata = { title: '推荐' }
+
 const LIST = [
   {
     title: '团队内推',

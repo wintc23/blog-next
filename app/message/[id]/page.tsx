@@ -2,6 +2,8 @@ import { getMessageDetail } from '@/lib/api/messages'
 import MessageDetailClient from './MessageDetailClient'
 import { notFound } from 'next/navigation'
 
+export const metadata = { title: '留言详情' }
+
 export const dynamic = 'force-dynamic'
 
 export default async function MessageDetailPage({

@@ -1,6 +1,8 @@
 import { getMessages } from '@/lib/api/messages'
 import MessagePageClient from './MessagePageClient'
 
+export const metadata = { title: '留言' }
+
 export const dynamic = 'force-dynamic'
 
 export default async function MessagePage({

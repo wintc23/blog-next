@@ -1,5 +1,9 @@
 import type { PersonalProfile } from './schemas/personal-profile'
 
+export function formatSiteTitle(pageTitle: string, siteName: string) {
+  return `${pageTitle.trim()} - ${siteName.trim()}`
+}
+
 /** Shared by server metadata and client UI; specific names only come from data. */
 export function siteIdentityFromProfile(profile: PersonalProfile | null) {
   const title = profile?.siteName.trim() || '个人网站'

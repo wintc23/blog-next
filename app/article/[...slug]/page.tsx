@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { SITE } from '@/lib/config'
 import { getSiteIdentity } from '@/lib/get-site-identity'
+import { formatSiteTitle } from '@/lib/site-identity'
 import { highlightCodeBlocks } from '@/lib/highlight-code'
 
 export const dynamic = 'force-dynamic'
@@ -22,7 +23,7 @@ export async function generateMetadata({
   const identity = await getSiteIdentity()
   try {
     const post = await getPost(id, type, true)
-    const title = `${post.title} - ${identity.title}`
+    const shareTitle = formatSiteTitle(post.title, identity.title)
     const description =
       (post.description || post.abstract || '').trim() || identity.description
     // og:image has to be an absolute URL for WeChat / QQ / Weibo to
@@ -31,13 +32,13 @@ export async function generateMetadata({
     const image = post.abstractImage || SITE.icon
     const url = `${SITE.url}/article/${id}`
     return {
-      title,
+      title: post.title.trim(),
       keywords: post.keywords || identity.keywords,
       description,
       alternates: { canonical: url },
       openGraph: {
         type: 'article',
-        title,
+        title: shareTitle,
         description,
         url,
         siteName: identity.title,
@@ -46,13 +47,13 @@ export async function generateMetadata({
       },
       twitter: {
         card: 'summary_large_image',
-        title,
+        title: shareTitle,
         description,
         images: [image],
       },
     }
   } catch {
-    return { title: identity.title }
+    return { title: '博客归档' }
   }
 }
 

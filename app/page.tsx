@@ -4,6 +4,7 @@ import { getProducts } from '@/lib/api/products'
 import { getPersonalProfile } from '@/lib/api/personal-profile'
 import type { Metadata } from 'next'
 import { getSiteIdentity } from '@/lib/get-site-identity'
+import { formatSiteTitle } from '@/lib/site-identity'
 import styles from '@/components/home/Home.module.css'
 import HomeProfile from '@/components/home/HomeProfile'
 import ProductCarousel from '@/components/home/ProductCarousel'
@@ -14,7 +15,8 @@ import { getLifeMoments } from '@/lib/api/life-moments'
 export async function generateMetadata(): Promise<Metadata> {
   const identity = await getSiteIdentity()
   return {
-    title: `${identity.title} - 个人主页`,
+    // A root page does not inherit its own segment's title template.
+    title: { absolute: formatSiteTitle('个人主页', identity.title) },
     description: '个人作品、AI 应用、技术笔记与日常记录。',
   }
 }

@@ -47,7 +47,7 @@ function ArticleEditorShell({ children }: { children: React.ReactNode }) {
 }
 
 const MENU = [
-  { key: '/manage', label: '文章管理', icon: <BookOutlined /> },
+  { key: '/manage', label: '博客归档', icon: <BookOutlined /> },
   { key: '/manage/profile', label: '个人信息', icon: <UserOutlined /> },
   { key: '/manage/moments', label: '生活动态', icon: <CameraOutlined /> },
   { key: '/manage/product', label: '作品管理', icon: <AppstoreOutlined /> },

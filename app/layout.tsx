@@ -8,12 +8,16 @@ import UserInfoDrawer from '@/components/layout/UserInfoDrawer'
 import { getSiteData } from '@/lib/get-site-data'
 import { getCurrentUser } from '@/lib/get-current-user'
 import { getSiteIdentity } from '@/lib/get-site-identity'
+import { formatSiteTitle } from '@/lib/site-identity'
 import { SITE } from '@/lib/config'
 
 export async function generateMetadata(): Promise<Metadata> {
   const identity = await getSiteIdentity()
   return {
-    title: [identity.title, identity.slogon].filter(Boolean).join(' - '),
+    title: {
+      default: formatSiteTitle(identity.slogon || '个人主页', identity.title),
+      template: formatSiteTitle('%s', identity.title),
+    },
     description: identity.description,
     keywords: identity.keywords,
     icons: { icon: SITE.icon },
