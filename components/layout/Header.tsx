@@ -45,14 +45,6 @@ export default function Header() {
   const navList = [
     { title: '首页', path: '/', active: pathname === '/' },
     {
-      title: '博客归档',
-      path: '/article',
-      active:
-        pathname === '/article' ||
-        pathname?.startsWith('/article/') ||
-        pathname?.startsWith('/tag/'),
-    },
-    {
       title: '作品',
       path: '/products',
       active: pathname === '/products' || pathname?.startsWith('/products/'),
@@ -61,6 +53,14 @@ export default function Header() {
       title: '留言',
       path: '/message',
       active: pathname === '/message' || pathname?.startsWith('/message/'),
+    },
+    {
+      title: '博客归档',
+      path: '/article',
+      active:
+        pathname === '/article' ||
+        pathname?.startsWith('/article/') ||
+        pathname?.startsWith('/tag/'),
     },
   ]
   if (user?.admin) {
@@ -91,7 +91,7 @@ export default function Header() {
             </Link>
           ))}
         </nav>
-        <SiteSearch />
+        {pathname === '/article' && <SiteSearch />}
       </div>
     </header>
   )
