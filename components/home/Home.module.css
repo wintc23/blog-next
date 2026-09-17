@@ -55,6 +55,7 @@
 .home a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .sectionHeader { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-block-end: 18px; }
 .sectionHeader h2 { margin: 0; font-size: 24px; line-height: 1.5; font-weight: 500; color: var(--accent); }
+.sectionIntroduction { margin: -5px 0 22px; color: #526b82; font-size: 13px; line-height: 1.8; white-space: pre-line; overflow-wrap: anywhere; text-wrap: pretty; }
 .textLink { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--accent); }
 .textLink:hover { text-decoration: underline; }
 .carouselStage { position: relative; }
@@ -114,6 +115,7 @@
   .profileLinks { flex-direction: column; align-items: flex-start; gap: 12px; margin-block-start: 20px; }
   .communityLinks + .navigationLinks { padding-inline-start: 0; border-inline-start: 0; }
   .sectionHeader h2 { font-size: 21px; }
+  .sectionIntroduction { margin-block-end: 20px; font-size: 12px; }
   .productInfo { padding: 20px; }
   .productIdentity h3 { font-size: 20px; }
   .coverNavigation { padding-inline: 0; }

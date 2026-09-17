@@ -47,6 +47,7 @@ export const PersonalProfileSchema = z.object({
   tagline: z.string(),
   introduction: z.string(),
   bio: z.string(),
+  portfolioIntroduction: z.string().default(''),
   contactEmail: z.string().default(''),
   wechatId: z.string().default(''),
   wechatQrUrl: z.string().default(''),

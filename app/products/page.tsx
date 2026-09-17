@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import { getProducts } from '@/lib/api/products'
+import { getPersonalProfile } from '@/lib/api/personal-profile'
 import type { Product } from '@/lib/schemas/product'
 
-export const metadata: Metadata = {
-  title: '作品集',
-  description: '我设计和开发的一些独立产品。',
+export async function generateMetadata(): Promise<Metadata> {
+  const profile = await getPersonalProfile(true)
+  return { title: '作品集', description: profile.portfolioIntroduction || undefined }
 }
 
 export const dynamic = 'force-dynamic'
@@ -103,7 +104,7 @@ function ProductCard({ product }: { product: Product }) {
 }
 
 export default async function ProductsPage() {
-  const { list } = await getProducts(true)
+  const [{ list }, profile] = await Promise.all([getProducts(true), getPersonalProfile(true)])
   return (
     <div className="space-y-4">
       <section className="relative overflow-hidden rounded-sm bg-[#101828] text-white shadow-[0_16px_45px_rgba(16,24,40,0.18)]">
@@ -134,9 +135,9 @@ export default async function ProductsPage() {
             <h1 className="m-0 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-[42px]">
               作品集
             </h1>
-            <p className="mb-0 mt-4 max-w-xl text-base leading-7 text-white/65 sm:text-lg">
-              从真实需求出发，把想法做成可以使用、值得持续打磨的作品。
-            </p>
+            {profile.portfolioIntroduction && <p className="mb-0 mt-4 max-w-xl whitespace-pre-line break-words text-base leading-7 text-white/65 sm:text-lg">
+              {profile.portfolioIntroduction}
+            </p>}
           </div>
 
           <div className="flex items-end justify-between gap-8 border-t border-white/10 pt-6 lg:min-w-[260px] lg:justify-end lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">

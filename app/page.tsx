@@ -61,7 +61,7 @@ export default async function HomePage({
             全部作品 <span aria-hidden="true">→</span>
           </Link>
         </div>
-
+        {profile.portfolioIntroduction && <p className={styles.sectionIntroduction}>{profile.portfolioIntroduction}</p>}
         <ProductCarousel products={latestProducts} />
       </section>
     </div>

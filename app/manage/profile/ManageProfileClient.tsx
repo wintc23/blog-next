@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation'
 import styles from './ProfileEditor.module.css'
 
 const EMPTY_PROFILE: PersonalProfileInput = {
-  siteName: '', displayName: '', avatarUrl: '', tagline: '', introduction: '', bio: '', links: [],
+  siteName: '', displayName: '', avatarUrl: '', tagline: '', introduction: '', bio: '', portfolioIntroduction: '', links: [],
   contactEmail: '', wechatId: '', wechatQrUrl: '', contactNote: '',
 }
 
@@ -127,6 +127,12 @@ export default function ManageProfileClient() {
               </Form.Item>
               <Form.Item label="介绍正文" name="bio" extra="可以写兴趣、近况或网站介绍。段落之间空一行，首页会保留分段。">
                 <Input.TextArea name="bio" rows={7} maxLength={10000} showCount />
+              </Form.Item>
+            </fieldset>
+            <fieldset className={styles.section}>
+              <legend>作品栏目</legend>
+              <Form.Item label="栏目简介" name="portfolioIntroduction" extra="显示在首页作品标题下方和作品集页面，留空则不显示。" rules={[{ max: 500 }]}>
+                <Input.TextArea name="portfolioIntroduction" rows={2} maxLength={500} showCount />
               </Form.Item>
             </fieldset>
             <fieldset id="life-moments" className={styles.section}>
