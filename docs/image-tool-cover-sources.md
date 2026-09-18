@@ -1,6 +1,6 @@
 # 工具封面
 
-2026-09-18 使用 imagegen 生成；生成图片仅用于工具封面，不代表用户生成结果。原图保存在本机生成目录，网站使用 768px WebP（quality 85）。
+2026-09-18 使用 imagegen 生成；生成图片仅用于工具封面，不代表用户生成结果。图片已迁移到七牛公开空间 image-tool-covers/，网站使用 768px WebP（quality 85），仓库不保留图片文件。
 
 - cartoon.webp：橘猫卡通插画。
 - restore.webp：虚构人物的老照片修复示意。

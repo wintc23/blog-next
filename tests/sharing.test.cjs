@@ -86,21 +86,22 @@ function cover(getImageShare) {
     '@/lib/config': { INTERNAL_API_BASE_URL: 'http://internal.test/api' },
   }).GET
 }
-test('stable cover refreshes the public share ticket and streams only its first output', async t => {
+test('stable cover refreshes the public share ticket and redirects only its first output to Qiniu without proxying image bytes', async t => {
   let count = 0
   const handler = cover(async token => {
     assert.equal(token, 'public-share')
     return { outputs: [{ url: `/image-assets/first-output/?ticket=fresh-${++count}` }, { url: '/image-assets/second-output/?ticket=unused' }] }
   })
   const urls = []
-  t.mock.method(global, 'fetch', async url => { urls.push(url); return new Response('PNG fixture', { headers: { 'Content-Type': 'image/png' } }) })
+  t.mock.method(global, 'fetch', async url => { urls.push(url); return Response.json({ url: 'https://s3.cn-south-1.qiniucs.com/private/image.png?signature=test' }) })
   for (let i = 0; i < 2; i++) {
     const response = await handler(new Request(SITE.url), { params: Promise.resolve({ token: 'public-share' }) })
-    assert.equal(response.status, 200)
+    assert.equal(response.status, 302)
     assert.equal(response.headers.get('cache-control'), 'no-store')
-    assert.equal(await response.text(), 'PNG fixture')
+    assert.match(response.headers.get('location'), /^https:\/\/s3\./)
+    assert.equal(await response.text(), '')
   }
-  assert.deepEqual(urls, ['http://internal.test/api/image-assets/first-output/?ticket=fresh-1', 'http://internal.test/api/image-assets/first-output/?ticket=fresh-2'])
+  assert.deepEqual(urls, ['http://internal.test/api/image-assets/first-output/?ticket=fresh-1&resolve=1', 'http://internal.test/api/image-assets/first-output/?ticket=fresh-2&resolve=1'])
 })
 test('revoked shares do not fetch or expose any image', async t => {
   const fetch = t.mock.method(global, 'fetch', async () => { throw new Error('Unexpected fetch') })

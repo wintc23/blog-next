@@ -7,6 +7,7 @@ import { ArrowLeftOutlined, CloseOutlined, MoreOutlined, PlusOutlined, QrcodeOut
 import { z } from 'zod'
 import { useUser, useShowLogin, useAppStore } from '@/lib/store'
 import { apiFetch } from '@/lib/api/client'
+import { trackEvent } from '@/lib/stat-event'
 import { BASE_URL } from '@/lib/config'
 import { assetUrl, downloadBlob, loadTask, mutateTask, TaskResult, uploadToolImage, ratioLabels, toolCover, type Options, type Task, type Tool } from '@/lib/image-tools'
 import { ShareDialog, useDevice } from './Shared'
@@ -85,7 +86,6 @@ function TaskEditor({ initialId, tool }: { initialId?: string; tool?: Tool }) {
     if (!tool) throw new Error('工具尚未加载')
     if (!creating.current) creating.current = apiFetch('/image-tasks/', { method: 'POST', data: { toolSlug: tool.slug }, schema: TaskResult }).then(({ task: created }) => {
       idRef.current = created.id; taskRef.current = created; setId(created.id); setTask(created)
-      window.history.replaceState(null, '', `/tools/tasks/${created.id}`)
       return created.id
     }).finally(() => { creating.current = null })
     return creating.current
@@ -138,7 +138,7 @@ function TaskEditor({ initialId, tool }: { initialId?: string; tool?: Tool }) {
     await apiFetch(`/image-tasks/${idRef.current}/`, { method: 'PATCH', data: { options: optionsRef.current, assetOrder: ids }, schema: TaskResult })
     await refresh()
   }
-  const start = () => void action(async () => { const taskId = await ensureTask(); await save(); const result = await mutateTask(taskId, 'submit/'); setTask(result.task); setSaved(''); setShare(null); setUploadUntil(null) })
+  const start = () => { trackEvent('image_tool.generate_click', { tool: task?.toolSlug }); void action(async () => { const taskId = await ensureTask(); await save(); const result = await mutateTask(taskId, 'submit/'); setTask(result.task); window.history.replaceState(null, '', `/tools/tasks/${taskId}`); setSaved(''); setShare(null); setUploadUntil(null) }).then(ok => { if (!ok) trackEvent('image_tool.submit_failed', { tool: task?.toolSlug }) }) }
   const retry = (itemId: string) => modal.confirm({ title: '重新生成这张图片？', content: '旧结果会保留。重新生成会再次占用 1 张额度；结果待确认的任务也可能已经产生服务费用。', okText: '重新生成', cancelText: '取消', onOk: () => action(async () => { setTask((await mutateTask(id, `items/${itemId}/retry/`)).task) }) })
   const taskMenuItems = [
     { key: 'share-tool', label: '分享工具' },

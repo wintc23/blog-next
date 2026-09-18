@@ -5,7 +5,7 @@ const fs = require('node:fs')
 const source = fs.readFileSync(require('node:path').join(__dirname, '../lib/image-tools.ts'), 'utf8')
 const output = ts.transpileModule(source, {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText
 const mod = {exports:{}}
-new Function('require','module','exports',output)(name => name === './api/client' ? {} : name === './config' ? {BASE_URL:'/api'} : name === './utils' ? {} : require(name),mod,mod.exports)
+new Function('require','module','exports',output)(name => name === './api/client' ? {} : name === './config' ? {BASE_URL:'/api'} : name === './stat-event' ? {trackEvent: () => {}} : name === './utils' ? {} : require(name),mod,mod.exports)
 const {deviceKind} = mod.exports
 
 test('desktop detection is independent of viewport width', () => {

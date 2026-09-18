@@ -1,7 +1,8 @@
 import { z } from 'zod'
 import { apiFetch } from './api/client'
-import { BASE_URL } from './config'
+import { BASE_URL, SITE } from './config'
 import { getTokenClient } from './utils'
+import { trackEvent } from './stat-event'
 
 export const FieldSchema = z.object({ key: z.string(), label: z.string(), options: z.array(z.string()), default: z.string() })
 export const ToolConfigSchema = z.object({
@@ -32,23 +33,61 @@ export const mutateTask = (id: string, action: string, data: unknown = {}) => ap
 export async function uploadToolImage(file: File, taskId?: string, handoff?: string) {
   if (file.size > 20 * 1024 * 1024) throw new Error(`${file.name} 超过 20 MB`)
   if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) throw new Error('请上传 JPG、PNG 或 WebP 图片；HEIC 照片请先导出为 JPG')
-  const form = new FormData()
-  form.append('image', file)
-  const headers: Record<string, string> = handoff ? { 'X-Image-Upload-Token': handoff } : { Authorization: getTokenClient() || '' }
-  const response = await fetch(`${BASE_URL}${handoff ? '/image-upload-session/' : `/image-tasks/${taskId}/assets/`}`, { method: 'POST', body: form, headers })
-  const result = await response.json().catch(() => ({}))
-  if (!response.ok) throw new Error(result.message || '上传失败，请重试')
+  const headers: Record<string, string> = { 'Content-Type': 'application/json', ...(handoff ? { 'X-Image-Upload-Token': handoff } : { Authorization: getTokenClient() || '' }) }
+  const endpoint = `${BASE_URL}${handoff ? '/image-upload-session/' : `/image-tasks/${taskId}/assets/`}`
+  const request = async (data: unknown) => {
+    const response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(data) })
+    const result = await response.json().catch(() => ({}))
+    if (!response.ok) throw new Error(result.message || '上传失败，请重试')
+    return result
+  }
+  trackEvent('image_tool.upload_start', { source: handoff ? 'phone' : 'local' })
+  try {
+    const grant = await request({ action: 'authorize', name: file.name, size: file.size, mime: file.type })
+    const form = new FormData()
+    form.append('token', grant.token); form.append('key', grant.key); form.append('file', file)
+    const response = await fetch(grant.upload_url, { method: 'POST', body: form, credentials: 'omit', referrerPolicy: 'no-referrer' })
+    if (!response.ok) throw new Error('图片上传失败，请重试')
+    await request({ action: 'complete', ticket: grant.ticket })
+  } catch (error) {
+    trackEvent('image_tool.upload_failed', { source: handoff ? 'phone' : 'local' })
+    throw error
+  }
 }
 
 export async function downloadBlob(url: string, name: string, auth = false, share = false) {
   const headers: Record<string, string> = auth ? { Authorization: getTokenClient() || '' } : {}
-  const response = await fetch(url, { headers })
+  const endpoint = auth ? url : `${url}&resolve=1&download=1`
+  const response = await fetch(endpoint, { headers })
   if (!response.ok) throw new Error('下载失败，请刷新任务后重试')
-  const blob = await response.blob()
+  const manifest = await response.json() as { url?: string; files?: { url: string; name: string }[] }
+  let blob: Blob
+  const read = async (link: string) => {
+    const result = await fetch(link, { credentials: 'omit', referrerPolicy: 'no-referrer' })
+    if (!result.ok) throw new Error('下载失败，请重试')
+    return result
+  }
+  if (manifest.files) {
+    const { zip } = await import('fflate')
+    const files: Record<string, Uint8Array> = {}
+    let total = 0
+    for (const file of manifest.files) {
+      const bytes = new Uint8Array(await (await read(file.url)).arrayBuffer())
+      total += bytes.byteLength
+      if (total > 300 * 1024 * 1024) throw new Error('图片较多，请逐张下载')
+      files[file.name] = bytes
+    }
+    const data = await new Promise<Uint8Array>((resolve, reject) => zip(files, { level: 0 }, (error, result) => error ? reject(error) : resolve(result)))
+    blob = new Blob([new Uint8Array(data).buffer], { type: 'application/zip' })
+  } else {
+    if (!manifest.url) throw new Error('下载地址已失效，请刷新后重试')
+    blob = await (await read(manifest.url)).blob()
+  }
   if (share) {
     const file = new File([blob], name, { type: blob.type })
     if (navigator.canShare?.({ files: [file] })) {
       await navigator.share({ files: [file] })
+      trackEvent('image_tool.download_complete', { format: manifest.files ? 'zip' : 'image' })
       return
     }
   }
@@ -60,6 +99,7 @@ export async function downloadBlob(url: string, name: string, auth = false, shar
   link.click()
   link.remove()
   setTimeout(() => URL.revokeObjectURL(objectUrl), 60000)
+  trackEvent('image_tool.download_complete', { format: manifest.files ? 'zip' : 'image' })
 }
 
 export type DeviceKind = 'desktop' | 'phone' | 'other'
@@ -70,4 +110,4 @@ export function deviceKind(userAgent: string, touchPoints: number, finePointer: 
   return finePointer && /Windows|Macintosh|X11|Linux/i.test(userAgent) ? 'desktop' : 'other'
 }
 
-export const toolCover = (tool: Pick<Tool, 'slug' | 'config'>) => tool.config.coverUrl || `/images/tools/${['cartoon', 'restore', 'create'].includes(tool.slug) ? tool.slug : 'create'}.webp`
+export const toolCover = (tool: Pick<Tool, 'slug' | 'config'>) => tool.config.coverUrl || SITE.icon
