@@ -1,0 +1,29 @@
+.page { padding: 24px 0; max-width: 1240px; margin: 0 auto; color: var(--site-text); }
+.header { display: flex; justify-content: space-between; align-items: start; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+.header h1 { margin: 0 0 8px; font-size: var(--font-title); font-weight: 500; }
+.header p, .help { color: var(--site-text-secondary); line-height: 1.8; margin: 0; }
+.summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 20px 0; }
+.summary span { color: var(--site-text-secondary); font-size: var(--font-ui); }
+.summary strong { display: block; font-size: var(--font-title); font-weight: 500; margin-top: 12px; }
+.summary small { color: var(--site-text-secondary); font-size: var(--font-ui); font-weight: 400; }
+.summary .service { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: var(--font-subtitle); }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.toolCard { overflow: hidden; }
+.toolCard :global(.ant-card-cover) img { aspect-ratio: 3 / 2; object-fit: cover; }
+.cardTitle { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cardTitle h2 { margin: 0; font-size: var(--font-subtitle); font-weight: 500; }
+.toolCard p { color: var(--site-text-secondary); line-height: 1.8; min-height: 76px; margin: 12px 0; }
+.meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: var(--font-meta); color: var(--site-text-secondary); margin-bottom: 20px; }
+.page .notice { margin-bottom: 20px; }
+.limits { max-width: 760px; }
+.limits p { color: var(--site-text-secondary); line-height: 1.8; margin-bottom: 24px; }
+.full { width: 100%; }
+.coverEditor { display: flex; gap: 20px; align-items: center; margin: 16px 0; }
+.coverEditor img { width: 168px; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--site-radius); }
+.coverEditor p { font-size: var(--font-meta); color: var(--site-text-secondary); line-height: 1.8; }
+.drawerFooter { display: flex; justify-content: flex-end; gap: 12px; }
+.rulesHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.rule { margin-bottom: 12px; background: var(--site-surface-subtle); }
+.help { margin-bottom: 18px; font-size: var(--font-ui); }
+@media (max-width: 1100px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .summary, .cards { grid-template-columns: minmax(0, 1fr); } .coverEditor { flex-direction: column; align-items: start; } .coverEditor img { width: 100%; } }

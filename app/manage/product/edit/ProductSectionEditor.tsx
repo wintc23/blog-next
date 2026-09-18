@@ -188,7 +188,7 @@ export default function ProductSectionEditor({ sections, onChange }: Props) {
     return (
       <div className="space-y-3">
         {items.map((item, index) => (
-          <div key={index} className="grid gap-2 rounded border border-[#edf0f4] p-3 sm:grid-cols-[220px_1fr_auto]">
+          <div key={index} className="grid gap-2 rounded border border-[var(--site-bg)] p-3 sm:grid-cols-[220px_1fr_auto]">
             <Input
               value={item.title}
               placeholder="功能名称"
@@ -220,7 +220,7 @@ export default function ProductSectionEditor({ sections, onChange }: Props) {
     return (
       <div className="space-y-3">
         {items.map((item, index) => (
-          <div key={index} className="grid gap-2 rounded border border-[#edf0f4] p-3 sm:grid-cols-[220px_1fr_auto]">
+          <div key={index} className="grid gap-2 rounded border border-[var(--site-bg)] p-3 sm:grid-cols-[220px_1fr_auto]">
             <Input
               value={item.title}
               placeholder="步骤名称"
@@ -268,9 +268,9 @@ export default function ProductSectionEditor({ sections, onChange }: Props) {
     return (
       <div className="space-y-3">
         {items.map((item, index) => (
-          <div key={`${item.url}-${index}`} className="grid gap-3 rounded border border-[#edf0f4] p-3 sm:grid-cols-[180px_1fr_auto]">
+          <div key={`${item.url}-${index}`} className="grid gap-3 rounded border border-[var(--site-bg)] p-3 sm:grid-cols-[180px_1fr_auto]">
             {(item.type || 'image') === 'video' ? (
-              <div className="flex h-28 w-full flex-col items-center justify-center rounded bg-[#111827] text-white">
+              <div className="flex h-28 w-full flex-col items-center justify-center rounded bg-[var(--site-text)] text-white">
                 <span className="text-3xl" aria-hidden="true">▶</span>
                 <span className="mt-1 text-xs text-white/70">视频</span>
               </div>
@@ -367,7 +367,7 @@ export default function ProductSectionEditor({ sections, onChange }: Props) {
     return (
       <div className="space-y-3">
         {items.map((item, index) => (
-          <div key={index} className="grid items-center gap-2 rounded border border-[#edf0f4] p-3 sm:grid-cols-[150px_minmax(0,1fr)_150px_100px_auto]">
+          <div key={index} className="grid items-center gap-2 rounded border border-[var(--site-bg)] p-3 sm:grid-cols-[150px_minmax(0,1fr)_150px_100px_auto]">
             <Input value={item.label} placeholder="按钮名称" onChange={(event) => updateContent(sectionIndex, {
               items: items.map((value, i) => i === index ? { ...value, label: event.target.value } : value),
             })} />
@@ -422,7 +422,7 @@ export default function ProductSectionEditor({ sections, onChange }: Props) {
                 return false
               }}
             >
-              <button type="button" className="flex h-32 w-44 items-center justify-center overflow-hidden rounded border border-dashed border-[#d9d9d9] bg-[#fafafa]">
+              <button type="button" className="flex h-32 w-44 items-center justify-center overflow-hidden rounded border border-dashed border-[var(--site-border)] bg-[var(--site-surface-subtle)]">
                 {imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={imageUrl} alt="" className="h-full w-full object-cover" />
@@ -446,7 +446,7 @@ export default function ProductSectionEditor({ sections, onChange }: Props) {
 
   return (
     <div>
-      <div className="mb-4 text-sm text-[#888]">
+      <div className="mb-4 text-sm text-[var(--site-text-secondary)]">
         拖动模块调整顺序；标题、副标题和布局都可以单独设置。
       </div>
       <div className="fixed bottom-6 right-6 z-30">
@@ -469,7 +469,7 @@ export default function ProductSectionEditor({ sections, onChange }: Props) {
       </div>
 
       {sections.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-[#d9d9d9] px-6 py-14 text-center text-[#999]">
+        <div className="rounded-lg border border-dashed border-[var(--site-border)] px-6 py-14 text-center text-[var(--site-text-disabled)]">
           暂无详情模块，点击“添加模块”开始搭建作品页面。
         </div>
       ) : (
@@ -489,19 +489,19 @@ export default function ProductSectionEditor({ sections, onChange }: Props) {
                 }}
                 onDragEnd={() => setDragIndex(null)}
                 className={`overflow-hidden rounded-lg border bg-white transition ${
-                  dragIndex === index ? 'border-[#409eff] opacity-60' : 'border-[#dde2e8]'
+                  dragIndex === index ? 'border-[var(--site-primary)] opacity-60' : 'border-[var(--site-border)]'
                 }`}
               >
-                <div className="flex items-center gap-3 border-b border-[#edf0f4] bg-[#fafbfc] px-3 py-3">
-                  <HolderOutlined className="cursor-grab text-lg text-[#98a2b3] active:cursor-grabbing" />
-                  <span className="flex h-6 min-w-6 items-center justify-center rounded bg-[#edf4ff] px-1.5 text-xs font-bold text-[#2d8cf0]">
+                <div className="flex items-center gap-3 border-b border-[var(--site-bg)] bg-[var(--site-surface-subtle)] px-3 py-3">
+                  <HolderOutlined className="cursor-grab text-lg text-[var(--site-text-secondary)] active:cursor-grabbing" />
+                  <span className="flex h-6 min-w-6 items-center justify-center rounded bg-[var(--site-primary-soft)] px-1.5 text-xs font-bold text-[var(--site-primary)]">
                     {index + 1}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate font-medium text-[#333]">{section.title || definition?.label || section.type}</div>
-                    <div className="text-xs text-[#999]">{definition?.label || section.type}</div>
+                    <div className="truncate font-medium text-[var(--site-text)]">{section.title || definition?.label || section.type}</div>
+                    <div className="text-xs text-[var(--site-text-disabled)]">{definition?.label || section.type}</div>
                   </div>
-                  <label className="flex items-center gap-1.5 text-sm text-[#666]">
+                  <label className="flex items-center gap-1.5 text-sm text-[var(--site-text-secondary)]">
                     <Switch size="small" checked={section.visible} onChange={(visible) => updateSection(index, { visible })} />
                     显示
                   </label>
@@ -514,15 +514,15 @@ export default function ProductSectionEditor({ sections, onChange }: Props) {
                 <div className="p-4 sm:p-5">
                   <div className="mb-5 grid gap-3 sm:grid-cols-[1fr_1fr_180px]">
                     <label>
-                      <div className="mb-1 text-xs text-[#888]">模块标题</div>
+                      <div className="mb-1 text-xs text-[var(--site-text-secondary)]">模块标题</div>
                       <Input value={section.title || ''} placeholder="可留空" onChange={(event) => updateSection(index, { title: event.target.value })} />
                     </label>
                     <label>
-                      <div className="mb-1 text-xs text-[#888]">小标题</div>
+                      <div className="mb-1 text-xs text-[var(--site-text-secondary)]">小标题</div>
                       <Input value={section.subtitle || ''} placeholder="例如 FEATURES" onChange={(event) => updateSection(index, { subtitle: event.target.value })} />
                     </label>
                     <label>
-                      <div className="mb-1 text-xs text-[#888]">布局</div>
+                      <div className="mb-1 text-xs text-[var(--site-text-secondary)]">布局</div>
                       <Select className="w-full" value={section.layout} options={layoutOptions(section.type)} onChange={(layout) => updateSection(index, { layout })} />
                     </label>
                   </div>

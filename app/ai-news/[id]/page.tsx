@@ -6,6 +6,7 @@ import DigestArticle from '@/components/ai-digest/DigestArticle'
 import { SITE } from '@/lib/config'
 import { getSiteIdentity } from '@/lib/get-site-identity'
 import { formatSiteTitle } from '@/lib/site-identity'
+import { shareMetadata } from '@/lib/share-metadata'
 
 export const dynamic = 'force-dynamic'
 type Props = { params: Promise<{ id: string }> }
@@ -27,11 +28,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [detail, identity] = await Promise.all([getPublishedIssue(params), getSiteIdentity()])
   const title = `${detail.title.trim()} - ${detail.channelTitle.trim()}`
   return {
-    title, description: detail.summary,
-    alternates: { canonical: `${SITE.url}/ai-news/${detail.id}` },
+    ...shareMetadata({ title, description: detail.summary, path: `/ai-news/${detail.id}`, siteName: identity.title, type: 'article', image: detail.cover ? { url: detail.cover.url, alt: detail.cover.alt } : undefined }),
     openGraph: { type: 'article', title: formatSiteTitle(title, identity.title), siteName: identity.title, description: detail.summary,
+      url: `${SITE.url}/ai-news/${detail.id}`, locale: 'zh_CN',
       publishedTime: detail.publishedAt || undefined, modifiedTime: detail.updatedAt,
-      images: detail.cover ? [{ url: detail.cover.url, alt: detail.cover.alt }] : [] },
+      images: [{ url: new URL(detail.cover?.url || SITE.icon, SITE.url).href, alt: detail.cover?.alt || title }] },
   }
 }
 

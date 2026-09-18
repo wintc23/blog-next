@@ -85,10 +85,10 @@ export default function RouteError({
           {/* saucer */}
           <ellipse cx="80" cy="116" rx="56" ry="6" fill="rgba(64,158,255,0.15)" />
         </svg>
-        <p className="mt-6 text-base text-[#4e5969]">
+        <p className="mt-6 text-base text-[var(--site-text-secondary)]">
           加载这个页面时发生了一点小意外
         </p>
-        <p className="mt-1 text-sm text-[#86909c]">稍等片刻再刷新试试</p>
+        <p className="mt-1 text-sm text-[var(--site-text-secondary)]">稍等片刻再刷新试试</p>
         {/* AntD Button as base, with extra padding, pill shape, soft
             blue shadow, and a hover-lift / icon-spin effect added via
             className so it sits at AntD's component level rather than a

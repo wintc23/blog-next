@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ tagId: st
   const { tagId } = await params
   const { list: tags } = await getTagList(true).catch(() => ({ list: [] }))
   const tag = tags.find((item) => String(item.id) === tagId)
-  return { title: tag ? `${tag.title} - 博客归档` : '博客归档' }
+  return { title: tag ? `${tag.title} - 已归档博客` : '已归档博客' }
 }
 
 export default async function TagPage({
@@ -36,8 +36,8 @@ export default async function TagPage({
       header={
         tag ? (
           <div className="sub-page-header ws">
-            当前标签：<span className="text-[#409eff]">{tag.title}</span>，共
-            <span className="text-[#409eff]">{tag.postCount}</span>篇文章
+            当前标签：<span className="text-[var(--site-primary)]">{tag.title}</span>，共
+            <span className="text-[var(--site-primary)]">{tag.postCount}</span>篇文章
           </div>
         ) : undefined
       }

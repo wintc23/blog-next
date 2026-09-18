@@ -1,16 +1,16 @@
 .editor { max-inline-size: 860px; margin-inline: auto; padding: 32px 24px 60px; }
 .heading { display: flex; align-items: center; flex-wrap: wrap; gap: 20px; justify-content: space-between; margin-block-end: 28px; }
-.heading h1 { margin: 0; font-size: 24px; color: #333; }
-.heading p, .help { margin: 8px 0 0; color: #777; font-size: 14px; line-height: 1.8; }
-.section { min-inline-size: 0; margin: 0 0 30px; padding: 22px; border: 1px solid #e3eaf4; border-radius: 8px; }
-.section legend { padding-inline: 8px; font-size: 17px; font-weight: 500; color: #333; }
+.heading h1 { margin: 0; font-size: var(--font-title); color: var(--site-title); }
+.heading p, .help { margin: 8px 0 0; color: var(--site-text-secondary); font-size: var(--font-ui); line-height: 1.8; }
+.section { min-inline-size: 0; margin: 0 0 30px; padding: 22px; border: 1px solid var(--site-border); border-radius: var(--site-radius); }
+.section legend { padding-inline: 8px; font-size: var(--font-subtitle); font-weight: 500; color: var(--site-text); }
 .section :global(.ant-form-item:last-child) { margin-block-end: 0; }
 .avatarTools { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-block: -8px 24px; }
 .avatarTools img { display: block; border-radius: 50%; object-fit: cover; }
 .qrTools { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
 .qrTools img { display: block; max-inline-size: 100%; block-size: auto; }
 .help { margin-block: 0 20px; }
-.linkRow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 0 16px; padding-block-end: 20px; margin-block-end: 20px; border-block-end: 1px solid #edf0f4; }
+.linkRow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 0 16px; padding-block-end: 20px; margin-block-end: 20px; border-block-end: 1px solid var(--site-bg); }
 .linkActions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; }
 .editor textarea { resize: vertical; }
 .section { scroll-margin-block-start: 90px; }
@@ -19,5 +19,5 @@
   .section { padding: 16px; }
   .linkRow { grid-template-columns: minmax(0, 1fr); }
   .editor :global(.ant-btn) { min-block-size: 48px; }
-  .editor :global(.ant-input) { font-size: 16px; }
+  .editor :global(.ant-input) { font-size: var(--font-body); }
 }

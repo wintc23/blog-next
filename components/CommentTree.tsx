@@ -1,18 +1,22 @@
 'use client'
 
-import { Button, App, Input } from 'antd'
-import { useEffect, useRef, useState } from 'react'
+import { Button, App } from 'antd'
+import { useEffect, useState } from 'react'
 import type { Comment } from '@/lib/types'
 import { useUser, useShowLogin } from '@/lib/store'
 import { useUserById } from '@/lib/user-cache'
 import UserAvatar from './UserAvatar'
 import { timeShow } from '@/lib/utils'
+import CommentInput from './CommentInput'
+import RichCommentBody from './RichCommentBody'
+import { apiFetch } from '@/lib/api/client'
+import { CommentSchema } from '@/lib/schemas/comment'
 
 type ReplyHandler = (
   body: string,
   responseId: number | undefined,
   onDone?: () => void,
-) => void
+) => void | Promise<void>
 
 type SetVisibilityHandler = (comment: Comment, done: () => void) => void
 
@@ -21,6 +25,7 @@ interface Props {
   currentId?: number | string
   onReply: ReplyHandler
   onSetVisibility?: SetVisibilityHandler
+  kind?: 'comment' | 'message'
 }
 
 type RootComment = Comment & { children: Comment[] }
@@ -59,6 +64,7 @@ function CommentItem({
   isCurrent,
   onReply,
   onSetVisibility,
+  kind,
 }: {
   comment: Comment
   isChild: boolean
@@ -67,26 +73,31 @@ function CommentItem({
   isCurrent: boolean
   onReply: ReplyHandler
   onSetVisibility?: SetVisibilityHandler
+  kind: 'comment' | 'message'
 }) {
   const user = useUser()
   const showLogin = useShowLogin()
   const { message } = App.useApp()
   const [editing, setEditing] = useState(false)
+  const [editingOwn, setEditingOwn] = useState(false)
+  const [body, setBody] = useState(comment.body)
   const [reply, setReply] = useState('')
   const [sending, setSending] = useState(false)
   const [hidden, setHidden] = useState(!!comment.hide)
-  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const [uploading, setUploading] = useState(false)
   const replyTargetUser = useUserById(
     isChild && rootId && comment.responseId !== rootId ? responseUserId : null,
   )
 
   useEffect(() => {
-    if (editing) inputRef.current?.focus()
-  }, [editing])
+    setBody(comment.body)
+    setHidden(!!comment.hide)
+  }, [comment.body, comment.hide])
 
   const avatarSize = isChild ? 28 : 36
 
-  const submitReply = () => {
+  const submitReply = async () => {
+    if (sending || uploading) return
     if (!reply.trim()) {
       message.info('内容不能为空')
       return
@@ -96,11 +107,23 @@ function CommentItem({
       return
     }
     setSending(true)
-    onReply(reply, comment.id, () => {
+    try {
+      if (editingOwn) {
+        const updated = await apiFetch(`/${kind}s/${comment.id}/`, { method: 'PUT', data: { body: reply }, schema: CommentSchema })
+        setBody(updated.body)
+        setHidden(!!updated.hide)
+        setEditing(false)
+        setReply('')
+        message.success(updated.hide ? '已保存，审核后公开' : '已保存')
+      } else await onReply(reply, comment.id, () => {
+        setEditing(false)
+        setReply('')
+      })
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : '提交失败，请重试')
+    } finally {
       setSending(false)
-      setEditing(false)
-      setReply('')
-    })
+    }
   }
 
   const passVisibility = () => {
@@ -111,23 +134,23 @@ function CommentItem({
   return (
     <div
       className={`break-words ${isChild ? 'pl-10' : 'pt-2'} ${
-        isCurrent ? 'bg-[#ECF5FD]' : ''
+        isCurrent ? 'bg-[var(--site-primary-soft)]' : ''
       }`}
     >
       <div className="flex flex-wrap items-center text-sm font-bold">
         <UserAvatar userId={comment.authorId} size={avatarSize} />
         {isChild && rootId && comment.responseId !== rootId && responseUserId ? (
-          <span className="ml-1 text-[#aaa]">
+          <span className="ml-1 text-[var(--site-text-disabled)]">
             回复
-            <span className="px-1 text-[#4791ff]">
+            <span className="px-1 text-[var(--site-primary)]">
               {replyTargetUser?.username || ''}
             </span>
           </span>
         ) : null}
       </div>
       <div className={isChild ? 'pl-[30px]' : 'pl-10'}>
-        <div className="whitespace-pre-wrap py-1 text-[15px] text-[#333]">
-          {comment.body}
+        <div className="whitespace-pre-wrap py-1 text-base text-[var(--site-text)]">
+          <RichCommentBody body={body} />
           {hidden && (
             <span className="ml-2 text-xs">
               <span className="text-[#FF4949]">[待审核,审核后公开]</span>
@@ -144,36 +167,41 @@ function CommentItem({
             </span>
           )}
         </div>
-        <div className="flex items-center text-sm leading-8 text-[#aaa]">
-          <span
-            onClick={() => setEditing((v) => !v)}
+        <div className="flex items-center text-sm leading-8 text-[var(--site-text-disabled)]">
+          <button
+            type="button"
+            onClick={() => { setEditingOwn(false); setReply(''); setEditing((v) => !v) }}
             style={{ WebkitTapHighlightColor: 'transparent' }}
-            className={`cursor-pointer select-none hover:font-bold hover:text-[#6B798C] ${
-              editing ? 'font-bold text-[#6B798C]' : ''
+            className={`border-0 bg-transparent p-0 text-inherit cursor-pointer select-none hover:font-bold hover:text-[var(--site-text-secondary)] ${
+              editing ? 'font-bold text-[var(--site-text-secondary)]' : ''
             }`}
           >
             回复
-          </span>
-          <span className="mx-1 inline-block h-1 w-1 rounded-full border-2 border-[#ccc]" />
+          </button>
+          {(user?.id === comment.authorId || user?.admin) && <button type="button" className="ml-3 border-0 bg-transparent p-0 text-inherit hover:text-[var(--site-primary)]" onClick={() => { setEditingOwn(true); setReply(body); setEditing(true) }}>编辑</button>}
+          <span className="mx-1 inline-block h-1 w-1 rounded-full border-2 border-[var(--site-border)]" />
           <span>{timeShow(comment.timestamp)}</span>
         </div>
         {editing && (
           <div className="mt-1">
-            <Input.TextArea
-              ref={inputRef}
+            <CommentInput
               value={reply}
-              onChange={(e) => setReply(e.target.value)}
-              placeholder="回复..."
-              autoSize={{ minRows: 2, maxRows: 6 }}
+              onChange={setReply}
+              placeholder={editingOwn ? '编辑内容' : '回复...'}
+              compact
+              rows={2}
+              onBusyChange={setUploading}
+              actions={(
+                <>
+                  <Button size="small" type="primary" loading={sending} disabled={uploading} onClick={submitReply}>
+                    {editingOwn ? '保存' : '回复'}
+                  </Button>
+                  <Button size="small" disabled={sending || uploading} onClick={() => setEditing(false)}>
+                    取消
+                  </Button>
+                </>
+              )}
             />
-            <div className="mt-2 space-x-2">
-              <Button size="small" type="primary" loading={sending} onClick={submitReply}>
-                确定
-              </Button>
-              <Button size="small" onClick={() => setEditing(false)}>
-                取消
-              </Button>
-            </div>
           </div>
         )}
       </div>
@@ -186,10 +214,11 @@ export default function CommentTree({
   currentId,
   onReply,
   onSetVisibility,
+  kind = 'comment',
 }: Props) {
   const tree = buildTree(list || [])
   if (!tree.length) {
-    return <div className="py-6 text-center text-[#999]">暂无评论</div>
+    return <div className="py-6 text-center text-[var(--site-text-disabled)]">暂无评论</div>
   }
 
   // Build id -> comment map for resolving reply targets
@@ -207,6 +236,7 @@ export default function CommentTree({
             className="ws mb-3 rounded-sm p-3"
           >
             <CommentItem
+              kind={kind}
               comment={root}
               isChild={false}
               rootId={root.id}
@@ -226,6 +256,7 @@ export default function CommentTree({
                     String(currentId) === String(child.id)
                   return (
                     <CommentItem
+                      kind={kind}
                       key={child.id}
                       comment={child}
                       isChild

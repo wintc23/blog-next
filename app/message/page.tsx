@@ -1,7 +1,12 @@
 import { getMessages } from '@/lib/api/messages'
 import MessagePageClient from './MessagePageClient'
+import { getSiteIdentity } from '@/lib/get-site-identity'
+import { shareMetadata } from '@/lib/share-metadata'
 
-export const metadata = { title: '留言' }
+export async function generateMetadata() {
+  const identity = await getSiteIdentity()
+  return shareMetadata({ title: '留言', description: '分享想法，留下你的留言。', path: '/message', siteName: identity.title })
+}
 
 export const dynamic = 'force-dynamic'
 

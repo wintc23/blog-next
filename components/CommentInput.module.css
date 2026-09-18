@@ -1,0 +1,40 @@
+.composer {
+  --ink: var(--site-text-secondary);
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+  background: var(--site-surface);
+  overflow: hidden;
+}
+.composer:hover { border-color: var(--site-primary-hover); }
+.composer:focus-within { border-color: var(--site-primary); }
+.identity { display: flex; align-items: center; gap: 10px; padding: 16px 18px 0; color: var(--site-text-secondary); font-size: var(--font-ui); }
+.avatar { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; overflow: hidden; background: var(--site-bg); color: var(--ink); font-size: var(--font-meta); cursor: pointer; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.writing { position: relative; padding: 12px 18px 16px; }
+.writing :global(.tiptap) { min-height: calc(var(--editor-rows, 4) * 1.75rem); max-height: 18rem; overflow-y: auto; color: var(--site-text-secondary); font-size: var(--font-body); line-height: 1.75; overflow-wrap: anywhere; white-space: pre-wrap; }
+.writing :global(.tiptap):focus { outline: none; box-shadow: none; }
+.writing :global(.tiptap p) { margin: 0; }
+.writing :global(.tiptap a) { color: var(--site-primary); text-decoration: underline; text-underline-offset: 3px; }
+.writing :global(.tiptap p.is-editor-empty:first-child)::before { content: attr(data-placeholder); float: left; height: 0; pointer-events: none; color: var(--site-text-secondary); }
+.loginOverlay { position: absolute; inset: 0; width: 100%; border: 0; background: transparent; cursor: text; }
+.footer { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 10px 12px; background: var(--site-bg); border-top: 1px solid var(--site-bg); }
+.actions { display: flex; align-items: center; gap: 8px; }
+.actions :global(.ant-btn) { float: none; margin: 0; min-height: 34px; padding-inline: 18px; border-radius: var(--site-radius); font-size: var(--font-ui); }
+/* Match the site's success buttons, including AntD's more specific interaction states. */
+.actions :global(button.ant-btn-primary:not(:disabled):not(.ant-btn-disabled)) { background: #19be6b; border-color: #19be6b; color: var(--site-surface); box-shadow: none; }
+.actions :global(button.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover) { background: #47cb89; border-color: #47cb89; color: var(--site-surface); }
+.actions :global(button.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):active) { background: #18b566; border-color: #18b566; }
+.actions :global(button.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):focus-visible) { outline: 2px solid #138752; outline-offset: 2px; }
+.attachments:has(ol) { padding: 0 18px 16px; }
+.compact .writing { padding-top: 16px; }
+.selectionTools { display: flex; gap: 4px; padding: 5px; border: 1px solid var(--site-border); border-radius: var(--site-radius); background: white; box-shadow: 0 2px 8px #0000001a; }
+.selectionTools button { display: flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 10px; border: 0; border-radius: var(--site-radius); background: transparent; color: var(--site-text-secondary); cursor: pointer; font-size: var(--font-ui); }
+.selectionTools button:hover { background: var(--site-bg); }
+.avatar:focus-visible, .loginOverlay:focus-visible, .selectionTools button:focus-visible { outline: 2px solid var(--site-primary); outline-offset: -2px; }
+@media (max-width: 480px) {
+  .identity { padding-inline: 14px; }
+  .writing { padding-inline: 14px; }
+  .footer { padding: 8px; gap: 6px; }
+  .actions :global(.ant-btn) { padding-inline: 12px; }
+}
+@media (pointer: coarse) { .footer :global(.ant-btn), .selectionTools button { min-height: 40px; } }

@@ -14,6 +14,8 @@ export const CommentSchema = z.object({
   responseId: z.number().nullish(),
   hide: z.boolean().optional(),
   postId: z.number().nullish(),
+  digestId: z.number().nullish(),
+  targetUrl: z.string().nullish(),
   postTitle: z.string().nullish(),
 })
 export type Comment = z.infer<typeof CommentSchema>

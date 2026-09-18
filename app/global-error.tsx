@@ -62,7 +62,7 @@ export default function GlobalError({
               strokeLinecap="round"
             />
           </svg>
-          <h2 style={{ fontSize: 22, margin: '24px 0 8px', fontWeight: 600 }}>
+          <h2 style={{ fontSize: 24, margin: '24px 0 8px', fontWeight: 600 }}>
             糟糕，遇到点问题
           </h2>
           <p style={{ color: '#86909c', fontSize: 14, margin: '0 0 24px' }}>

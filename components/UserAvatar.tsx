@@ -16,7 +16,7 @@ export default function UserAvatar({
   userId,
   size = 36,
   showName = true,
-  nameClassName = 'text-[#4791ff] px-1',
+  nameClassName = 'text-[var(--site-primary)] px-1',
   className = '',
 }: Props) {
   const user = useUserById(userId)
@@ -40,7 +40,7 @@ export default function UserAvatar({
         />
       ) : (
         <span
-          className="inline-flex shrink-0 items-center justify-center rounded-full bg-[#e8e8e8] text-[#999]"
+          className="inline-flex shrink-0 items-center justify-center rounded-full bg-[var(--site-hover-bg)] text-[var(--site-text-disabled)]"
           style={{ width: size, height: size, fontSize: size * 0.55 }}
         >
           <UserOutlined />

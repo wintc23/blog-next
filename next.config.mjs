@@ -1,6 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Preserve Flask API trailing slashes, including multipart uploads.
+  skipTrailingSlashRedirect: true,
+  async rewrites() {
+    if (!(process.env.NEXT_PUBLIC_API_BASE_URL || '/api').startsWith('/')) return []
+    const api = (process.env.INTERNAL_API_BASE_URL || 'http://127.0.0.1:5001/api').replace(/\/$/, '')
+    const origin = new URL(api).origin
+    return [
+      { source: '/api/:path*/', destination: `${api}/:path*/` },
+      { source: '/api/:path*', destination: `${api}/:path*` },
+      { source: '/socket.io/:path*/', destination: `${origin}/socket.io/:path*/` },
+      { source: '/socket.io/:path*', destination: `${origin}/socket.io/:path*` },
+    ]
+  },
   distDir: process.env.NEXT_DIST_DIR || '.next',
   async redirects() {
     if (process.env.NODE_ENV !== 'development') return []

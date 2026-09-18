@@ -37,9 +37,9 @@ export default async function RecommendationPage() {
             rel="noreferrer"
             className="ws block rounded-sm p-5 hover:shadow-md"
           >
-            <div className="text-lg font-bold text-[#333]">{item.title}</div>
-            <div className="text-sm text-[#666]">{item.description}</div>
-            <div className="mt-2 space-y-1 text-sm text-[#333]">
+            <div className="text-lg font-bold text-[var(--site-text)]">{item.title}</div>
+            <div className="text-sm text-[var(--site-text-secondary)]">{item.description}</div>
+            <div className="mt-2 space-y-1 text-sm text-[var(--site-text)]">
               {item.introduce.map((t, i) => (
                 <div key={i}>{t}</div>
               ))}

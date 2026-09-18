@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import BackLink from '@/components/BackLink'
 import { notFound } from 'next/navigation'
 import ProductSections from '@/components/ProductSections'
 import TrackedProductLink from '@/components/TrackedProductLink'
 import { getProduct } from '@/lib/api/products'
 import { ApiError } from '@/lib/api/client'
 import { getSiteIdentity } from '@/lib/get-site-identity'
+import { shareMetadata } from '@/lib/share-metadata'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -21,11 +22,12 @@ async function loadProduct(slug: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const [product, identity] = await Promise.all([loadProduct(slug), getSiteIdentity()])
-  return {
-    title: `${product.name.trim()} - 作品集`,
+  return shareMetadata({
+    title: `${product.name.trim()} - 个人作品`,
     description: product.summary || product.tagline || identity.description,
-    openGraph: product.coverUrl ? { images: [product.coverUrl] } : undefined,
-  }
+    path: `/products/${encodeURIComponent(slug)}`, siteName: identity.title,
+    image: product.coverUrl ? { url: product.coverUrl, alt: product.name } : undefined,
+  })
 }
 
 export default async function ProductDetailPage({ params }: Props) {
@@ -38,21 +40,10 @@ export default async function ProductDetailPage({ params }: Props) {
   return (
     <div className="space-y-4">
       <section className="ws overflow-hidden rounded-sm">
-        <div className="flex items-center gap-2 border-b border-[#edf0f4] px-5 py-3.5 text-sm sm:px-8">
-          <Link
-            href="/products"
-            className="group inline-flex items-center gap-2 font-medium text-[#667085] transition hover:text-[#222]"
-          >
-            <span
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-[#f2f4f7] text-[#667085] transition group-hover:-translate-x-0.5 group-hover:bg-[#e9edf2] group-hover:text-[#222]"
-              aria-hidden="true"
-            >
-              ←
-            </span>
-            作品集
-          </Link>
-          <span className="text-[#d0d5dd]" aria-hidden="true">/</span>
-          <span className="truncate text-[#98a2b3]">{product.name}</span>
+        <div className="flex items-center gap-2 border-b border-[var(--site-bg)] px-5 py-3.5 text-sm sm:px-8">
+          <BackLink href="/products">返回个人作品</BackLink>
+          <span className="text-[var(--site-border)]" aria-hidden="true">/</span>
+          <span className="truncate text-[var(--site-text-secondary)]">{product.name}</span>
         </div>
         <div
           className="grid lg:grid-cols-2"
@@ -72,8 +63,8 @@ export default async function ProductDetailPage({ params }: Props) {
                 </div>
               )}
               <div className="min-w-0">
-                <h1 className="m-0 break-words text-2xl font-bold text-[#222] sm:text-3xl">{product.name}</h1>
-                <div className="mt-2 flex flex-wrap gap-2 text-xs text-[#666]">
+                <h1 className="m-0 break-words text-2xl font-bold text-[var(--site-text)] sm:text-3xl">{product.name}</h1>
+                <div className="mt-2 flex flex-wrap gap-2 text-xs text-[var(--site-text-secondary)]">
                   {product.platform && <span>{product.platform}</span>}
                   {product.version && <span>· v{product.version}</span>}
                   {product.statusLabel && <span>· {product.statusLabel}</span>}
@@ -82,10 +73,10 @@ export default async function ProductDetailPage({ params }: Props) {
             </div>
 
             {product.tagline && (
-              <h2 className="mb-0 mt-8 text-2xl font-semibold text-[#222]">{product.tagline}</h2>
+              <h2 className="mb-0 mt-8 text-2xl font-semibold text-[var(--site-text)]">{product.tagline}</h2>
             )}
             {product.summary && (
-              <p className="mb-0 mt-4 text-base leading-7 text-[#666]">{product.summary}</p>
+              <p className="mb-0 mt-4 text-base leading-7 text-[var(--site-text-secondary)]">{product.summary}</p>
             )}
 
             {primaryLink && (
@@ -97,7 +88,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   label={primaryLink.label}
                   href={primaryLink.url}
                   location="hero"
-                  className="inline-flex min-h-11 max-w-full items-center justify-center rounded bg-[#2d8cf0] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#57a3f3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2d8cf0]"
+                  className="inline-flex min-h-11 max-w-full items-center justify-center rounded bg-[var(--site-primary)] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[var(--site-primary-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--site-primary)]"
                 >
                   <span className="min-w-0 break-words">{primaryLink.label}</span>
                 </TrackedProductLink>
@@ -112,7 +103,7 @@ export default async function ProductDetailPage({ params }: Props) {
                         label={link.label}
                         href={link.url}
                         location="hero"
-                        className="inline-flex min-h-11 max-w-full items-center rounded-sm text-sm text-[#667085] underline-offset-4 transition-colors hover:text-[#222] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2d8cf0]"
+                        className="inline-flex min-h-11 max-w-full items-center rounded-sm text-sm text-[var(--site-text-secondary)] underline-offset-4 transition-colors hover:text-[var(--site-text)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--site-primary)]"
                       >
                         <span className="min-w-0 break-words">{link.label}</span>
                       </TrackedProductLink>

@@ -9,6 +9,32 @@ import {
 
 const UserList = listEnvelope(UserSchema)
 const CheckAdmin = z.object({ admin: z.boolean() })
+const GuestLoginResponse = LoginResponseSchema.extend({ user: UserSchema })
+const EmailCodeResponse = z.object({
+  challengeId: z.string(),
+  expiresIn: z.number(),
+  retryAfter: z.number(),
+})
+
+export function requestEmailCode(email: string) {
+  return apiFetch('/email-login/code/', {
+    method: 'POST', data: { email }, schema: EmailCodeResponse,
+  })
+}
+
+export function emailLogin(data: { email: string; code: string; challengeId: string }) {
+  return apiFetch('/email-login/', {
+    method: 'POST', data, schema: GuestLoginResponse,
+  })
+}
+
+export function guestLogin() {
+  return apiFetch('/guest-login/', {
+    method: 'POST',
+    data: {},
+    schema: GuestLoginResponse,
+  })
+}
 
 export function githubLogin(code: string) {
   return apiFetch(`/github-login/${code}`, { schema: LoginResponseSchema })

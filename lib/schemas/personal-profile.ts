@@ -27,6 +27,9 @@ export const MOMENT_CATEGORIES = [
   { value: 'daily', label: '日常' },
 ] as const
 
+export const MomentImageSchema = z.object({ url: z.string(), description: z.string().default('') })
+export type MomentImage = z.infer<typeof MomentImageSchema>
+
 export const ProfileMomentSchema = z.object({
   id: z.string(),
   date: z.string(),
@@ -35,7 +38,12 @@ export const ProfileMomentSchema = z.object({
   imageUrl: z.string(),
   imageAlt: z.string().default(''),
   location: z.string().default(''),
-})
+  occurredAt: z.string().nullable().default(null),
+  images: z.array(MomentImageSchema).optional(),
+}).transform((moment) => ({
+  ...moment,
+  images: moment.images ?? (moment.imageUrl ? [{ url: moment.imageUrl, description: moment.imageAlt }] : []),
+}))
 
 export type ProfileMoment = z.infer<typeof ProfileMomentSchema>
 

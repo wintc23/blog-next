@@ -10,6 +10,7 @@ import {
 } from '@/app/actions/comments'
 import { formatTime } from '@/lib/utils'
 import type { Comment } from '@/lib/types'
+import RichCommentBody from '@/components/RichCommentBody'
 
 const PER_PAGE = 20
 
@@ -66,8 +67,8 @@ export default function ManageCommentClient() {
   }
 
   const columns = [
-    { title: '评论文章', dataIndex: 'postTitle', key: 'postTitle', ellipsis: true },
-    { title: '评论内容', dataIndex: 'body', key: 'body', ellipsis: true },
+    { title: '评论对象', dataIndex: 'postTitle', key: 'postTitle', ellipsis: true },
+    { title: '评论内容', dataIndex: 'body', key: 'body', render: (body: string) => <div className="max-h-40 overflow-auto"><RichCommentBody body={body} /></div> },
     {
       title: '用户',
       key: 'author',
@@ -79,10 +80,10 @@ export default function ManageCommentClient() {
       key: 'link',
       width: 200,
       render: (_: unknown, row: Row) =>
-        row.postId ? (
+        row.postId || row.digestId ? (
           <Link
-            href={`/article/${row.postId}?commentId=${row.id}`}
-            className="text-[#409eff] underline"
+            href={`${row.digestId ? `/ai-news/${row.digestId}` : `/article/${row.postId}`}?commentId=${row.id}#comments`}
+            className="text-[var(--site-primary)] underline"
           >
             查看
           </Link>

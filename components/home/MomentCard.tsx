@@ -1,45 +1,35 @@
-'use client'
-
-import { useId, useRef } from 'react'
-import { CloseOutlined, EnvironmentOutlined } from '@ant-design/icons'
+import Link from 'next/link'
 import { MOMENT_CATEGORIES, type ProfileMoment } from '@/lib/schemas/personal-profile'
+import { momentClock, momentTimeLabel } from '@/lib/life-moments'
+import MomentGallery from './MomentGallery'
 import styles from './LifeMoments.module.css'
 
-export default function MomentCard({ moment, compact = false }: { moment: ProfileMoment; compact?: boolean }) {
-  const dialog = useRef<HTMLDialogElement>(null)
-  const captionId = useId()
+export default function MomentCard({ moment, compact = false, grouped = false, detail = false }: {
+  moment: ProfileMoment; compact?: boolean; grouped?: boolean; detail?: boolean
+}) {
   const category = MOMENT_CATEGORIES.find(({ value }) => value === moment.category)?.label
-  const alt = moment.imageAlt || `${moment.location || ''}${category}随拍`
-  const meta = <span className={styles.meta}><span className={styles.category}>{category}</span><time dateTime={moment.date}>{moment.date.replaceAll('-', '.')}</time></span>
-  const location = moment.location && <span className={styles.location}><EnvironmentOutlined aria-hidden />{moment.location}</span>
+  const time = <time dateTime={moment.occurredAt || moment.date}>{grouped ? momentClock(moment) || '当天记录' : momentTimeLabel(moment)}</time>
+  const meta = <div className={styles.meta}><span>{category}{moment.location ? ` · ${moment.location}` : ''}</span>
+    {detail || compact ? time : <Link href={`/moments/${moment.id}`} aria-label={`查看 ${momentTimeLabel(moment)} 的动态`}>{time}</Link>}
+  </div>
+  const content = <>{meta}<p className={styles.text}>{moment.text}</p></>
 
-  return (
-    <article className={compact ? styles.compactCard : styles.card}>
-      {compact ? (
-        <button type="button" className={styles.compactButton} onClick={() => dialog.current?.showModal()}
-          aria-haspopup="dialog" aria-label={`查看 ${moment.date} 的${category}动态`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={moment.imageUrl} alt={alt} width={88} height={88} decoding="async" />
-          <span className={styles.compactContent}>{meta}<span className={styles.text}>{moment.text}</span>{location}</span>
-        </button>
-      ) : (
-        <>
-          <button className={styles.photoButton} type="button" onClick={() => dialog.current?.showModal()}
-            aria-label={`查看完整照片：${alt}`} aria-haspopup="dialog">
+  if (compact) return (
+    <article className={styles.compactCard}>
+      <Link href={`/moments/${moment.id}`} className={styles.compactLink}>
+        {content}
+        {!!moment.images.length && <div className={styles.previewImages}>
+          {moment.images.slice(0, 3).map((picture, index) => <figure key={index}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={moment.imageUrl} alt={alt} width={640} height={400} loading="lazy" decoding="async" />
-            <span className={styles.photoHint}>查看照片</span>
-          </button>
-          <div className={styles.content}>{meta}<p className={styles.text}>{moment.text}</p>{location}</div>
-        </>
-      )}
-      <dialog ref={dialog} className={styles.viewer} aria-label="生活动态详情" aria-describedby={captionId}>
-        <div className={styles.viewerClose}><button type="button" aria-label="关闭动态" onClick={() => dialog.current?.close()}><CloseOutlined aria-hidden /></button></div>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={moment.imageUrl} alt={alt} width={1200} height={800} loading="lazy" />
-        <div className={styles.viewerMeta}>{meta}{location}</div>
-        <p id={captionId}>{moment.text}</p>
-      </dialog>
+            <img src={picture.url} alt={picture.description || `动态照片 ${index + 1}`} width={120} height={90} loading="lazy" decoding="async" />
+            {index === 2 && moment.images.length > 3 && <span className={styles.moreImages}>+{moment.images.length - 3}</span>}
+          </figure>)}
+        </div>}
+      </Link>
     </article>
   )
+  return <article className={`${styles.card} ${detail ? styles.detailCard : ''}`}>
+    {content}
+    <MomentGallery images={moment.images} />
+  </article>
 }

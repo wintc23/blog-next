@@ -71,10 +71,10 @@ function EditorSection({
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-lg border border-[#e8ebef] bg-white p-5 shadow-sm sm:p-7">
-      <div className="mb-5 border-b border-[#edf0f4] pb-4">
-        <h2 className="m-0 text-lg text-[#222]">{title}</h2>
-        {description && <p className="mb-0 mt-1 text-sm text-[#888]">{description}</p>}
+    <section className="rounded-lg border border-[var(--site-border)] bg-white p-5 shadow-sm sm:p-7">
+      <div className="mb-5 border-b border-[var(--site-bg)] pb-4">
+        <h2 className="m-0 text-lg text-[var(--site-text)]">{title}</h2>
+        {description && <p className="mb-0 mt-1 text-sm text-[var(--site-text-secondary)]">{description}</p>}
       </div>
       {children}
     </section>
@@ -183,20 +183,20 @@ export default function ManageProductEditorClient() {
   }
 
   if (loading) {
-    return <div className="flex min-h-[60vh] items-center justify-center text-[#888]">加载作品中…</div>
+    return <div className="flex min-h-[60vh] items-center justify-center text-[var(--site-text-secondary)]">加载作品中…</div>
   }
 
   return (
-    <div className="h-full overflow-auto bg-[#f5f7fa]">
-      <div className="sticky top-0 z-[2] flex items-center gap-3 border-b border-[#e5e7eb] bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
+    <div className="h-full overflow-auto bg-[var(--site-bg)]">
+      <div className="sticky top-0 z-[2] flex items-center gap-3 border-b border-[var(--site-border)] bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
         <Link href="/manage/product">
           <Button>← 返回作品列表</Button>
         </Link>
         <div className="min-w-0">
-          <div className="truncate font-bold text-[#222]">
+          <div className="truncate font-bold text-[var(--site-text)]">
             {draft.id ? `编辑作品：${draft.name || '未命名'}` : '新增作品'}
           </div>
-          <div className="text-xs text-[#999]">
+          <div className="text-xs text-[var(--site-text-disabled)]">
             {draft.id ? `/products/${draft.slug}` : '保存后生成作品页面'}
           </div>
         </div>
@@ -212,16 +212,16 @@ export default function ManageProductEditorClient() {
       </div>
 
       <div className="mx-auto max-w-[1120px] space-y-5 p-4 pb-16 sm:p-7 sm:pb-20">
-        <EditorSection title="基本信息" description="设置作品地址、状态和在作品集中的展示方式。">
+        <EditorSection title="基本信息" description="设置作品地址、状态和在探索页个人作品区的展示方式。">
           <div className="grid gap-4 sm:grid-cols-2">
             <label>
-              <div className="mb-1 text-sm text-[#666]">作品名称 *</div>
+              <div className="mb-1 text-sm text-[var(--site-text-secondary)]">作品名称 *</div>
               <Input value={draft.name} onChange={(e) => update({ name: e.target.value })} />
             </label>
             <label>
-              <div className="mb-1 text-sm text-[#666]">作品地址 *</div>
+              <div className="mb-1 text-sm text-[var(--site-text-secondary)]">作品地址 *</div>
               <div className="flex">
-                <span className="flex items-center rounded-l-md border border-r-0 border-[#d9d9d9] bg-[#fafafa] px-3 text-[#666]">
+                <span className="flex items-center rounded-l-md border border-r-0 border-[var(--site-border)] bg-[var(--site-surface-subtle)] px-3 text-[var(--site-text-secondary)]">
                   /products/
                 </span>
                 <Input
@@ -233,15 +233,15 @@ export default function ManageProductEditorClient() {
               </div>
             </label>
             <label>
-              <div className="mb-1 text-sm text-[#666]">平台</div>
+              <div className="mb-1 text-sm text-[var(--site-text-secondary)]">平台</div>
               <Input value={draft.platform || ''} placeholder="Chrome 扩展" onChange={(e) => update({ platform: e.target.value })} />
             </label>
             <label>
-              <div className="mb-1 text-sm text-[#666]">版本</div>
+              <div className="mb-1 text-sm text-[var(--site-text-secondary)]">版本</div>
               <Input value={draft.version || ''} placeholder="0.1.0" onChange={(e) => update({ version: e.target.value })} />
             </label>
             <label>
-              <div className="mb-1 text-sm text-[#666]">作品状态</div>
+              <div className="mb-1 text-sm text-[var(--site-text-secondary)]">作品状态</div>
               <Select
                 className="w-full"
                 value={draft.status}
@@ -255,23 +255,23 @@ export default function ManageProductEditorClient() {
               />
             </label>
             <label>
-              <div className="mb-1 text-sm text-[#666]">状态文案</div>
+              <div className="mb-1 text-sm text-[var(--site-text-secondary)]">状态文案</div>
               <Input value={draft.statusLabel || ''} onChange={(e) => update({ statusLabel: e.target.value })} />
             </label>
             <label>
-              <div className="mb-1 text-sm text-[#666]">品牌色</div>
+              <div className="mb-1 text-sm text-[var(--site-text-secondary)]">品牌色</div>
               <Input value={draft.accentColor} placeholder="#2d8cf0" onChange={(e) => update({ accentColor: e.target.value })} />
             </label>
             <label>
-              <div className="mb-1 text-sm text-[#666]">展示排序</div>
+              <div className="mb-1 text-sm text-[var(--site-text-secondary)]">展示排序</div>
               <InputNumber className="w-full" value={draft.sort} onChange={(value) => update({ sort: value || 0 })} />
             </label>
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-8 border-t border-[#edf0f4] pt-5">
+          <div className="mt-5 flex flex-wrap gap-8 border-t border-[var(--site-bg)] pt-5">
             <label className="flex items-center gap-2">
               <Switch checked={draft.published} onChange={(published) => update({ published })} />
-              发布到作品集
+              发布到个人作品
             </label>
             <label className="flex items-center gap-2">
               <Switch checked={draft.featured} onChange={(featured) => update({ featured })} />
@@ -280,10 +280,10 @@ export default function ManageProductEditorClient() {
           </div>
         </EditorSection>
 
-        <EditorSection title="主视觉与介绍" description="这些内容用于作品集卡片和详情页首屏。">
+        <EditorSection title="主视觉与介绍" description="这些内容用于个人作品卡片和详情页首屏。">
           <div className="grid gap-5 sm:grid-cols-[140px_1fr]">
             <div>
-              <div className="mb-1 text-sm text-[#666]">作品 Logo</div>
+              <div className="mb-1 text-sm text-[var(--site-text-secondary)]">作品 Logo</div>
               <Upload
                 accept="image/*"
                 showUploadList={false}
@@ -292,7 +292,7 @@ export default function ManageProductEditorClient() {
                   return false
                 }}
               >
-                <button type="button" className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-xl border border-dashed border-[#d9d9d9] bg-white">
+                <button type="button" className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-xl border border-dashed border-[var(--site-border)] bg-white">
                   {draft.logoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={draft.logoUrl} alt="Logo" className="h-full w-full object-cover" />
@@ -302,18 +302,18 @@ export default function ManageProductEditorClient() {
             </div>
             <div className="space-y-4">
               <label className="block">
-                <div className="mb-1 text-sm text-[#666]">一句话定位</div>
+                <div className="mb-1 text-sm text-[var(--site-text-secondary)]">一句话定位</div>
                 <Input value={draft.tagline || ''} placeholder="你的 Web 自定义助手" onChange={(e) => update({ tagline: e.target.value })} />
               </label>
               <label className="block">
-                <div className="mb-1 text-sm text-[#666]">作品简介</div>
+                <div className="mb-1 text-sm text-[var(--site-text-secondary)]">作品简介</div>
                 <Input.TextArea rows={3} value={draft.summary || ''} onChange={(e) => update({ summary: e.target.value })} />
               </label>
             </div>
           </div>
 
           <div className="mt-5">
-            <div className="mb-1 text-sm text-[#666]">作品封面</div>
+            <div className="mb-1 text-sm text-[var(--site-text-secondary)]">作品封面</div>
             <Upload
               accept="image/*"
               showUploadList={false}
@@ -323,7 +323,7 @@ export default function ManageProductEditorClient() {
                 return false
               }}
             >
-              <button type="button" className="flex min-h-44 w-full items-center justify-center overflow-hidden rounded-lg border border-dashed border-[#d9d9d9] bg-[#fafafa]">
+              <button type="button" className="flex min-h-44 w-full items-center justify-center overflow-hidden rounded-lg border border-dashed border-[var(--site-border)] bg-[var(--site-surface-subtle)]">
                 {draft.coverUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={draft.coverUrl} alt="作品封面" className="max-h-[420px] w-full object-contain" />
@@ -333,7 +333,7 @@ export default function ManageProductEditorClient() {
           </div>
 
           <div className="mt-5">
-            <div className="mb-1 text-sm text-[#666]">亮点标签</div>
+            <div className="mb-1 text-sm text-[var(--site-text-secondary)]">亮点标签</div>
             <Keywords
               value={draft.highlights.join(',')}
               placeholder="输入亮点后按回车"
@@ -345,7 +345,7 @@ export default function ManageProductEditorClient() {
         <EditorSection title="主视觉按钮" description="显示在作品详情页首屏，可配置官网、商店或代码仓库。">
           <div className="space-y-3">
             {draft.links.map((link, index) => (
-              <div key={index} className="grid items-center gap-2 rounded border border-[#edf0f4] p-3 sm:grid-cols-[150px_minmax(0,1fr)_150px_100px_auto]">
+              <div key={index} className="grid items-center gap-2 rounded border border-[var(--site-bg)] p-3 sm:grid-cols-[150px_minmax(0,1fr)_150px_100px_auto]">
                 <Input value={link.label} placeholder="按钮名称" onChange={(e) => updateLink(index, { label: e.target.value })} />
                 <Input value={link.url} placeholder="https://" onChange={(e) => updateLink(index, { url: e.target.value })} />
                 <Input value={link.analyticsKey} placeholder="统计标识，如 store" onChange={(e) => updateLink(index, { analyticsKey: e.target.value.trim().replace(/[^a-zA-Z0-9_-]/g, '') })} />

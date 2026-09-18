@@ -10,10 +10,16 @@ import { getCurrentUser } from '@/lib/get-current-user'
 import { getSiteIdentity } from '@/lib/get-site-identity'
 import { formatSiteTitle } from '@/lib/site-identity'
 import { SITE } from '@/lib/config'
+import { shareMetadata } from '@/lib/share-metadata'
+import WechatShare from '@/components/WechatShare'
 
 export async function generateMetadata(): Promise<Metadata> {
   const identity = await getSiteIdentity()
+  const social = shareMetadata({ title: identity.slogon || '个人主页', description: identity.description, path: '/', siteName: identity.title })
   return {
+    metadataBase: new URL(SITE.url),
+    openGraph: { ...social.openGraph, url: undefined },
+    twitter: social.twitter,
     title: {
       default: formatSiteTitle(identity.slogon || '个人主页', identity.title),
       template: formatSiteTitle('%s', identity.title),
@@ -42,6 +48,7 @@ export default async function RootLayout({
             <AppShell>{children}</AppShell>
             <LoginModal />
             <UserInfoDrawer />
+            <WechatShare />
           </Providers>
         </AntdRegistry>
       </body>

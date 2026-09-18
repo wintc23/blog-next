@@ -30,7 +30,7 @@ export default function HomeAiNews({ data }: { data: AiDigestHome }) {
             <p>{featured.summary}</p>
             <div className={styles.actions}>
               {!!featured.groups?.length && <div className={styles.groups}>{featured.groups.map(group => <Link key={group.id} href={`/ai-news/${featured.id}#digest-group-${group.id}`}>{group.title}<span>{group.count}</span></Link>)}</div>}
-              <Link href={`/ai-news/${featured.id}`} className={styles.read}>阅读全文 <span aria-hidden="true">↗</span></Link>
+              <Link href={`/ai-news/${featured.id}`} className={styles.read}>阅读全文</Link>
             </div>
           </div>
         </article>
@@ -42,7 +42,7 @@ export default function HomeAiNews({ data }: { data: AiDigestHome }) {
               <div><div className={styles.meta}><time dateTime={item.issueDate}>{item.issueDate.replaceAll('-', '.')}</time><span>{formatCount(item.readTimes)} 次阅读</span></div><h4>{item.title}</h4></div>
             </Link>
           </li>)}</ol> : <p className={styles.empty}>往期动态将陆续收录。</p>}
-          <Link href="/ai-news" className={styles.more}>更多历史动态 <span aria-hidden="true">→</span></Link>
+          <Link href="/ai-news" className={styles.more}>更多历史动态</Link>
         </aside>
       </div>
     </section>

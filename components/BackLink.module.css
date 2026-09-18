@@ -1,0 +1,5 @@
+.link { display: inline-flex; align-items: center; gap: 6px; min-block-size: 32px; max-inline-size: 100%; padding: 0; border: 0; border-radius: var(--site-radius); background: transparent; color: var(--site-text-secondary); font-size: var(--font-ui); font-weight: 400; line-height: 1.5; text-decoration: none; }
+.link:hover { color: var(--site-primary); }
+.link:focus-visible { outline: 2px solid var(--site-primary); outline-offset: 3px; }
+.arrow { flex: none; font-size: var(--font-ui); }
+@media (pointer: coarse) { .link { min-block-size: 44px; } }

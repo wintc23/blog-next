@@ -18,9 +18,9 @@ import {
 } from 'react'
 import type { User } from '@/lib/schemas'
 import type { SiteData } from '@/lib/types'
-import { getUserInfoByToken } from '@/lib/api/users'
+import { getUserInfoByToken, guestLogin } from '@/lib/api/users'
 import { ApiError } from '@/lib/api/client'
-import { clearTokenClient } from '@/lib/utils'
+import { clearTokenClient, getTokenClient, setTokenClient } from '@/lib/utils'
 import type { PersonalProfile } from '@/lib/schemas/personal-profile'
 import { siteIdentityFromProfile } from '@/lib/site-identity'
 
@@ -52,6 +52,7 @@ export interface AppState {
   // --- actions ---
   setUser: (user: User | null) => void
   refreshUser: () => Promise<User>
+  ensureUser: () => Promise<{ user: User; signedIn: boolean }>
   logout: () => void
   showLogin: () => void
   hideLogin: () => void
@@ -70,7 +71,10 @@ interface InitialState {
 }
 
 export function createAppStore(initial: InitialState) {
-  return createStore<AppState>((set) => ({
+  // One in-flight login per provider, shared by all authenticated actions.
+  let loginRequest: Promise<{ user: User; signedIn: boolean }> | null = null
+  let authVersion = 0
+  return createStore<AppState>((set, get) => ({
     user: initial.user,
     loginVisible: false,
     drawerUserId: null,
@@ -78,7 +82,24 @@ export function createAppStore(initial: InitialState) {
     headerOffset: 0,
     site: initial.site,
 
-    setUser: (user) => set({ user }),
+    setUser: (user) => { authVersion++; set({ user }) },
+    ensureUser: () => {
+      if (loginRequest) return loginRequest
+      const user = get().user
+      if (user && getTokenClient()) return Promise.resolve({ user, signedIn: false })
+      const version = authVersion
+      loginRequest = (async () => {
+        // The endpoint reuses a valid cookie's identity, even before hydration
+        // has recovered the user. Never create a guest over an existing login.
+        const result = await guestLogin()
+        if (version !== authVersion) throw new Error('登录状态已变化，请重试')
+        setTokenClient(result.token)
+        if (getTokenClient() !== result.token) throw new Error('请允许本站保存 Cookie 后重试')
+        set({ user: result.user })
+        return { user: result.user, signedIn: true }
+      })().finally(() => { loginRequest = null })
+      return loginRequest
+    },
     refreshUser: async () => {
       try {
         const user = await getUserInfoByToken()
@@ -93,8 +114,9 @@ export function createAppStore(initial: InitialState) {
       }
     },
     logout: () => {
+      authVersion++
       clearTokenClient()
-      set({ user: null })
+      set({ user: null, drawerUserId: null })
     },
     showLogin: () => set({ loginVisible: true }),
     hideLogin: () => set({ loginVisible: false }),

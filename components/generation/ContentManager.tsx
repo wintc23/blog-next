@@ -23,7 +23,7 @@ export default function ContentManager({ id }: { id?: number }) {
     return detail.data ? <ContentEditor detail={detail.data} onSaved={value => { void detail.mutate(value, false) }} /> : <div className={styles.page}><Spin /></div>
   }
   return <div className={styles.page}>
-    <header className={styles.header}><div><h1>内容管理</h1><p>管理生成结果与修订，预览、编辑、发布和撤回。</p></div><Link href="/manage/generation">生成管理 →</Link></header>
+    <header className={styles.header}><div><h1>内容管理</h1><p>管理生成结果与修订，预览、编辑、发布和撤回。</p></div><Link href="/manage/generation">生成管理</Link></header>
     {list.error && <Alert className={styles.alert} type="error" message={errorText(list.error)} action={<Button onClick={() => void list.mutate()}>重新加载</Button>} />}
     <Select aria-label="按发布状态筛选" value={status} allowClear placeholder="全部状态" style={{ minWidth: 160, marginBottom: 20 }} onChange={value => { setStatus(value); setPage(1) }} options={Object.entries(statusText).map(([value, label]) => ({ value, label }))} />
     <div className={styles.table}><Table rowKey="id" loading={list.isLoading} dataSource={list.data?.list} pagination={{ current: page, pageSize: 20, total: list.data?.total, showSizeChanger: false, onChange: setPage }} columns={[
@@ -88,7 +88,7 @@ function ContentEditor({ detail, onSaved }: { detail: ManagedContentDetail; onSa
   return <div className={styles.page}>
     {contextHolder}
     <header className={styles.header}><div><Link href="/manage/content">← 内容管理</Link><h1 style={{ marginTop: 12 }}>{detail.title}</h1><p><Tag>{statusText[detail.status]}</Tag>第 {detail.currentRevision} 版 · 计划发布 {formatTime(detail.scheduledPublishAt)}</p></div><div className={styles.actions}>
-      {detail.legacyDigestId && detail.status === 'published' && <Link href={`/ai-news/${detail.legacyDigestId}`} target="_blank">查看线上内容 ↗</Link>}
+      {detail.legacyDigestId && detail.status === 'published' && <Link href={`/ai-news/${detail.legacyDigestId}`} target="_blank">查看线上内容</Link>}
       <Popconfirm title="发布当前保存的修订？" description="网站将展示这一版内容。" onConfirm={() => action('publish')} disabled={busy || dirty}><Button type="primary" loading={busy} disabled={dirty || (detail.status === 'published' && detail.publishedRevision === detail.currentRevision)}>发布当前版本</Button></Popconfirm>
       {detail.status === 'published' && <Popconfirm title="从网站撤回此内容？" onConfirm={() => action('withdraw')}><Button danger disabled={busy}>撤回</Button></Popconfirm>}
     </div></header>

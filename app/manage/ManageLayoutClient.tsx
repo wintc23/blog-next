@@ -47,10 +47,11 @@ function ArticleEditorShell({ children }: { children: React.ReactNode }) {
 }
 
 const MENU = [
-  { key: '/manage', label: '博客归档', icon: <BookOutlined /> },
+  { key: '/manage', label: '已归档博客', icon: <BookOutlined /> },
   { key: '/manage/profile', label: '个人信息', icon: <UserOutlined /> },
   { key: '/manage/moments', label: '生活动态', icon: <CameraOutlined /> },
   { key: '/manage/product', label: '作品管理', icon: <AppstoreOutlined /> },
+  { key: '/manage/image-tools', label: '生图模板', icon: <RobotOutlined /> },
   { key: '/manage/generation', label: '生成管理', icon: <RobotOutlined /> },
   { key: '/manage/content', label: '内容管理', icon: <BookOutlined /> },
   { key: '/manage/topic', label: '标签/分类', icon: <TagsOutlined /> },
@@ -72,8 +73,8 @@ export default function ManageLayoutClient({ children }: { children: React.React
 
   if (!user) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#f4f4f4]">
-        <div className="text-xl text-[#666]">需要登录后才能访问管理后台</div>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[var(--site-bg)]">
+        <div className="text-xl text-[var(--site-text-secondary)]">需要登录后才能访问管理后台</div>
         <div className="flex gap-2">
           <Button type="primary" onClick={showLogin}>
             登录
@@ -85,8 +86,8 @@ export default function ManageLayoutClient({ children }: { children: React.React
   }
   if (!user.admin) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#f4f4f4]">
-        <div className="text-xl text-[#666]">您没有管理权限</div>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[var(--site-bg)]">
+        <div className="text-xl text-[var(--site-text-secondary)]">您没有管理权限</div>
         <Button type="primary" onClick={() => router.push('/')}>
           返回首页
         </Button>
@@ -114,7 +115,7 @@ export default function ManageLayoutClient({ children }: { children: React.React
       <div className="relative z-[1] flex items-center bg-white shadow">
         <Link
           href="/"
-          className="ml-4 rounded bg-[#409eff] px-3 py-1 text-sm font-bold text-white"
+          className="ml-4 rounded bg-[var(--site-primary)] px-3 py-1 text-sm font-bold text-white"
         >
           首页
         </Link>

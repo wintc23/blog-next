@@ -2,15 +2,14 @@
 
 import {
   useCallback,
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
-  useTransition,
 } from 'react'
-import { Button, Modal, App, Tooltip } from 'antd'
-import { HeartFilled, HeartOutlined } from '@ant-design/icons'
+import { Button, Modal, App } from 'antd'
 import Link from 'next/link'
+import BackLink from '@/components/BackLink'
+import LikeButton from '@/components/LikeButton'
 import ArticleContent from '@/components/ArticleContent'
 import CommentInput from '@/components/CommentInput'
 import CommentTree from '@/components/CommentTree'
@@ -23,10 +22,6 @@ import {
 } from '@/lib/store'
 import type { OutlineItem } from '@/lib/store'
 import {
-  likePostAction,
-  cancelLikePostAction,
-} from '@/app/actions/posts'
-import {
   addCommentAction,
   setCommentShowAction,
 } from '@/app/actions/comments'
@@ -36,8 +31,8 @@ export default function ArticleClient({ initialPost }: { initialPost: Post }) {
   const [post, setPost] = useState<Post>(initialPost)
   const [comment, setComment] = useState('')
   const [reward, setReward] = useState(false)
-  const [, startTransition] = useTransition()
   const [submitting, setSubmitting] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const user = useUser()
   const showLogin = useShowLogin()
   const site = useSite()
@@ -73,19 +68,6 @@ export default function ArticleClient({ initialPost }: { initialPost: Post }) {
     refreshOutline()
     return () => setOutlineItems([])
   }, [refreshOutline, setOutlineItems, post.bodyHtml])
-
-  const like = () => {
-    if (!user?.id) {
-      showLogin()
-      return
-    }
-    const action = post.like ? cancelLikePostAction : likePostAction
-    startTransition(async () => {
-      const r = await action(post.id)
-      if (r.ok) setPost({ ...post, ...r.data })
-      else message.error(r.error || '操作失败')
-    })
-  }
 
   const submitComment = async (
     body: string,
@@ -127,8 +109,12 @@ export default function ArticleClient({ initialPost }: { initialPost: Post }) {
     <div className="article-page">
       <div className="mx-auto max-w-[1000px]">
         <article ref={articleRef} className="ws rounded-sm p-6 sm:p-10">
-          <h2 className="text-center text-[26px] font-bold">{post.title}</h2>
-          <div className="my-6 text-center text-sm text-[#666]">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+            <BackLink href="/article">返回博客列表</BackLink>
+            <span className="text-xs text-[var(--site-text-secondary)]">已归档博客</span>
+          </div>
+          <h2 className="text-center text-2xl font-bold">{post.title}</h2>
+          <div className="my-6 text-center text-sm text-[var(--site-text-secondary)]">
             <span>{formatTime(post.timestamp)}</span>
             {postType && (
               <span className="mx-4 text-[#ffa710] font-bold">
@@ -141,7 +127,7 @@ export default function ArticleClient({ initialPost }: { initialPost: Post }) {
             {user?.admin && (
               <Link
                 href={`/manage/article?postId=${post.id}`}
-                className="text-[#2d8cf0] underline"
+                className="text-[var(--site-primary)] underline"
               >
                 编辑
               </Link>
@@ -149,15 +135,7 @@ export default function ArticleClient({ initialPost }: { initialPost: Post }) {
           </div>
           <ArticleContent html={post.bodyHtml || ''} />
           <div className="my-8 text-center">
-            <Tooltip title={post.like ? '您赞了该文章' : '赞一下'}>
-              <span
-                onClick={like}
-                className="inline-block min-w-[4em] cursor-pointer select-none rounded border border-[rgba(255,32,32,0.4)] bg-[rgba(255,32,32,0.2)] py-1 text-sm text-[#ff2020]"
-              >
-                {post.like ? <HeartFilled /> : <HeartOutlined />}
-                {post.likes ? ` ${post.likes}` : ''}
-              </span>
-            </Tooltip>
+            <LikeButton key={post.id} target="post" id={post.id} initialState={{ likes: post.likes || 0, like: !!post.like }} />
             <span
               onClick={() => setReward(true)}
               className="ml-3 inline-block min-w-[4em] cursor-pointer select-none rounded border border-[#06b038] py-1 text-sm text-[#06b038] transition hover:bg-[#06b038] hover:text-white"
@@ -165,7 +143,8 @@ export default function ArticleClient({ initialPost }: { initialPost: Post }) {
               ¥赞赏
             </span>
           </div>
-          <div className="text-sm text-[#666]">
+          <div className="text-sm text-[var(--site-text-secondary)]">
+            <BackLink href="/article" className="mb-3">返回博客列表</BackLink>
             {post.before && (
               <div className="my-1">
                 <Link href={`/article/${post.before.id}`} className="hover:underline">
@@ -182,23 +161,22 @@ export default function ArticleClient({ initialPost }: { initialPost: Post }) {
             )}
           </div>
         </article>
-        <div className="my-5">
-          <div className="mb-2 border-b-2 border-[#ddd] px-1 py-3 text-lg font-bold">
+        <div className="my-5 scroll-mt-40 sm:scroll-mt-24" id="comments">
+          <div className="mb-2 border-b-2 border-[var(--site-border)] px-1 py-3 text-lg font-bold">
             评论({post.commentTimes})
           </div>
           <div className="overflow-hidden">
             <CommentInput
               value={comment}
               onChange={setComment}
+              onBusyChange={setUploading}
               placeholder="既然来了，就说几句吧"
+              actions={(
+                <Button type="primary" loading={submitting} disabled={uploading} onClick={() => submitComment(comment)}>
+                  评论
+                </Button>
+              )}
             />
-            <Button
-              className="btn-success float-right mt-1"
-              loading={submitting}
-              onClick={() => submitComment(comment)}
-            >
-              评论
-            </Button>
           </div>
           <div className="clear-both pt-10">
             <CommentTree

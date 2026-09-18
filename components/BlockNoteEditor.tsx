@@ -467,7 +467,7 @@ const BlockNoteEditor = forwardRef<BlockNoteEditorRef, Props>(
     }, [])
 
     if (initialBlocks === null) {
-      return <div className="p-4 text-sm text-[#999]">加载编辑器…</div>
+      return <div className="p-4 text-sm text-[var(--site-text-disabled)]">加载编辑器…</div>
     }
 
     return (

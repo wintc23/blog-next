@@ -41,8 +41,8 @@ export default function NotFound() {
             404
           </text>
         </svg>
-        <p className="mt-6 text-base text-[#4e5969]">页面找不到了</p>
-        <p className="mt-1 text-sm text-[#86909c]">
+        <p className="mt-6 text-base text-[var(--site-text-secondary)]">页面找不到了</p>
+        <p className="mt-1 text-sm text-[var(--site-text-secondary)]">
           你访问的内容可能已经被删除、改名或从未存在。
         </p>
         <div className="mt-7">

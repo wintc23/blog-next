@@ -1,21 +1,62 @@
 'use client'
+import { v4 as uuidv4 } from 'uuid'
 
-import { Modal, App } from 'antd'
-import { GithubOutlined } from '@ant-design/icons'
-import { useCallback, useEffect } from 'react'
+import { Modal, App, Button } from 'antd'
+import { GithubOutlined, MailOutlined, UserOutlined } from '@ant-design/icons'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   useLoginVisible,
   useHideLogin,
   useRefreshUser,
+  useAppStore,
 } from '@/lib/store'
 import { GITHUB_CLIENT_ID, QQ_CLIENT_ID } from '@/lib/config'
 import { isPC } from '@/lib/is-pc'
+import { getTokenClient, setTokenClient } from '@/lib/utils'
+import type { User } from '@/lib/schemas/user'
+import EmailLoginForm from './EmailLoginForm'
+import styles from './LoginModal.module.css'
 
 export default function LoginModal() {
   const loginVisible = useLoginVisible()
   const hideLogin = useHideLogin()
   const refresh = useRefreshUser()
+  const setUser = useAppStore((s) => s.setUser)
+  const ensureUser = useAppStore((s) => s.ensureUser)
   const { message } = App.useApp()
+  const [guestPending, setGuestPending] = useState(false)
+  const [emailMode, setEmailMode] = useState(false)
+  const [emailPending, setEmailPending] = useState(false)
+  const pending = guestPending || emailPending
+  const guestRequest = useRef(false)
+  const loginCompleted = useRef(false)
+  const emailButton = useRef<HTMLButtonElement>(null)
+
+  const completeLogin = (result: { token: string; user: User }) => {
+    setTokenClient(result.token)
+    if (getTokenClient() !== result.token) {
+      throw new Error('请允许本站保存 Cookie 后重试')
+    }
+    setUser(result.user)
+    loginCompleted.current = true
+    hideLogin()
+  }
+
+  const loginAsGuest = async () => {
+    if (guestRequest.current) return
+    guestRequest.current = true
+    setGuestPending(true)
+    try {
+      await ensureUser()
+      loginCompleted.current = true
+      hideLogin()
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : '游客登录失败，请重试')
+    } finally {
+      guestRequest.current = false
+      setGuestPending(false)
+    }
+  }
 
   const openLoginWindow = (url: string) => {
     // Always remember where the user came from so the same-window
@@ -64,7 +105,7 @@ export default function LoginModal() {
   }
 
   const loginWithQQ = () => {
-    const state = crypto.randomUUID()
+    const state = uuidv4()
     try {
       localStorage.setItem('qqState', state)
     } catch {}
@@ -75,6 +116,7 @@ export default function LoginModal() {
 
   const onMessage = useCallback(
     (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return
       const { type, state } = (e.data || {}) as {
         type?: string
         state?: boolean
@@ -83,6 +125,7 @@ export default function LoginModal() {
       if (state) {
         refresh()
           .then((user) => {
+            loginCompleted.current = true
             hideLogin()
             if (!user.email) message.info('请设置邮箱,以便及时收到关于您的消息')
           })
@@ -106,32 +149,77 @@ export default function LoginModal() {
     <Modal
       open={loginVisible}
       onCancel={hideLogin}
-      title="登录"
+      title={emailMode ? '邮箱登录' : '登录'}
       footer={null}
-      width={300}
+      width={360}
       centered
+      closable={!pending}
+      maskClosable={!pending}
+      keyboard={!pending}
+      afterClose={() => {
+        window.dispatchEvent(new CustomEvent('site-login-closed', { detail: loginCompleted.current }))
+        loginCompleted.current = false
+        setEmailMode(false)
+      }}
     >
-      <div className="flex items-center justify-around py-4">
-        <div
+      <div hidden={!emailMode}>
+        <EmailLoginForm active={loginVisible && emailMode} onPending={setEmailPending} onSuccess={completeLogin} onBack={() => {
+          setEmailMode(false)
+          requestAnimationFrame(() => emailButton.current?.focus())
+        }} />
+      </div>
+      <div hidden={emailMode}>
+      <div className={styles.methods} role="group" aria-label="正式登录方式">
+        <button
+          type="button"
+          disabled={guestPending}
           onClick={loginWithQQ}
-          className="w-[120px] cursor-pointer select-none rounded-lg p-2 text-center hover:bg-[#f6f6f6] hover:shadow"
+          className={styles.method}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             draggable={false}
             src="https://file.wintc.top/qq.jpg"
-            alt="qq登录"
-            className="mx-auto h-14 w-14 rounded-full"
+            alt=""
+            className={styles.icon}
           />
-          <div className="pt-2">QQ登录</div>
-        </div>
-        <div
+          <span>QQ 登录</span>
+        </button>
+        <button
+          type="button"
+          disabled={guestPending}
           onClick={loginWithGithub}
-          className="w-[120px] cursor-pointer select-none rounded-lg p-2 text-center hover:bg-[#f6f6f6] hover:shadow"
+          className={styles.method}
         >
-          <GithubOutlined className="text-[56px]" />
-          <div className="pt-2">github登录</div>
-        </div>
+          <GithubOutlined aria-hidden="true" className={styles.icon} />
+          <span>GitHub 登录</span>
+        </button>
+        <button ref={emailButton} type="button" disabled={pending} onClick={() => setEmailMode(true)} className={styles.method}>
+          <MailOutlined aria-hidden="true" className={styles.icon} />
+          <span>邮箱登录</span>
+        </button>
+      </div>
+      <div className="my-3 border-t border-[var(--site-border)]" />
+      <div className="pt-3">
+        <Button
+          type="default"
+          size="large"
+          block
+          icon={<UserOutlined aria-hidden="true" />}
+          loading={guestPending}
+          onClick={loginAsGuest}
+          aria-describedby="guest-login-description"
+        >
+          游客登录
+        </Button>
+        <p id="guest-login-description" className="mb-0 mt-3 text-center text-sm text-[var(--site-text-secondary)]">
+          无需注册，自动生成昵称和头像
+        </p>
+        <p className="mb-0 mt-1 text-center text-xs leading-5 text-[var(--site-text-secondary)]">
+          登录有效期 30 天，设置邮箱后可通过验证码找回
+        </p>
+      </div>
+
       </div>
     </Modal>
   )

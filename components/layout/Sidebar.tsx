@@ -77,17 +77,17 @@ export default function Sidebar() {
     <aside className="modules">
       {admin && (
         <div className="ws mb-[10px] rounded-sm">
-          <div className="flex items-center justify-between border-b border-[#eee] px-[15px] py-2 text-[#666]">
+          <div className="flex items-center justify-between border-b border-[var(--site-hover-bg)] px-[15px] py-2 text-[var(--site-text-secondary)]">
             <span>{identity.title}</span>
             {summary && (
               <Tooltip
                 title={`自 ${summary.visitStartDate} 起累计访问 ${summary.visitCount} 次，累计访客 ${summary.visitorCount || 0} 人`}
               >
-                <span className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-[rgba(51,97,216,0.08)] px-[10px] py-[2px] text-[12px] leading-[1.4] text-[#3361d8]">
-                  <span className="text-[#7f8aa3]">访问</span>
+                <span className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-[rgba(51,97,216,0.08)] px-[10px] py-[2px] text-xs leading-[1.4] text-[var(--site-primary)]">
+                  <span className="text-[var(--site-text-secondary)]">访问</span>
                   <span className="font-semibold">{formatCount(summary.visitCount)}</span>
                   <span className="mx-1 h-3 w-px bg-[rgba(51,97,216,0.18)]" />
-                  <span className="text-[#7f8aa3]">访客</span>
+                  <span className="text-[var(--site-text-secondary)]">访客</span>
                   <span className="font-semibold">{formatCount(summary.visitorCount)}</span>
                 </span>
               </Tooltip>
@@ -104,11 +104,11 @@ export default function Sidebar() {
               />
               <div className="overflow-hidden text-[orange]">{admin.username}</div>
               <div className="overflow-hidden py-[5px] text-sm">
-                共<span className="text-[#3361d8]">{admin.postCount || 0}</span>篇文章
+                共<span className="text-[var(--site-primary)]">{admin.postCount || 0}</span>篇文章
               </div>
             </div>
             {admin.aboutMe && (
-              <div className="mt-2 text-sm text-[#666]">{admin.aboutMe}</div>
+              <div className="mt-2 text-sm text-[var(--site-text-secondary)]">{admin.aboutMe}</div>
             )}
           </div>
         </div>
@@ -117,7 +117,7 @@ export default function Sidebar() {
       {/* Aliyun module is shown on all pages (including article), matching
           blog-ssr which has no `outlineShow` gate on this card. */}
       <div className="ws mb-[10px] rounded-sm">
-        <div className="border-b border-[#eee] px-[15px] py-2 text-[#666]">
+        <div className="border-b border-[var(--site-hover-bg)] px-[15px] py-2 text-[var(--site-text-secondary)]">
           <span>{ALIYUN.title}</span>
           <a
             href={ALIYUN.href}
@@ -132,14 +132,14 @@ export default function Sidebar() {
           href={ALIYUN.href}
           target="_blank"
           rel="noreferrer"
-          className="block px-[15px] pb-5 pt-[10px] text-[#333]"
+          className="block px-[15px] pb-5 pt-[10px] text-[var(--site-text)]"
         >
           {ALIYUN.text.map((t, i) => (
             <div
               key={i}
               className={
                 i === 0
-                  ? 'mb-[15px] mt-[5px] text-[15px]'
+                  ? 'mb-[15px] mt-[5px] text-base'
                   : 'mb-[15px] mt-[5px] text-sm text-[#FF2121]'
               }
             >
@@ -158,7 +158,7 @@ export default function Sidebar() {
 
       {!outlineShow && topTen.length > 0 && (
         <div className="ws mb-[10px] rounded-sm">
-          <div className="border-b border-[#eee] px-[15px] py-2 text-[#666]">
+          <div className="border-b border-[var(--site-hover-bg)] px-[15px] py-2 text-[var(--site-text-secondary)]">
             热门文章
           </div>
           <div className="px-[15px] pb-5 pt-[10px]">
@@ -170,12 +170,12 @@ export default function Sidebar() {
                 <Link
                   href={`/article/${post.id}`}
                   title={post.title}
-                  className="min-w-0 flex-1 truncate text-[#333] hover:text-[#4791ff] hover:underline"
+                  className="min-w-0 flex-1 truncate text-[var(--site-text)] hover:text-[var(--site-primary)] hover:underline"
                 >
                   {post.title}
                 </Link>
                 <span
-                  className="shrink-0 whitespace-nowrap text-sm text-[#999]"
+                  className="shrink-0 whitespace-nowrap text-sm text-[var(--site-text-disabled)]"
                   title={`${post.readTimes}次浏览`}
                 >
                   <EyeOutlined className="mr-[5px]" />
@@ -189,7 +189,7 @@ export default function Sidebar() {
 
       {!outlineShow && tags.length > 0 && (
         <div className="ws mb-[10px] rounded-sm">
-          <div className="border-b border-[#eee] px-[15px] py-2 text-[#666]">
+          <div className="border-b border-[var(--site-hover-bg)] px-[15px] py-2 text-[var(--site-text-secondary)]">
             文章标签
           </div>
           <div className="flex flex-wrap justify-start gap-2 px-[15px] pb-5 pt-[10px]">
@@ -199,7 +199,7 @@ export default function Sidebar() {
                 href={`/tag/${tag.id}`}
                 title={`${tag.title}(${tag.postCount})`}
                 style={{ borderColor: colors[idx], color: colors[idx] }}
-                className="flex w-[120px] items-center justify-center rounded border bg-white px-2 py-[2px] text-center text-[12px] leading-5 hover:opacity-80"
+                className="flex w-[120px] items-center justify-center rounded border bg-white px-2 py-[2px] text-center text-xs leading-5 hover:opacity-80"
               >
                 <span className="truncate">{tag.title}</span>
                 <span className="ml-[2px] shrink-0">({tag.postCount})</span>
@@ -211,7 +211,7 @@ export default function Sidebar() {
 
       {!outlineShow && links.length > 0 && (
         <div className="ws mb-[10px] rounded-sm">
-          <div className="border-b border-[#eee] px-[15px] py-2 text-[#666]">
+          <div className="border-b border-[var(--site-hover-bg)] px-[15px] py-2 text-[var(--site-text-secondary)]">
             <span>友链</span>
             <Link href="/link" className="float-right text-sm hover:underline">
               [详情]
@@ -224,7 +224,7 @@ export default function Sidebar() {
                 target="_blank"
                 rel="noreferrer"
                 href={link.link}
-                className="rounded bg-black/5 px-2 py-[2px] text-sm text-[#333] hover:bg-black/10"
+                className="rounded bg-black/5 px-2 py-[2px] text-sm text-[var(--site-text)] hover:bg-black/10"
               >
                 {link.title}
               </a>
@@ -242,7 +242,7 @@ export default function Sidebar() {
           className="ws mb-3 sticky rounded-sm transition-[top] duration-500"
           style={{ top: headerOffset + 5 }}
         >
-          <div className="border-b border-[#eee] px-[15px] py-2 text-[#666]">
+          <div className="border-b border-[var(--site-hover-bg)] px-[15px] py-2 text-[var(--site-text-secondary)]">
             目录
           </div>
           <div className="scroll-thin max-h-[70vh] overflow-auto px-[15px] pb-5 pt-[10px]">
@@ -251,7 +251,7 @@ export default function Sidebar() {
                 key={item.id}
                 onClick={() => jumpTo(item.id)}
                 style={{ paddingLeft: (item.level - 1) * 12 }}
-                className="cursor-pointer select-none truncate py-1 text-sm text-[#333] hover:text-[#4791ff] hover:underline"
+                className="cursor-pointer select-none truncate py-1 text-sm text-[var(--site-text)] hover:text-[var(--site-primary)] hover:underline"
                 title={item.title}
               >
                 {item.title}

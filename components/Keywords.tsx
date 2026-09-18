@@ -1,6 +1,6 @@
 'use client'
 
-import { Tag } from 'antd'
+import { Input, Tag } from 'antd'
 import { useState, type KeyboardEvent } from 'react'
 
 interface Props {
@@ -24,6 +24,7 @@ export default function Keywords({ value, onChange, placeholder }: Props) {
   const commit = (list: string[]) => onChange(list.join(','))
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.nativeEvent.isComposing) return
     if (e.key === 'Enter') {
       e.preventDefault()
       const t = draft.trim()
@@ -38,13 +39,13 @@ export default function Keywords({ value, onChange, placeholder }: Props) {
   const remove = (idx: number) => commit(words.filter((_, i) => i !== idx))
 
   return (
-    <div className="flex min-h-[34px] flex-wrap items-center gap-1 rounded border border-[#d9d9d9] px-2 py-1 focus-within:border-[#4096ff] focus-within:shadow-[0_0_0_2px_rgba(5,145,255,0.1)]">
+    <div className="flex min-h-[34px] flex-wrap items-center gap-1 rounded border border-[var(--site-border)] px-2 py-1 focus-within:border-[var(--site-primary-hover)] focus-within:shadow-[0_0_0_2px_rgba(5,145,255,0.1)]">
       {words.map((w, i) => (
         <Tag key={i} closable onClose={() => remove(i)} color="blue">
           {w}
         </Tag>
       ))}
-      <input
+      <Input variant="borderless"
         className="min-w-[80px] flex-1 border-none bg-transparent text-sm outline-none"
         value={draft}
         onChange={(e) => setDraft(e.target.value)}

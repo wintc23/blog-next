@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { Button, type GetRef } from 'antd'
 import { useEffect, useId, useRef, useState } from 'react'
 import { LeftOutlined, RightOutlined, PauseOutlined, CaretRightOutlined } from '@ant-design/icons'
 import type { Product } from '@/lib/schemas/product'
@@ -10,7 +11,7 @@ type CarouselProduct = Pick<Product, 'id' | 'name' | 'slug' | 'tagline' | 'summa
 
 export default function ProductCarousel({ products }: { products: CarouselProduct[] }) {
   const viewport = useRef<HTMLDivElement>(null)
-  const rotationButton = useRef<HTMLButtonElement>(null)
+  const rotationButton = useRef<GetRef<typeof Button>>(null)
   const viewportId = useId()
   const [active, setActive] = useState(0)
   const [playing, setPlaying] = useState(true)
@@ -137,7 +138,7 @@ export default function ProductCarousel({ products }: { products: CarouselProduc
                   </ul>
                 )}
                 <Link href={`/products/${product.slug}`} className={styles.primaryLink}>
-                  查看详情 <span aria-hidden="true">→</span>
+                  查看详情
                 </Link>
               </div>
             </article>
@@ -145,14 +146,14 @@ export default function ProductCarousel({ products }: { products: CarouselProduc
         </div>
         {count > 1 && (
           <div className={styles.coverNavigation} role="group" aria-label="作品主图切换">
-            <button type="button" className={styles.coverButton} aria-label="上一件作品"
+            <Button type="text" shape="circle" className={styles.coverButton} aria-label="上一件作品"
               aria-controls={viewportId} onClick={() => goTo(active - 1)}>
               <LeftOutlined aria-hidden />
-            </button>
-            <button type="button" className={styles.coverButton} aria-label="下一件作品"
+            </Button>
+            <Button type="text" shape="circle" className={styles.coverButton} aria-label="下一件作品"
               aria-controls={viewportId} onClick={() => goTo(active + 1)}>
               <RightOutlined aria-hidden />
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -160,9 +161,9 @@ export default function ProductCarousel({ products }: { products: CarouselProduc
         <div className={styles.carouselControls}>
           <div className={styles.carouselDots} role="group" aria-label="选择作品">
             {products.map((product, index) => (
-              <button key={product.id} type="button" className={styles.carouselDot}
+              <Button key={product.id} type="text" className={styles.carouselDot}
                 aria-label={`展示 ${product.name}`} aria-current={index === active ? 'true' : undefined}
-                aria-controls={viewportId} onClick={() => goTo(index)}><span /></button>
+                aria-controls={viewportId} onClick={() => goTo(index)}><span /></Button>
             ))}
           </div>
           <div className={styles.carouselNavigation}>
@@ -170,15 +171,15 @@ export default function ProductCarousel({ products }: { products: CarouselProduc
               <span className="sr-only">{products[active]?.name}，</span>{active + 1} / {count}
             </span>
             {!reducedMotion && (
-              <button ref={rotationButton} type="button" className={styles.carouselButton} aria-label={playing ? '暂停自动轮播' : '开始自动轮播'}
+              <Button ref={rotationButton} type="text" shape="circle" className={styles.carouselButton} aria-label={playing ? '暂停自动轮播' : '开始自动轮播'}
                 onClick={() => setPlaying(!playing)}>
                 {playing ? <PauseOutlined aria-hidden /> : <CaretRightOutlined aria-hidden />}
-              </button>
+              </Button>
             )}
-            <button type="button" className={styles.carouselButton} aria-label="上一件作品"
-              aria-controls={viewportId} onClick={() => goTo(active - 1)}><LeftOutlined aria-hidden /></button>
-            <button type="button" className={styles.carouselButton} aria-label="下一件作品"
-              aria-controls={viewportId} onClick={() => goTo(active + 1)}><RightOutlined aria-hidden /></button>
+            <Button type="text" shape="circle" className={styles.carouselButton} aria-label="上一件作品"
+              aria-controls={viewportId} onClick={() => goTo(active - 1)}><LeftOutlined aria-hidden /></Button>
+            <Button type="text" shape="circle" className={styles.carouselButton} aria-label="下一件作品"
+              aria-controls={viewportId} onClick={() => goTo(active + 1)}><RightOutlined aria-hidden /></Button>
           </div>
         </div>
       )}

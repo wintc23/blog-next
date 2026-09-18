@@ -66,7 +66,7 @@ function QQTokenInner() {
       })
   }, [sp])
 
-  return <div className="p-10 text-center text-[#666]">{status}</div>
+  return <div className="p-10 text-center text-[var(--site-text-secondary)]">{status}</div>
 }
 
 export default function QQTokenPage() {

@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 export function camel<T = unknown>(data: unknown): T {
   if (data === null || data === undefined || typeof data === 'string') return data as T
   if (Array.isArray(data)) return data.map((item) => camel(item)) as T
@@ -82,7 +83,7 @@ export function getVisitorId(): string {
   const len = 32
   let visitorId = localStorage.getItem(key)
   if (!visitorId || visitorId.length !== len) {
-    visitorId = crypto.randomUUID().replace(/-/g, '')
+    visitorId = uuidv4().replace(/-/g, '')
     localStorage.setItem(key, visitorId)
   }
   return visitorId
@@ -104,7 +105,8 @@ export function setTokenClient(token: string) {
   if (typeof document === 'undefined') return
   const d = new Date()
   d.setHours(d.getHours() + 24 * 30)
-  document.cookie = `${TOKEN_KEY}=${token};path=/;expires=${d.toUTCString()}`
+  const secure = window.location.protocol === 'https:' ? ';Secure' : ''
+  document.cookie = `${TOKEN_KEY}=${token};path=/;expires=${d.toUTCString()};SameSite=Lax${secure}`
 }
 
 export function clearTokenClient() {

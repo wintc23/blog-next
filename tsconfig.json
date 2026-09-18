@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -13,11 +17,44 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "plugins": [{ "name": "next" }],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".next-color-system/types/**/*.ts",
+    ".next-explore-stable/types/**/*.ts",
+    ".next-explore/types/**/*.ts",
+    ".next-lan-compatible/types/**/*.ts",
+    ".next-lan-final/types/**/*.ts",
+    ".next-lan/types/**/*.ts",
+    ".next-link-colors/types/**/*.ts",
+    ".next-links/types/**/*.ts",
+    ".next-local/types/**/*.ts",
+    ".next-news-colors/types/**/*.ts",
+    ".next-simple-workbench-final/types/**/*.ts",
+    ".next-simple-workbench/types/**/*.ts",
+    ".next-style-preview/types/**/*.ts",
+    ".next-tools-check/types/**/*.ts",
+    ".next-tools-complete/types/**/*.ts",
+    ".next-tools-production/types/**/*.ts",
+    ".next-tools-refine/types/**/*.ts",
+    ".next-type14/types/**/*.ts",
+    ".next-visual-system/types/**/*.ts",
+    ".next/types/**/*.ts",
+    "next-env.d.ts",
+    ".next-guest-images/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

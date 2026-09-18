@@ -90,6 +90,6 @@ const QiniuTokenSchema = z.object({
   token: z.string(),
   domain: z.string(),
 })
-export function getFileUploadToken(filename: string) {
-  return apiFetch(`/get-qiniu-token/${filename}`, { schema: QiniuTokenSchema })
+export function getFileUploadToken(filename: string, kind: 'image' | 'video' = 'image') {
+  return apiFetch(`/get-qiniu-token/${filename}`, { params: { kind }, schema: QiniuTokenSchema })
 }

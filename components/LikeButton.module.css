@@ -1,0 +1,24 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 5px 12px;
+  border: 1px solid #e7dadd;
+  border-radius: 4px;
+  background: transparent;
+  color: #b75c6c;
+  font: inherit;
+  font-size: var(--font-ui);
+  line-height: 22px;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: background-color .15s, border-color .15s;
+}
+.button:hover, .button[aria-pressed='true'] { background: #fff1f3; border-color: #eeb9c3; color: #ce4963; }
+.button:focus-visible { outline: 2px solid var(--site-primary); outline-offset: 3px; }
+.button:disabled { cursor: wait; opacity: .65; }
+.count { font-variant-numeric: tabular-nums; }
+@media (pointer: coarse) { .button { min-height: 44px; } }
+@media (prefers-reduced-motion: reduce) { .button { transition: none; } }

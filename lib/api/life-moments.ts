@@ -2,10 +2,25 @@ import { z } from 'zod'
 import { apiFetch, apiFetchServer } from './client'
 import { ProfileMomentSchema, type ProfileMoment } from '@/lib/schemas/personal-profile'
 
-export type LifeMomentInput = Omit<ProfileMoment, 'id'>
+export type LifeMomentInput = Pick<ProfileMoment, 'date' | 'occurredAt' | 'category' | 'text' | 'location' | 'images'>
 export const LifeMomentListSchema = z.object({
   list: z.array(ProfileMomentSchema), total: z.number(), page: z.number(), perPage: z.number(),
 })
+
+const LifeMomentGroupsSchema = z.object({
+  groups: z.array(z.object({ date: z.string(), moments: z.array(ProfileMomentSchema) })),
+  total: z.number(), totalDates: z.number(), page: z.number(), perPage: z.number(),
+})
+
+export function getLifeMomentGroups(page = 1) {
+  return apiFetchServer('/life-moments/', {
+    params: { page, per_page: 7, group_by: 'date' }, schema: LifeMomentGroupsSchema, cache: 'no-store',
+  })
+}
+
+export function getLifeMoment(id: string) {
+  return apiFetchServer(`/life-moments/${encodeURIComponent(id)}/`, { schema: ProfileMomentSchema, cache: 'no-store' })
+}
 
 export function getLifeMoments(page = 1, perPage = 12, server = false) {
   return (server ? apiFetchServer : apiFetch)('/life-moments/', {

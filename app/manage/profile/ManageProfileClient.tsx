@@ -131,7 +131,7 @@ export default function ManageProfileClient() {
             </fieldset>
             <fieldset className={styles.section}>
               <legend>作品栏目</legend>
-              <Form.Item label="栏目简介" name="portfolioIntroduction" extra="显示在首页作品标题下方和作品集页面，留空则不显示。" rules={[{ max: 500 }]}>
+              <Form.Item label="栏目简介" name="portfolioIntroduction" extra="显示在首页个人作品标题下方，留空则不显示。" rules={[{ max: 500 }]}>
                 <Input.TextArea name="portfolioIntroduction" rows={2} maxLength={500} showCount />
               </Form.Item>
             </fieldset>

@@ -55,13 +55,13 @@ export default function SocketClient() {
               {p.type === NOTIFY_COMMENT && (
                 <>
                   {' 评论了文章 '}
-                  <span className="text-[#2d8cf0]">《{p.postTitle}》</span>
+                  <span className="text-[var(--site-primary)]">《{p.postTitle}》</span>
                 </>
               )}
               {p.type === NOTIFY_COMMENT_REPLY && (
                 <>
                   {' 在 '}
-                  <span className="text-[#2d8cf0]">《{p.postTitle}》</span>
+                  <span className="text-[var(--site-primary)]">《{p.postTitle}》</span>
                   {' 回复了你'}
                 </>
               )}

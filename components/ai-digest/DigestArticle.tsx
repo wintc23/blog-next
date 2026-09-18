@@ -1,9 +1,11 @@
-import Link from 'next/link'
-import { ArrowLeftOutlined, ArrowRightOutlined, ArrowUpOutlined, ClockCircleOutlined, ReadOutlined, FileTextOutlined, LinkOutlined } from '@ant-design/icons'
+import BackLink from '@/components/BackLink'
+import { ArrowUpOutlined, ClockCircleOutlined, ReadOutlined, FileTextOutlined, LinkOutlined } from '@ant-design/icons'
 import type { AiDigestDetail } from '@/lib/schemas/ai-digest'
 import { formatTime, statusText, IssueDate } from './DigestShared'
 import styles from './DigestPreview.module.css'
 import DigestReadCount from './DigestReadCount'
+import DigestComments from './DigestComments'
+import LikeButton from '@/components/LikeButton'
 
 const sectionAnchor = (id: string) => `digest-section-${id}`
 const groupAnchor = (id: string) => `digest-group-${id}`
@@ -22,14 +24,14 @@ export default function DigestArticle({ detail, manage = false, manageArchivePat
   return (
     <div className={`${styles.surface} ${manage ? '' : styles.publicArticle}`}>
       <Container className={styles.reader} id="digest-top" tabIndex={-1}>
-        <nav className={styles.readerNav} aria-label="动态导航"><Link href={archivePath}><ArrowLeftOutlined /> 全部动态</Link>{manage ? <span><span className={styles.status}>{statusText[detail.status]}</span> 第 {detail.contentVersion} 版</span> : <Link href="/">返回首页</Link>}</nav>
+        <nav className={styles.readerNav} aria-label="动态导航"><BackLink href={archivePath}>返回动态列表</BackLink>{manage && <span><span className={styles.status}>{statusText[detail.status]}</span> 第 {detail.contentVersion} 版</span>}</nav>
         <article>
           <header className={styles.articleHeader}>
             <div className={styles.articleHeading}>
               <p className={styles.eyebrow}><span aria-hidden="true" /> {detail.channelTitle}<span className={styles.eyebrowDivider}>/</span>{detail.issueDate.replaceAll('-', '.')}</p>
               <h1>{detail.title}</h1><p className={styles.summary}>{detail.summary}</p>
               <div className={styles.articleMeta}><span><FileTextOutlined />{content.byline}</span><span><ReadOutlined />约 {content.estimatedReadMinutes} 分钟</span><DigestReadCount key={detail.id} id={detail.id} initialCount={detail.readTimes} track={!manage} /><time dateTime={detail.scheduledPublishAt}><ClockCircleOutlined />期次 {formatTime(detail.scheduledPublishAt)} · 北京时间</time></div>
-              {grouped && <nav className={styles.groupNav} aria-label="按阅读方向跳转">{groups.map(group => <a key={group.id} href={`#${groupAnchor(group.id)}`}><strong>{group.title}</strong><span>{group.sections.length} 条动态 <ArrowRightOutlined /></span></a>)}</nav>}
+              {grouped && <nav className={styles.groupNav} aria-label="按阅读方向跳转">{groups.map(group => <a key={group.id} href={`#${groupAnchor(group.id)}`}><strong>{group.title}</strong><span>{group.sections.length} 条动态</span></a>)}</nav>}
             </div>
             <IssueDate value={detail.issueDate} />
           </header>
@@ -55,11 +57,12 @@ export default function DigestArticle({ detail, manage = false, manageArchivePat
                 {section.paragraphs.map((paragraph, i) => <p key={i}>{paragraph}</p>)}
                 {section.image && <figure className={styles.figure}><img src={section.image.url} alt={section.image.alt} width={section.image.width} height={section.image.height} loading="lazy" /><figcaption>{section.image.caption}<span>{section.image.credit}</span></figcaption></figure>}
                 {section.analysis && <div className={styles.analysis}><div className={styles.analysisLabel}><span aria-hidden="true" />AI 简评</div><p>{section.analysis}</p></div>}
-                <ul className={styles.sources}>{section.sources.map((source) => <li key={source.itemId}><a href={source.url} target="_blank" rel="noopener noreferrer"><LinkOutlined /><div><span className={styles.sourcePublisher}>{source.publisher}<time dateTime={source.publishedDate}>{source.publishedDate}</time></span><span className={styles.sourceTitle}>{source.title}</span></div><span aria-hidden="true">↗</span></a></li>)}</ul>
+                <ul className={styles.sources}>{section.sources.map((source) => <li key={source.itemId}><a href={source.url} target="_blank" rel="noopener noreferrer"><LinkOutlined /><div><span className={styles.sourcePublisher}>{source.publisher}<time dateTime={source.publishedDate}>{source.publishedDate}</time></span><span className={styles.sourceTitle}>{source.title}</span></div></a></li>)}</ul>
                 </section>)}
               </div>)}
-              <section className={styles.closing}><p className={styles.eyebrow}>AFTER READING</p><h2>读完之后</h2><p>{content.closing}</p><Link href={archivePath}>查看其他动态 <ArrowRightOutlined /></Link></section>
+              <section className={styles.closing}><p className={styles.eyebrow}>AFTER READING</p><h2>读完之后</h2><p>{content.closing}</p>{!manage && <div className="mt-5"><LikeButton key={detail.id} target="digest" id={detail.id} /></div>}<div className="mt-5"><BackLink href={archivePath}>返回动态列表</BackLink></div></section>
               <footer className={styles.footer}><details><summary>编辑说明与生成信息</summary><p>{content.editorialNote}</p><p>{content.scopeNote}</p><p>首次生成时间：{formatTime(detail.createdAt)}（北京时间）。本版更新时间：{formatTime(detail.updatedAt)}（北京时间）。{detail.publishedAt && `实际发布时间：${formatTime(detail.publishedAt)}（北京时间）。`}{detail.status === 'draft' ? '当前为草稿，未发送订阅邮件。' : ''}</p></details></footer>
+              {!manage && <DigestComments digestId={detail.id} />}
             </div>
           </div>
         </article>

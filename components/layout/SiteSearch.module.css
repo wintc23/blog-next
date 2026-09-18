@@ -1,0 +1,27 @@
+.search { position: relative; isolation: isolate; inline-size: 100%; min-inline-size: 0; }
+.field { display: flex; align-items: center; block-size: 36px; margin: 0; padding-inline: 5px; border: 1px solid var(--site-border); border-radius: var(--site-radius); background: var(--site-bg); transition: border-color .15s, background-color .15s; }
+.field:hover { border-color: var(--site-border); }
+.field:focus-within { border-color: var(--site-primary); background: var(--site-surface); }
+.field input { inline-size: 100%; min-inline-size: 0; block-size: 100%; padding: 0 4px; border: 0; border-radius: 0; outline: none; box-shadow: none; background: transparent; color: var(--site-text-secondary); font: inherit; font-size: var(--font-ui); }
+.field input::placeholder { color: var(--site-text-secondary); }
+.field input::-webkit-search-cancel-button { display: none; }
+.iconButton { display: grid; flex: none; place-items: center; inline-size: 28px; block-size: 28px; padding: 0; border: 0; border-radius: var(--site-radius); background: transparent; color: var(--site-text-secondary); font-size: var(--font-body); cursor: pointer; }
+.iconButton:hover { color: var(--site-primary); }
+.iconButton:focus-visible { outline: 2px solid var(--site-primary); outline-offset: -2px; }
+.clear { font-size: var(--font-meta); }
+.panel { position: absolute; inset-block-start: calc(100% + 8px); inset-inline-end: 0; z-index: 5; inline-size: min(380px, calc(100vw - 48px)); border: 1px solid var(--site-border); border-radius: var(--site-radius); background: var(--site-surface); box-shadow: 0 8px 24px #1c314814; color: var(--site-text-secondary); }
+.panelHeading { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px 8px; color: var(--site-text-secondary); font-size: var(--font-meta); }
+.resultList { max-block-size: min(360px, 55dvh); overflow-y: auto; overscroll-behavior: contain; padding: 0 6px 6px; }
+.resultList ul { margin: 0; padding: 0; list-style: none; }
+.resultList a { display: block; padding: 10px 8px; border-radius: var(--site-radius); color: var(--site-text-secondary); font-size: var(--font-ui); line-height: 1.65; overflow-wrap: anywhere; text-decoration: none; }
+.resultList a:hover, .resultList a:focus-visible { outline: none; background: var(--site-bg); color: var(--site-primary); }
+.resultList a:focus-visible { outline: 2px solid var(--site-primary); outline-offset: -2px; }
+.resultList mark { padding: 0; background: transparent; color: var(--site-primary); font-weight: 600; }
+.notice { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; padding: 22px 12px 26px; color: var(--site-text-secondary); font-size: var(--font-ui); line-height: 1.7; text-align: center; }
+@media (max-width: 599px) {
+  .field { block-size: 40px; }
+  .field input { font-size: var(--font-body); }
+  .panel { inline-size: 100%; }
+  .iconButton { inline-size: 32px; block-size: 32px; }
+}
+@media (prefers-reduced-motion: reduce) { .field { transition: none; } }

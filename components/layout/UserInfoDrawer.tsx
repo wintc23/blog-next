@@ -1,6 +1,6 @@
 'use client'
 
-import { Drawer, Button, Input, App } from 'antd'
+import { Drawer, Button, Input, App, Popconfirm } from 'antd'
 import { CloseOutlined } from '@ant-design/icons'
 import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
@@ -14,15 +14,17 @@ import {
 import { getUserDetail } from '@/lib/api/users'
 import { setEmailAction } from '@/app/actions/users'
 import { timeShow } from '@/lib/utils'
+import RichCommentBody from '../RichCommentBody'
 
 interface UserDetail {
   id: number
   username: string
   avatar: string
+  isGuest?: boolean
   email?: string
   likes: { timestamp: number; postId: number; postTitle: string }[]
   messages: { timestamp: number; body?: string }[]
-  comments: { timestamp: number; body?: string; postId: number; postTitle: string }[]
+  comments: { timestamp: number; body?: string; postId: number; postTitle: string; digestId?: number; targetUrl?: string }[]
 }
 
 export default function UserInfoDrawer() {
@@ -35,6 +37,10 @@ export default function UserInfoDrawer() {
   const [detail, setDetail] = useState<UserDetail | null>(null)
   const [editingEmail, setEditingEmail] = useState(false)
   const [emailValue, setEmailValue] = useState('')
+
+  useEffect(() => {
+    setDetail(null)
+  }, [user?.id, user?.isGuest, user?.email])
 
   const load = useCallback(async (id: number) => {
     try {
@@ -123,7 +129,7 @@ export default function UserInfoDrawer() {
       extra={
         <CloseOutlined
           onClick={hideUserDrawer}
-          className="ml-2 cursor-pointer text-[16px] text-[#999] hover:text-[#333]"
+          className="ml-2 cursor-pointer text-base text-[var(--site-text-disabled)] hover:text-[var(--site-text)]"
         />
       }
       title={
@@ -134,25 +140,45 @@ export default function UserInfoDrawer() {
             alt="avatar"
             className="mr-2 h-[30px] w-[30px] rounded-full"
           />
-          <span className="text-[#333]">{detail.username}</span>
+          <span className="text-[var(--site-text)]">{detail.username}</span>
           <div className="flex-1" />
-          {user?.id === detail.id && (
+          {user?.id === detail.id && (user.isGuest && !detail.email ? (
+            <Popconfirm
+              title="退出游客身份？"
+              description="尚未设置邮箱，退出后无法找回当前身份。已发表的内容会保留。"
+              okText="退出"
+              cancelText="取消"
+              onConfirm={logout}
+            >
+              <Button size="small">退出</Button>
+            </Popconfirm>
+          ) : (
             <Button size="small" type="primary" onClick={logout}>
               退出
             </Button>
-          )}
+          ))}
         </div>
       }
     >
+      {user?.id === detail.id && detail.isGuest && (
+        <p className="mb-5 text-sm leading-6 text-[var(--site-text-secondary)]">
+          {detail.email
+            ? '当前使用游客身份，登录有效期为 30 天。下次可通过已设置的邮箱获取验证码，登录同一账号。'
+            : '当前使用游客身份，登录有效期为 30 天。设置邮箱后可通过验证码找回账号，保留昵称、头像和已发表的内容。'}
+        </p>
+      )}
       {canSeeEmail && (
         <div className="mb-5">
-          <div className="mb-2 border-b border-[rgba(64,158,255,0.5)] pb-1 text-[18px] text-[#409eff]">
-            邮箱:{detail.email || '未设置'}
+          <div className="mb-2 border-b border-[rgba(64,158,255,0.5)] pb-1 text-lg text-[var(--site-primary)]">
+            邮箱：{detail.email || '未设置'}
           </div>
           {editingEmail ? (
             <div className="space-y-2">
               <Input
                 type="email"
+                aria-label="邮箱"
+                autoComplete="email"
+                maxLength={64}
                 value={emailValue}
                 onChange={(e) => setEmailValue(e.target.value)}
               />
@@ -167,8 +193,8 @@ export default function UserInfoDrawer() {
             <>
               <div className="mb-2 text-sm">
                 {detail.email
-                  ? '别人回复您的评论或者留言时,本站将通过邮箱通知您。'
-                  : '您可以设置邮箱,以便及时收到关于您的消息。别人回复您的评论或者留言时,本站将通过邮箱通知您。'}
+                  ? '用于接收评论和留言的回复通知，也可通过验证码登录。'
+                  : '用于接收回复通知和找回账号。设置时无需验证，使用邮箱登录时才需要验证码。'}
               </div>
               <Button
                 size="small"
@@ -185,7 +211,7 @@ export default function UserInfoDrawer() {
         </div>
       )}
       <div>
-        <div className="mb-2 border-b border-[rgba(64,158,255,0.5)] pb-1 text-[18px] text-[#409eff]">
+        <div className="mb-2 border-b border-[rgba(64,158,255,0.5)] pb-1 text-lg text-[var(--site-primary)]">
           相关动态
         </div>
         {/* Wrap activities in their own container so `first:border-0`
@@ -195,7 +221,7 @@ export default function UserInfoDrawer() {
           {activities.map((a, i) => (
             <div
               key={i}
-              className="border-t border-[#ccc] p-[10px] text-sm first:border-t-0"
+              className="border-t border-[var(--site-border)] p-[10px] text-sm first:border-t-0"
             >
               <div className="break-all">
                 <span className="mr-2 font-bold text-[#FF8700]">
@@ -203,19 +229,19 @@ export default function UserInfoDrawer() {
                 </span>
                 {a.type === 1 && '赞了文章'}
                 {a.type === 2 && '在留言板留言'}
-                {a.type === 3 && '评论了文章'}
-                {a.postId ? (
+                {a.type === 3 && ('digestId' in a && a.digestId ? '评论了 AI 快讯' : '评论了文章')}
+                {a.postId || ('digestId' in a && a.digestId) ? (
                   <Link
-                    href={`/article/${a.postId}`}
-                    className="ml-1 text-[#2d8cf0] hover:underline"
+                    href={'digestId' in a && a.digestId ? `/ai-news/${a.digestId}#comments` : `/article/${a.postId}#comments`}
+                    className="ml-1 text-[var(--site-primary)] hover:underline"
                   >
                     {a.postTitle}
                   </Link>
                 ) : null}
               </div>
               {'body' in a && a.body && (
-                <div className="mt-1 break-all rounded bg-[#eee] p-1">
-                  {a.body}
+                <div className="mt-1 break-all rounded bg-[var(--site-hover-bg)] p-1">
+                  <RichCommentBody body={a.body} />
                 </div>
               )}
             </div>

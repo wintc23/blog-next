@@ -85,12 +85,12 @@ export default function LinkPageClient({ initial }: { initial: LinkType[] }) {
   return (
     <div>
       <div className="sub-page-header ws">友情链接</div>
-      <div className="relative mb-3 bg-white p-4 pl-6 text-[#333]">
+      <div className="relative mb-3 bg-white p-4 pl-6 text-[var(--site-text)]">
         <div className="absolute inset-y-0 left-0 w-2 bg-[#19be6b]" />
         <div className="leading-relaxed">
           <span
             onClick={create}
-            className="cursor-pointer select-none text-[#409eff] underline"
+            className="cursor-pointer select-none text-[var(--site-primary)] underline"
           >
             提交链接
           </span>
@@ -99,7 +99,7 @@ export default function LinkPageClient({ initial }: { initial: LinkType[] }) {
         <div className="my-2 flex items-center font-bold">
           本站信息
           <Tooltip title="一键复制本站信息（json格式）">
-            <CopyOutlined onClick={copyInfo} className="ml-1 cursor-pointer text-[#666]" />
+            <CopyOutlined onClick={copyInfo} className="ml-1 cursor-pointer text-[var(--site-text-secondary)]" />
           </Tooltip>
         </div>
         <div className="text-sm">
@@ -112,7 +112,7 @@ export default function LinkPageClient({ initial }: { initial: LinkType[] }) {
 
       <div className="bg-white">
         {list.map((link) => (
-          <div key={link.id} className="overflow-hidden border-t border-[#ddd] p-3 first:border-0">
+          <div key={link.id} className="overflow-hidden border-t border-[var(--site-border)] p-3 first:border-0">
             <div className="float-left mr-3 h-[50px] w-[50px] shrink-0 overflow-hidden rounded-full shadow">
               {link.logo ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -125,12 +125,12 @@ export default function LinkPageClient({ initial }: { initial: LinkType[] }) {
               <div className="float-right text-2xl">
                 <EditOutlined
                   onClick={() => edit(link)}
-                  className="cursor-pointer p-1 text-[#ff9900] hover:bg-[#eee]"
+                  className="cursor-pointer p-1 text-[#ff9900] hover:bg-[var(--site-hover-bg)]"
                 />
                 {user?.admin && (
                   <DeleteOutlined
                     onClick={() => remove(link)}
-                    className="ml-2 cursor-pointer p-1 text-[#ed4014] hover:bg-[#eee]"
+                    className="ml-2 cursor-pointer p-1 text-[#ed4014] hover:bg-[var(--site-hover-bg)]"
                   />
                 )}
               </div>
@@ -140,7 +140,7 @@ export default function LinkPageClient({ initial }: { initial: LinkType[] }) {
                 href={link.link}
                 target="_blank"
                 rel="noreferrer"
-                className="text-[16px] hover:underline"
+                className="text-base hover:underline"
               >
                 {link.title}
               </a>
@@ -149,7 +149,7 @@ export default function LinkPageClient({ initial }: { initial: LinkType[] }) {
                   待验证
                 </Tag>
               )}
-              {link.motto && <div className="text-sm text-[#666]">{link.motto}</div>}
+              {link.motto && <div className="text-sm text-[var(--site-text-secondary)]">{link.motto}</div>}
             </div>
           </div>
         ))}
@@ -164,28 +164,28 @@ export default function LinkPageClient({ initial }: { initial: LinkType[] }) {
         {editing && (
           <div className="space-y-3">
             <div>
-              <div className="mb-1 font-bold text-[#3361d8]">显示名称(必填)</div>
+              <div className="mb-1 font-bold text-[var(--site-primary)]">显示名称(必填)</div>
               <Input
                 value={editing.title}
                 onChange={(e) => setEditing({ ...editing, title: e.target.value })}
               />
             </div>
             <div>
-              <div className="mb-1 font-bold text-[#3361d8]">站点地址(必填)</div>
+              <div className="mb-1 font-bold text-[var(--site-primary)]">站点地址(必填)</div>
               <Input
                 value={editing.link}
                 onChange={(e) => setEditing({ ...editing, link: e.target.value })}
               />
             </div>
             <div>
-              <div className="mb-1 font-bold text-[#3361d8]">描述</div>
+              <div className="mb-1 font-bold text-[var(--site-primary)]">描述</div>
               <Input
                 value={editing.motto ?? ''}
                 onChange={(e) => setEditing({ ...editing, motto: e.target.value })}
               />
             </div>
             <div>
-              <div className="mb-1 font-bold text-[#3361d8]">Logo URL</div>
+              <div className="mb-1 font-bold text-[var(--site-primary)]">Logo URL</div>
               <Input
                 value={editing.logo ?? ''}
                 onChange={(e) => setEditing({ ...editing, logo: e.target.value })}

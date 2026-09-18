@@ -5,6 +5,7 @@ export const UserSchema = z.object({
   username: z.string(),
   avatar: z.string(),
   admin: z.boolean().optional(),
+  isGuest: z.boolean().optional(),
   email: z.string().nullish(),
   aboutMe: z.string().nullish(),
   postCount: z.number().nullish(),
@@ -19,6 +20,8 @@ const UserActivitySchema = z.object({
   body: z.string().nullish(),
   postId: z.number().nullish(),
   postTitle: z.string().nullish(),
+  digestId: z.number().nullish(),
+  targetUrl: z.string().nullish(),
 })
 
 export const UserDetailSchema = UserSchema.extend({

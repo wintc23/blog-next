@@ -20,7 +20,7 @@ export default function Pagination({ total, perPage, page, hrefFor }: Props) {
             key={p}
             href={hrefFor(p)}
             className={`m-2 inline-block h-9 w-9 rounded text-center font-bold leading-9 ${
-              p === page ? 'text-[#409eff]' : 'text-[#333] hover:bg-[#ddd]'
+              p === page ? 'text-[var(--site-primary)]' : 'text-[var(--site-text)] hover:bg-[var(--site-border)]'
             } bg-white`}
           >
             {p}

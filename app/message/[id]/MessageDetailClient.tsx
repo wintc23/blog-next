@@ -57,7 +57,8 @@ export default function MessageDetailClient({
 
   return (
     <div className="mx-2">
-      <CommentTree
+    <CommentTree
+      kind="message"
         list={list}
         currentId={currentId}
         onReply={submit}

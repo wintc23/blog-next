@@ -474,15 +474,15 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
   }
 
   const sidebar = (
-    <aside className="flex h-full w-full shrink-0 flex-col border-r border-[#e4ebf4] bg-[#fbfdff] text-[#515a6e] md:w-72">
-      <div className="flex h-16 shrink-0 items-center gap-2 border-b border-[#e9edf3] px-3">
+    <aside className="flex h-full w-full shrink-0 flex-col border-r border-[var(--site-border)] bg-[var(--site-surface-subtle)] text-[var(--site-text-secondary)] md:w-72">
+      <div className="flex h-16 shrink-0 items-center gap-2 border-b border-[var(--site-bg)] px-3">
         <Button type="primary" icon={<PlusOutlined />} className="min-w-0 flex-1 rounded-md" onClick={createSession}>
           新建会话
         </Button>
         <Button
           type="text"
           icon={<CloseOutlined />}
-          className="text-[#6b778c] hover:!text-[#409eff] md:!hidden"
+          className="text-[var(--site-text-secondary)] hover:!text-[var(--site-primary)] md:!hidden"
           onClick={() => setSidebarOpen(false)}
         />
       </div>
@@ -496,7 +496,7 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
           >
             <div
               className={`mb-1 flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 transition-colors ${
-                activeId === session.id ? 'bg-[#edf5ff]' : 'hover:bg-[#f3f6fa]'
+                activeId === session.id ? 'bg-[var(--site-primary-soft)]' : 'hover:bg-[var(--site-bg)]'
               }`}
               onClick={() => {
                 if (!sidebarEditingSessionId) {
@@ -505,10 +505,10 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
                 }
               }}
             >
-              <MessageOutlined className="text-[#409eff]" />
+              <MessageOutlined className="text-[var(--site-primary)]" />
               <div className="min-w-0 flex-1">
                 <div className="flex min-w-0 items-center gap-1">
-                  {session.pinned && <PushpinFilled className="shrink-0 text-xs text-[#409eff]" />}
+                  {session.pinned && <PushpinFilled className="shrink-0 text-xs text-[var(--site-primary)]" />}
                   {sidebarEditingSessionId === session.id ? (
                     <Input
                       size="small"
@@ -527,12 +527,12 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
                       }}
                     />
                   ) : (
-                    <div className="min-w-0 flex-1 truncate text-sm font-medium text-[#515a6e]">
+                    <div className="min-w-0 flex-1 truncate text-sm font-medium text-[var(--site-text-secondary)]">
                       {session.title}
                     </div>
                   )}
                 </div>
-                <div className="text-xs text-[#9aa4b2]">
+                <div className="text-xs text-[var(--site-text-secondary)]">
                   {session.lastMessageAt ? formatTime(session.lastMessageAt) : '暂无消息'}
                 </div>
               </div>
@@ -544,7 +544,7 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
                 <Button
                   size="small"
                   type="text"
-                  className="text-[#8b98a8] hover:!text-[#409eff]"
+                  className="text-[var(--site-text-secondary)] hover:!text-[var(--site-primary)]"
                   icon={<MoreOutlined />}
                   onClick={(event) => {
                     event.preventDefault()
@@ -562,9 +562,9 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
 
   if (!authed) {
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center bg-[#f4f7fb] px-4 py-6">
-        <div className="w-full max-w-sm rounded-lg border border-[#e3e8ef] bg-white p-5 shadow-sm">
-          <div className="mb-4 text-lg font-semibold text-[#222]">AI 聊天访问</div>
+      <div className="flex min-h-[100dvh] items-center justify-center bg-[var(--site-bg)] px-4 py-6">
+        <div className="w-full max-w-sm rounded-lg border border-[var(--site-border)] bg-white p-5 shadow-sm">
+          <div className="mb-4 text-lg font-semibold text-[var(--site-text)]">AI 聊天访问</div>
           <Input.Password
             placeholder="请输入管理员分配的 key"
             value={loginKey}
@@ -580,7 +580,7 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
   }
 
   return (
-    <div className="flex h-[100dvh] min-h-0 overflow-hidden bg-[#f4f7fb] text-[#515a6e]">
+    <div className="flex h-[100dvh] min-h-0 overflow-hidden bg-[var(--site-bg)] text-[var(--site-text-secondary)]">
       <div className="hidden md:block">{sidebar}</div>
       <Drawer
         placement="left"
@@ -594,9 +594,9 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
         {sidebar}
       </Drawer>
       <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-[#e4ebf4] bg-white/95 px-3 text-[#515a6e] backdrop-blur">
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-[var(--site-border)] bg-white/95 px-3 text-[var(--site-text-secondary)] backdrop-blur">
           <Button
-            className="shrink-0 !inline-flex text-[#6b778c] hover:!text-[#409eff] md:!hidden"
+            className="shrink-0 !inline-flex text-[var(--site-text-secondary)] hover:!text-[var(--site-primary)] md:!hidden"
             icon={<MessageOutlined />}
             onClick={() => setSidebarOpen(true)}
           />
@@ -614,7 +614,7 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
             />
           ) : (
             <button
-              className="min-w-0 flex-1 truncate bg-transparent p-0 text-left text-sm font-semibold text-[#515a6e] sm:text-base"
+              className="min-w-0 flex-1 truncate bg-transparent p-0 text-left text-sm font-semibold text-[var(--site-text-secondary)] sm:text-base"
               disabled={!activeSession}
               onClick={() => activeSession && startEditTitle(activeSession)}
             >
@@ -634,7 +634,7 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
           ) : (
             <div className="mx-auto max-w-4xl space-y-4">
               {messagesLoading && (
-                <div className="text-center text-[#9aa4b2]">
+                <div className="text-center text-[var(--site-text-secondary)]">
                   <Spin size="small" />
                 </div>
               )}
@@ -646,10 +646,10 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
                   <div
                     className={`relative max-w-[92%] rounded-lg px-3 py-2 text-sm leading-6 shadow-sm sm:max-w-[82%] ${
                       item.role === 'user'
-                        ? 'bg-[#1677ff] text-white'
+                        ? 'bg-[var(--site-primary)] text-white'
                         : item.role === 'error'
                           ? 'bg-[#fff2f0] text-[#a8071a]'
-                          : 'border border-[#e4ebf4] bg-white text-[#515a6e]'
+                          : 'border border-[var(--site-border)] bg-white text-[var(--site-text-secondary)]'
                     }`}
                   >
                     <div className="whitespace-pre-wrap break-words">
@@ -674,7 +674,7 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
                               className={`flex max-w-full items-center gap-2 rounded-md border px-2 py-2 ${
                                 item.role === 'user'
                                   ? 'border-white/30 bg-white/12 text-white'
-                                  : 'border-[#dfe6ef] bg-[#fbfdff] text-[#515a6e]'
+                                  : 'border-[var(--site-border)] bg-[var(--site-surface-subtle)] text-[var(--site-text-secondary)]'
                               }`}
                             >
                               {isImage ? (
@@ -687,7 +687,7 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
                                   className="rounded object-cover"
                                 />
                               ) : (
-                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded bg-[#eef3f8] text-xs text-[#8b98a8]">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded bg-[var(--site-hover-bg)] text-xs text-[var(--site-text-secondary)]">
                                   FILE
                                 </div>
                               )}
@@ -702,7 +702,7 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
                                 className={`flex h-6 w-6 shrink-0 items-center justify-center rounded text-sm ${
                                   item.role === 'user'
                                     ? 'text-white/85 hover:bg-white/15 hover:text-white'
-                                    : 'text-[#6b778c] hover:bg-[#edf5ff] hover:text-[#409eff]'
+                                    : 'text-[var(--site-text-secondary)] hover:bg-[var(--site-primary-soft)] hover:text-[var(--site-primary)]'
                                 }`}
                               >
                                 <DownloadOutlined />
@@ -718,7 +718,7 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
             </div>
           )}
         </div>
-        <footer className="shrink-0 border-t border-[#e4ebf4] bg-white px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-3">
+        <footer className="shrink-0 border-t border-[var(--site-border)] bg-white px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-3">
           <div className="mx-auto max-w-4xl">
             <Upload
               className="block max-w-full"
@@ -747,7 +747,7 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
               <Button
                 size="small"
                 icon={<UploadOutlined />}
-                className="!border-[#dfe6ef] !text-[#6b778c] hover:!border-[#409eff] hover:!text-[#409eff]"
+                className="!border-[var(--site-border)] !text-[var(--site-text-secondary)] hover:!border-[var(--site-primary)] hover:!text-[var(--site-primary)]"
               >
                 图片
               </Button>
@@ -755,7 +755,7 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
             {attachments.length > 0 && (
               <div className="mt-2 flex max-w-full gap-2 overflow-x-auto">
                 {attachments.map((att) => (
-                  <div key={att.fileKey} className="relative h-16 w-16 shrink-0 overflow-hidden rounded border bg-[#f7f7f7]">
+                  <div key={att.fileKey} className="relative h-16 w-16 shrink-0 overflow-hidden rounded border bg-[var(--site-surface-subtle)]">
                     <Image
                       src={resolveAiFileUrl(att.fileUrl)}
                       alt=""
@@ -775,7 +775,7 @@ export default function AiChatClient({ initialSessionId }: { initialSessionId?: 
                 ))}
               </div>
             )}
-            <div className="mt-2 flex min-h-12 items-center gap-2 rounded-xl border border-[#dfe6ef] bg-[#fbfdff] px-2 py-1 text-[#515a6e] shadow-sm">
+            <div className="mt-2 flex min-h-12 items-center gap-2 rounded-xl border border-[var(--site-border)] bg-[var(--site-surface-subtle)] px-2 py-1 text-[var(--site-text-secondary)] shadow-sm">
               <TextArea
                 value={content}
                 className="min-w-0 flex-1 bg-transparent py-[7px] text-sm leading-[22px]"

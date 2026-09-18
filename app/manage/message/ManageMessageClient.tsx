@@ -10,6 +10,7 @@ import {
 } from '@/app/actions/messages'
 import { formatTime } from '@/lib/utils'
 import type { Message } from '@/lib/types'
+import RichCommentBody from '@/components/RichCommentBody'
 
 const PER_PAGE = 20
 
@@ -65,7 +66,7 @@ export default function ManageMessageClient() {
   }
 
   const columns = [
-    { title: '留言内容', dataIndex: 'body', key: 'body', ellipsis: true },
+    { title: '留言内容', dataIndex: 'body', key: 'body', render: (body: string) => <div className="max-h-40 overflow-auto"><RichCommentBody body={body} /></div> },
     {
       title: '用户',
       key: 'author',
@@ -79,7 +80,7 @@ export default function ManageMessageClient() {
       render: (_: unknown, row: Row) => (
         <Link
           href={`/message/${row.rootResponseId || row.id}`}
-          className="text-[#409eff] underline"
+          className="text-[var(--site-primary)] underline"
         >
           查看
         </Link>

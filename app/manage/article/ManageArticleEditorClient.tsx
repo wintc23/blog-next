@@ -239,7 +239,7 @@ export default function ManageArticleEditorClient() {
   }, [])
 
   if (!postData) {
-    return <div className="p-10 text-center text-[#666]">加载中…</div>
+    return <div className="p-10 text-center text-[var(--site-text-secondary)]">加载中…</div>
   }
 
   const toggleTag = (id: number) => {
@@ -268,16 +268,16 @@ export default function ManageArticleEditorClient() {
           status; right — watermark toggle then action buttons. The back
           action always saves silently before navigating so the user never
           loses work. */}
-      <div className="flex shrink-0 items-center gap-3 border-b border-[#e5e6eb] bg-white px-4 py-2">
+      <div className="flex shrink-0 items-center gap-3 border-b border-[var(--site-border)] bg-white px-4 py-2">
         <Button type="text" icon={<DoubleLeftOutlined />} onClick={goBack}>
           返回
         </Button>
-        <div className="mx-1 h-5 w-px bg-[#e5e6eb]" />
-        <div className="flex flex-col justify-center text-xs leading-tight text-[#86909c]">
+        <div className="mx-1 h-5 w-px bg-[var(--site-border)]" />
+        <div className="flex flex-col justify-center text-xs leading-tight text-[var(--site-text-secondary)]">
           <span>创建于 {formatTime(postData.timestamp)}</span>
           <span>
             {saving ? (
-              <span className="text-[#3361d8]">● 保存中</span>
+              <span className="text-[var(--site-primary)]">● 保存中</span>
             ) : dirty ? (
               <span className="text-[#f5a524]">● 待保存</span>
             ) : (
@@ -286,11 +286,11 @@ export default function ManageArticleEditorClient() {
           </span>
         </div>
         <div className="flex-1" />
-        <label className="flex select-none items-center gap-1.5 text-sm text-[#4e5969]">
+        <label className="flex select-none items-center gap-1.5 text-sm text-[var(--site-text-secondary)]">
           <Switch size="small" checked={watermark} onChange={setWatermark} />
           图片水印
         </label>
-        <div className="mx-1 h-5 w-px bg-[#e5e6eb]" />
+        <div className="mx-1 h-5 w-px bg-[var(--site-border)]" />
         <Button
           icon={<SettingOutlined />}
           onClick={() => setShowSetting(true)}
@@ -344,7 +344,7 @@ export default function ManageArticleEditorClient() {
               }
             }}
             placeholder="无标题"
-            className="w-full shrink-0 border-none bg-transparent px-[54px] text-[36px] font-bold leading-[1.3] text-[#1f2329] outline-none placeholder:text-[#bbbfc4]"
+            className="w-full shrink-0 border-none bg-transparent px-[54px] text-4xl font-bold leading-[1.3] text-[var(--site-text)] outline-none placeholder:text-[var(--site-text-disabled)]"
           />
           <div
             className="mt-4 flex-1 pb-20"
@@ -396,7 +396,7 @@ export default function ManageArticleEditorClient() {
       >
         <div className="space-y-4 pr-2">
           <div>
-            <div className="mb-1 font-bold text-[#3361d8]">是否隐藏</div>
+            <div className="mb-1 font-bold text-[var(--site-primary)]">是否隐藏</div>
             <Checkbox
               checked={postData.hide || false}
               onChange={(e) => update({ hide: e.target.checked })}
@@ -405,7 +405,7 @@ export default function ManageArticleEditorClient() {
             </Checkbox>
           </div>
           <div>
-            <div className="mb-1 font-bold text-[#3361d8]">专题</div>
+            <div className="mb-1 font-bold text-[var(--site-primary)]">专题</div>
             <Select
               value={postData.topicId}
               onChange={(v) => update({ topicId: v })}
@@ -415,7 +415,7 @@ export default function ManageArticleEditorClient() {
             />
           </div>
           <div>
-            <div className="mb-1 font-bold text-[#3361d8]">标签</div>
+            <div className="mb-1 font-bold text-[var(--site-primary)]">标签</div>
             <div className="flex flex-wrap gap-2">
               {tagList
                 .filter((t) => t.title)
@@ -431,14 +431,14 @@ export default function ManageArticleEditorClient() {
             </div>
           </div>
           <div>
-            <div className="mb-1 font-bold text-[#3361d8]">关键词</div>
+            <div className="mb-1 font-bold text-[var(--site-primary)]">关键词</div>
             <Keywords
               value={postData.keywords || ''}
               onChange={(v) => update({ keywords: v })}
             />
           </div>
           <div>
-            <div className="mb-1 font-bold text-[#3361d8]">描述</div>
+            <div className="mb-1 font-bold text-[var(--site-primary)]">描述</div>
             <Input.TextArea
               value={postData.description || ''}
               maxLength={128}
@@ -446,14 +446,14 @@ export default function ManageArticleEditorClient() {
             />
           </div>
           <div>
-            <div className="mb-1 font-bold text-[#3361d8]">摘要</div>
+            <div className="mb-1 font-bold text-[var(--site-primary)]">摘要</div>
             <Input.TextArea
               value={postData.abstract || ''}
               onChange={(e) => update({ abstract: e.target.value })}
             />
           </div>
           <div>
-            <div className="mb-1 font-bold text-[#3361d8]">文章分类</div>
+            <div className="mb-1 font-bold text-[var(--site-primary)]">文章分类</div>
             <Select
               value={postData.typeId}
               onChange={(v) => update({ typeId: v })}
@@ -462,7 +462,7 @@ export default function ManageArticleEditorClient() {
             />
           </div>
           <div>
-            <div className="mb-1 font-bold text-[#3361d8]">文章缩略图</div>
+            <div className="mb-1 font-bold text-[var(--site-primary)]">文章缩略图</div>
             <Upload
               accept="image/png,image/jpeg,image/gif"
               listType="picture-card"
@@ -480,7 +480,7 @@ export default function ManageArticleEditorClient() {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex flex-col items-center text-[#666]">
+                <div className="flex flex-col items-center text-[var(--site-text-secondary)]">
                   {uploading ? <LoadingOutlined /> : <PlusOutlined />}
                   <div className="mt-1 text-xs">上传</div>
                 </div>

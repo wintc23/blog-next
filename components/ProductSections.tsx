@@ -48,7 +48,7 @@ function SectionHeading({
         </div>
       )}
       {section.title && (
-        <h2 className={`mb-0 text-2xl text-[#222] ${section.subtitle ? 'mt-2' : 'mt-0'}`}>
+        <h2 className={`mb-0 text-2xl text-[var(--site-text)] ${section.subtitle ? 'mt-2' : 'mt-0'}`}>
           {section.title}
         </h2>
       )}
@@ -64,16 +64,16 @@ function FeatureGrid({ section, accentColor }: { section: ProductSection; accent
       <SectionHeading section={section} accentColor={accentColor} />
       <div className={`grid gap-4 ${gridClass(section.layout, 'sm:grid-cols-2')}`}>
         {items.map((feature, index) => (
-          <div key={`${feature.title}-${index}`} className="rounded-lg border border-[#edf0f4] p-5">
+          <div key={`${feature.title}-${index}`} className="rounded-lg border border-[var(--site-bg)] p-5">
             <div
               className="mb-4 flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold"
               style={{ color: accentColor, backgroundColor: `${accentColor}12` }}
             >
               {String(index + 1).padStart(2, '0')}
             </div>
-            <h3 className="m-0 text-lg text-[#222]">{feature.title}</h3>
+            <h3 className="m-0 text-lg text-[var(--site-text)]">{feature.title}</h3>
             {feature.description && (
-              <p className="mb-0 mt-2 leading-6 text-[#666]">{feature.description}</p>
+              <p className="mb-0 mt-2 leading-6 text-[var(--site-text-secondary)]">{feature.description}</p>
             )}
           </div>
         ))}
@@ -94,9 +94,9 @@ function Steps({ section, accentColor }: { section: ProductSection; accentColor:
             <div className="text-4xl font-bold opacity-20" style={{ color: accentColor }}>
               {String(index + 1).padStart(2, '0')}
             </div>
-            <h3 className="mb-0 mt-2 text-lg text-[#222]">{step.title}</h3>
+            <h3 className="mb-0 mt-2 text-lg text-[var(--site-text)]">{step.title}</h3>
             {step.description && (
-              <p className="mb-0 mt-2 leading-6 text-[#666]">{step.description}</p>
+              <p className="mb-0 mt-2 leading-6 text-[var(--site-text-secondary)]">{step.description}</p>
             )}
           </div>
         ))}
@@ -184,7 +184,7 @@ function Links({ section, accentColor, productId, productName }: { section: Prod
             href={link.url}
             location={`section-${section.id || section.sort}`}
             className={`rounded px-5 py-2.5 font-medium transition hover:opacity-90 ${
-              link.primary ? 'bg-[#2d8cf0] text-white' : 'border bg-white text-[#555]'
+              link.primary ? 'bg-[var(--site-primary)] text-white' : 'border bg-white text-[var(--site-text)]'
             }`}
           >
             {link.label}
@@ -204,7 +204,7 @@ function Callout({ section, accentColor }: { section: ProductSection; accentColo
       style={{ borderColor: `${accentColor}26`, backgroundColor: `${accentColor}0d` }}
     >
       <SectionHeading section={section} accentColor={accentColor} />
-      {text && <p className="m-0 text-lg leading-8 text-[#475467]">{text}</p>}
+      {text && <p className="m-0 text-lg leading-8 text-[var(--site-text-secondary)]">{text}</p>}
     </section>
   )
 }

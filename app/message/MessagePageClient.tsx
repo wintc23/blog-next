@@ -24,6 +24,7 @@ export default function MessagePageClient({ initial }: { initial: Paginated<Mess
   }, [initial])
   const [msg, setMsg] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const user = useUser()
   const showLogin = useShowLogin()
   const { message } = App.useApp()
@@ -74,18 +75,18 @@ export default function MessagePageClient({ initial }: { initial: Paginated<Mess
         <CommentInput
           value={msg}
           onChange={setMsg}
+          onBusyChange={setUploading}
           placeholder="有什么想对我说的，在这里给我留言吧"
+          actions={(
+            <Button type="primary" loading={submitting} disabled={uploading} onClick={() => submit(msg)}>
+              留言
+            </Button>
+          )}
         />
-        <Button
-          className="btn-success float-right mt-2"
-          loading={submitting}
-          onClick={() => submit(msg)}
-        >
-          留言
-        </Button>
       </div>
       <div className="clear-both pt-5">
         <CommentTree
+          kind="message"
           list={data.list}
           onReply={submit}
           onSetVisibility={toggleVisibility}

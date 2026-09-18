@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Alert, Button, Spin } from 'antd'
-import { ArrowRightOutlined, ClockCircleOutlined } from '@ant-design/icons'
+import { ClockCircleOutlined } from '@ant-design/icons'
 import { apiFetch } from '@/lib/api/client'
 import { aiDigestListSchema, aiDigestDetailSchema, type AiDigest, type AiDigestDetail } from '@/lib/schemas/ai-digest'
 import styles from './DigestPreview.module.css'
@@ -65,12 +65,12 @@ export default function DigestPreview({ id }: { id?: number }) {
                 <div className={styles.featureMeta}><span className={styles.latestLabel}>最新一期</span><time dateTime={latest.scheduledPublishAt}>{latest.issueDate.replaceAll('-', '.')}</time><span className={styles.status}>{statusText[latest.status]}</span></div>
                 <h2 id="latest-issue-title"><Link href={`/manage/ai-digest/${latest.id}`}>{latest.title}</Link></h2>
                 <p>{latest.summary}</p>
-                <Link href={`/manage/ai-digest/${latest.id}`} className={styles.primaryLink}>阅读本期 <ArrowRightOutlined /></Link>
+                <Link href={`/manage/ai-digest/${latest.id}`} className={styles.primaryLink}>阅读本期</Link>
               </div>
               <Link href={`/manage/ai-digest/${latest.id}`} className={styles.featureVisual} aria-label={`阅读本期：${latest.title}`}>
                 <div className={styles.visualTopline}><span>本期主题</span><span>{latest.issueDate.replaceAll('-', ' / ')}</span></div>
                 {latest.cover && <img src={latest.cover.url} alt="" width={latest.cover.width || 1200} height={latest.cover.height || 420} fetchPriority="high" />}
-                <div className={styles.visualBottomline}><span>AI NEWS</span><ArrowRightOutlined /></div>
+                <div className={styles.visualBottomline}><span>AI NEWS</span></div>
               </Link>
             </section>
             {archive.length > 0 && <section className={styles.archive} aria-labelledby="archive-heading">
@@ -83,7 +83,6 @@ export default function DigestPreview({ id }: { id?: number }) {
                     <h3>{issue.title}</h3><p>{issue.summary}</p>
                   </div>
                   {issue.cover && <img className={styles.archiveImage} src={issue.cover.url} alt="" width={1200} height={420} loading="lazy" />}
-                  <span className={styles.rowArrow}><ArrowRightOutlined /></span>
                 </Link>)}
               </div>
             </section>}

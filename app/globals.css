@@ -2,6 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --font-meta: 0.875rem;
+  --font-ui: 0.875rem;
+  --font-body: 1rem;
+  --font-subtitle: 1.125rem;
+  --font-section: 1.25rem;
+  --font-title: 1.5rem;
+  --font-lead: 1.75rem;
+  --font-heading: 2rem;
+  --font-display: 2.25rem;
+  --font-hero: 2.5rem;
+  --font-jumbo: 3rem;
+  --font-issue: 5rem;
+
+  --site-content-width: 1200px;
+  --site-page-gutter: 20px;
+  --site-bg: #f4f4f4;
+  --site-surface: #fff;
+  --site-border: #e5e5e5;
+  --site-text: #333;
+  --site-text-secondary: #666;
+  --site-primary: #2d8cf0;
+  --site-title: var(--site-text);
+  --site-text-disabled: #999;
+  --site-surface-subtle: #fafafa;
+  --site-hover-bg: #eee;
+  --site-primary-hover: #57a3f3;
+  --site-primary-active: #1674d5;
+  --site-primary-soft: #eaf4ff;
+  --site-radius: 4px;
+}
+
 /*
  * Tailwind's preflight is disabled (to avoid fighting AntD's reset), so we
  * have to re-add the border defaults ourselves. Without this, utility classes
@@ -13,14 +45,14 @@
 *::after {
   border-width: 0;
   border-style: solid;
-  border-color: #e5e7eb;
+  border-color: var(--site-border);
 }
 
 html {
   min-height: 100%;
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
     Roboto, 'Helvetica Neue', Arial, sans-serif;
-  font-size: 16px;
+  font-size: 100%;
   word-spacing: 1px;
   -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
@@ -28,8 +60,8 @@ html {
    * full viewport including the scrollbar gutter. A fixed pseudo-element
    * gets clipped to viewport-minus-scrollbar and leaves a white strip on
    * the right.  Tile at natural size like the live site. */
-  background-color: #f4f4f4;
-  background-image: url('https://file.wintc.top/lisa/background.jpg');
+  background-color: var(--site-bg);
+  background-image: none;
   background-repeat: repeat;
   /* Anchor the tiled background to the viewport so it stays put while
    * long articles scroll. Without this the background tiles scroll with
@@ -39,8 +71,8 @@ html {
 
 body {
   background: none;
-  color: #333;
-  font-size: 16px;
+  color: var(--site-text);
+  font-size: var(--font-body);
   margin: 0;
   /* Globally suppress the grey rectangle iOS / WeChat / Chrome Android
    * paint behind any tapped element. We use hover + active styles for
@@ -65,7 +97,7 @@ body {
   right: 0;
   top: 0;
   z-index: 2;
-  background-color: #fafbfc;
+  background-color: var(--site-surface-subtle);
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1);
   /* Fixed header width = 100vw (full viewport, includes scrollbar).
    * Main content width = 100% (documentElement, excludes scrollbar).
@@ -87,12 +119,12 @@ body {
 }
 .layout-header .layout-header-main .site-title {
   margin: 0;
-  font-size: 24px;
+  font-size: var(--font-title);
   font-weight: 400;
 }
 .layout-header .layout-header-main .site-title .title-content {
   font-weight: 400;
-  color: #2d8cf0;
+  color: var(--site-primary);
   outline: none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -105,8 +137,8 @@ body {
   display: inline-flex;
   padding: 0.35rem 0;
   font-weight: bold;
-  font-size: 16px;
-  color: #2d8cf0;
+  font-size: var(--font-body);
+  color: var(--site-primary);
   transition: color 0.2s ease;
   /* Strip default browser focus outline + mobile tap highlight so the
    * link doesn't retain a focused/active state after click. */
@@ -131,31 +163,14 @@ body {
   transform: translateX(-50%) scaleX(1);
 }
 .layout-header .layout-header-main .nav-list .nav:hover {
-  color: #57a3f3;
+  color: var(--site-primary-hover);
 }
 .layout-header .layout-header-main .nav-list .nav:focus,
 .layout-header .layout-header-main .nav-list .nav:focus-visible {
   outline: none;
 }
 .layout-header .layout-header-main .nav-list .nav:active {
-  color: #2d8cf0;
-}
-
-/* Search input: rounded 20px with blue border, matches iView live site */
-header .ant-input-search input.ant-input,
-header .ant-input-search .ant-input-outlined,
-header .ant-input-search .ant-input-group-addon,
-header .ant-input-search .ant-input-group-addon .ant-btn {
-  border-color: #409eff !important;
-}
-header .ant-input-search input.ant-input {
-  border-top-left-radius: 20px !important;
-  border-bottom-left-radius: 20px !important;
-  padding-left: 15px;
-}
-header .ant-input-search .ant-input-group-addon .ant-btn {
-  border-top-right-radius: 20px !important;
-  border-bottom-right-radius: 20px !important;
+  color: var(--site-primary);
 }
 
 /* Mobile (<600px): vertical 2-row header, yellow nav, no search */
@@ -168,7 +183,7 @@ header .ant-input-search .ant-input-group-addon .ant-btn {
     margin-top: 10px;
   }
   .layout-header .layout-header-main .nav-list .nav {
-    color: #ffbb21;
+    color: var(--site-primary);
   }
   .layout-header .layout-header-main .nav-list .nav + .nav {
     margin-left: 10px;
@@ -178,15 +193,16 @@ header .ant-input-search .ant-input-group-addon .ant-btn {
   }
 }
 
-/* Desktop (>=600px): horizontal centered header, 1000px max */
+/* Desktop header shares the page container and horizontal gutters. */
 @media screen and (min-width: 600px) {
   .layout-header .layout-header-main {
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: space-between;
     height: 4rem;
-    max-width: 1000px;
+    max-width: var(--site-content-width);
     margin: 0 auto;
+    padding-inline: var(--site-page-gutter);
   }
   .layout-header .layout-header-main .nav-list {
     display: flex;
@@ -205,9 +221,12 @@ header .ant-input-search .ant-input-group-addon .ant-btn {
 }
 .layout-main {
   flex: auto;
+  width: 100%;
+  max-width: var(--site-content-width);
+  margin-inline: auto;
 }
 .modules .module {
-  background: #fff;
+  background: var(--site-surface);
   border-radius: 2px;
 }
 .modules .module + .module {
@@ -217,10 +236,10 @@ header .ant-input-search .ant-input-group-addon .ant-btn {
 /* Mobile (<600px) */
 @media screen and (max-width: 599px) {
   .layout {
-    padding-top: 100px;
+    padding-top: 124px;
   }
   .layout-main .nuxt-container {
-    padding: 5px;
+    padding: 16px var(--site-page-gutter);
   }
 }
 
@@ -235,14 +254,8 @@ header .ant-input-search .ant-input-group-addon .ant-btn {
     padding-left: calc(100vw - 100%);
   }
   .layout-main {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px 10px;
-    width: 100%;
+    padding: 20px calc(var(--site-page-gutter) / 2);
     display: flex;
-  }
-  .layout-main.hide-modules {
-    max-width: 960px;
   }
   .layout-main .modules {
     width: 280px;
@@ -251,7 +264,7 @@ header .ant-input-search .ant-input-group-addon .ant-btn {
   }
   .layout-main .nuxt-container {
     overflow: hidden;
-    padding: 10px;
+    padding: 10px calc(var(--site-page-gutter) / 2);
     flex: auto;
     min-width: 0;
   }
@@ -279,35 +292,35 @@ body.notfound-active .layout-main {
 
 /* =================== Post list (.page-post-list) =================== */
 .page-post-list .sub-page-header {
-  background: #fff;
+  background: var(--site-surface);
   padding: 15px 20px;
   margin-bottom: 5px;
   border-radius: 2px;
-  color: #666;
+  color: var(--site-text-secondary);
 }
 .page-post-list .sub-page-header .tag-title,
 .page-post-list .sub-page-header .tag-count {
-  color: #2d8cf0;
+  color: var(--site-primary);
 }
 
 .page-post-list .post-list .post {
-  background: #fff;
-  color: #333;
+  background: var(--site-surface);
+  color: var(--site-text);
 }
 .page-post-list .post-list .post + .post {
   margin: 10px 0;
 }
 
 .page-post-list .post .post-abstract .post-title {
-  font-size: 20px;
-  color: #2d8cf0;
+  font-size: var(--font-section);
+  color: var(--site-primary);
 }
 .page-post-list .post .post-abstract .post-title:hover {
   text-decoration: underline;
 }
 .page-post-list .post .post-abstract .post-info-common {
   padding: 0.5em 0 1em;
-  font-size: 14px;
+  font-size: var(--font-ui);
 }
 .page-post-list .post .post-abstract .post-info-common .post-type {
   align-self: center;
@@ -317,10 +330,10 @@ body.notfound-active .layout-main {
   border-radius: 2px;
 }
 .page-post-list .post .post-abstract .post-info-common .post-date {
-  color: #888;
+  color: var(--site-text-secondary);
 }
 .page-post-list .post .post-abstract .post-abstract-content {
-  color: #777;
+  color: var(--site-text-secondary);
   text-indent: 2em;
 }
 .page-post-list .post .post-abstract-image {
@@ -343,12 +356,12 @@ body.notfound-active .layout-main {
 .page-post-list .post .post-info {
   display: flex;
   margin-top: 1em;
-  font-size: 14px;
+  font-size: var(--font-ui);
 }
 .page-post-list .post .post-info .look-all,
 .page-post-list .post .post-info .edit {
   text-decoration: underline;
-  color: #2d8cf0;
+  color: var(--site-primary);
 }
 .page-post-list .post .post-info .edit {
   margin-left: 5px;
@@ -357,7 +370,7 @@ body.notfound-active .layout-main {
   flex: auto;
 }
 .page-post-list .post .post-info .info-item span {
-  color: #777;
+  color: var(--site-text-secondary);
   text-decoration: underline;
 }
 .page-post-list .post .post-info .info-item + .info-item::before {
@@ -391,7 +404,7 @@ body.notfound-active .layout-main {
   }
   .page-post-list .post .post-abstract-main .post-abstract {
     flex: auto;
-    font-size: 16px;
+    font-size: var(--font-body);
     margin-right: 10px;
     min-width: 0;
   }
@@ -416,10 +429,10 @@ body.notfound-active .layout-main {
   box-sizing: border-box;
 }
 
-h1 { font-size: 24px; }
-h2 { font-size: 20px; }
-h3 { font-size: 18px; }
-h4, h5, h6 { font-size: 16px; }
+h1 { font-size: var(--font-title); }
+h2 { font-size: var(--font-section); }
+h3 { font-size: var(--font-subtitle); }
+h4, h5, h6 { font-size: var(--font-body); }
 
 a {
   color: inherit;
@@ -427,7 +440,7 @@ a {
 }
 
 .ws {
-  background: #fff;
+  background: var(--site-surface);
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.08);
 }
 
@@ -436,28 +449,33 @@ a {
 }
 
 .sub-page-header {
-  background: #fff;
+  background: var(--site-surface);
   padding: 15px 20px;
   margin-bottom: 5px;
-  color: #666;
+  color: var(--site-text-secondary);
   border-radius: 2px;
 }
 
 /* iView-style green "success" button, mapped onto AntD's default button. */
-.ant-btn.btn-success:not(:disabled),
-.ant-btn.btn-success:not(:disabled):hover,
-.ant-btn.btn-success:not(:disabled):focus {
+button.ant-btn.btn-success:not(:disabled):not(.ant-btn-disabled),
+button.ant-btn.btn-success:not(:disabled):not(.ant-btn-disabled):hover,
+button.ant-btn.btn-success:not(:disabled):not(.ant-btn-disabled):focus {
   background: #19be6b;
   border-color: #19be6b;
-  color: #fff;
+  color: var(--site-surface);
+  box-shadow: none;
 }
-.ant-btn.btn-success:not(:disabled):hover {
+button.ant-btn.btn-success:not(:disabled):not(.ant-btn-disabled):hover {
   background: #47cb89;
   border-color: #47cb89;
 }
-.ant-btn.btn-success:not(:disabled):active {
+button.ant-btn.btn-success:not(:disabled):not(.ant-btn-disabled):active {
   background: #18b566;
   border-color: #18b566;
+}
+button.ant-btn.btn-success:not(:disabled):not(.ant-btn-disabled):focus-visible {
+  outline: 2px solid #138752;
+  outline-offset: 2px;
 }
 
 /* Thin overlay scrollbar: invisible until the container is hovered, thumb
@@ -550,7 +568,7 @@ a {
 .ant-btn.error-refresh-btn {
   padding-inline: 28px;
   height: 44px;
-  font-size: 15px;
+  font-size: var(--font-body);
   box-shadow: 0 6px 16px rgba(64, 158, 255, 0.32);
   transition:
     transform 0.2s ease,
@@ -573,8 +591,8 @@ a {
 
 /* Prism overrides and markdown body styles */
 .markdown-body {
-  color: #333;
-  font-size: 16px;
+  color: var(--site-text);
+  font-size: var(--font-body);
   line-height: 1.75;
 }
 
@@ -594,7 +612,7 @@ a {
 }
 
 .markdown-body a {
-  color: #4791ff;
+  color: var(--site-primary);
   text-decoration: underline;
 }
 
@@ -606,10 +624,10 @@ a {
 }
 
 .markdown-body blockquote {
-  border-left: 4px solid #ddd;
+  border-left: 4px solid var(--site-border);
   padding: 0.5em 1em;
-  color: #666;
-  background: #fafafa;
+  color: var(--site-text-secondary);
+  background: var(--site-surface-subtle);
   margin: 1em 0;
 }
 
@@ -617,7 +635,7 @@ a {
   background: rgba(27, 31, 35, 0.05);
   padding: 0.2em 0.4em;
   border-radius: 3px;
-  font-size: 0.9em;
+  font-size: var(--font-ui);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
@@ -633,7 +651,7 @@ a {
   background: none;
   padding: 0;
   color: inherit;
-  font-size: 0.9em;
+  font-size: var(--font-ui);
 }
 
 .markdown-body ul,
@@ -650,10 +668,21 @@ a {
 
 .markdown-body table th,
 .markdown-body table td {
-  border: 1px solid #ddd;
+  border: 1px solid var(--site-border);
   padding: 6px 12px;
 }
 
 .markdown-body table th {
-  background: #f6f8fa;
+  background: var(--site-surface-subtle);
 }
+
+/* Keep keyboard focus visible without retaining a ring after pointer clicks. */
+.layout-header .layout-header-main :is(.title-content, .nav):focus-visible { outline: 2px solid var(--site-primary); outline-offset: 4px; border-radius: var(--site-radius); }
+
+/* Touch inputs stay readable and avoid automatic iOS zoom. */
+@media (pointer: coarse) {
+  input.ant-input, textarea.ant-input, .ant-input-affix-wrapper > input.ant-input, .ant-select .ant-select-selector { font-size: var(--font-body); }
+}
+
+/* Standard heading ink; scoped page accents and artwork may override. */
+:where(h1, h2, h3, h4, h5, h6) { color: var(--site-title); }

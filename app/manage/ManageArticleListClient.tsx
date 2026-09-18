@@ -140,7 +140,7 @@ export default function ManageArticleListClient() {
 
   return (
     <div className="flex h-full flex-col p-3">
-      <div className="flex shrink-0 items-center gap-3 border-b border-[#d2d2d2] pb-3">
+      <div className="flex shrink-0 items-center gap-3 border-b border-[var(--site-border)] pb-3">
         <Button type="primary" size="small" onClick={addNew}>
           添加文章
         </Button>
@@ -163,7 +163,7 @@ export default function ManageArticleListClient() {
           bordered
         />
       </div>
-      <div className="shrink-0 border-t border-[#d2d2d2] pt-2 text-center">
+      <div className="shrink-0 border-t border-[var(--site-border)] pt-2 text-center">
         <Pagination
           total={total}
           current={currentPage}

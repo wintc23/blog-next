@@ -7,8 +7,8 @@ import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import { createLowlight, all } from 'lowlight'
-import { useEffect } from 'react'
-import { App, Button, Space, Tooltip } from 'antd'
+import { useEffect, useState } from 'react'
+import { App, Button, Input, Modal, Space, Tooltip } from 'antd'
 import {
   BoldOutlined,
   ItalicOutlined,
@@ -32,6 +32,8 @@ interface Props {
 
 function Toolbar({ editor }: { editor: Editor | null }) {
   const { message } = App.useApp()
+  const [linkOpen, setLinkOpen] = useState(false)
+  const [linkUrl, setLinkUrl] = useState('')
   if (!editor) return null
 
   const insertImage = async () => {
@@ -52,18 +54,19 @@ function Toolbar({ editor }: { editor: Editor | null }) {
   }
 
   const setLink = () => {
-    const prev = editor.getAttributes('link').href as string | undefined
-    const url = window.prompt('链接地址', prev || 'https://')
-    if (url === null) return
-    if (!url) {
-      editor.chain().focus().unsetLink().run()
-      return
-    }
-    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+    setLinkUrl(editor.getAttributes('link').href || '')
+    setLinkOpen(true)
+  }
+  const saveLink = () => {
+    const url = linkUrl.trim()
+    if (url && !/^(https?:\/\/|mailto:)/i.test(url)) { message.error('请输入 http、https 或 mailto 链接'); return }
+    if (url) editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+    else editor.chain().focus().unsetLink().run()
+    setLinkOpen(false)
   }
 
   return (
-    <div className="shrink-0 border-b border-[#eee] bg-[#fafafa] px-2 py-2">
+    <div className="shrink-0 border-b border-[var(--site-hover-bg)] bg-[var(--site-surface-subtle)] px-2 py-2">
       <Space size={4} wrap>
         <Tooltip title="撤销">
           <Button
@@ -144,6 +147,10 @@ function Toolbar({ editor }: { editor: Editor | null }) {
           链接
         </Button>
       </Space>
+      <Modal title="插入链接" open={linkOpen} onCancel={() => setLinkOpen(false)} onOk={saveLink} okText="保存" cancelText="取消">
+        <label htmlFor="editor-link-url">链接地址（留空移除链接）</label>
+        <Input id="editor-link-url" value={linkUrl} onChange={event => setLinkUrl(event.target.value)} placeholder="https://" />
+      </Modal>
     </div>
   )
 }
@@ -153,7 +160,7 @@ export default function TiptapEditor({ value, onChange, placeholder }: Props) {
     extensions: [
       StarterKit.configure({ codeBlock: false }),
       Image.configure({ inline: false, HTMLAttributes: { class: 'max-w-full h-auto' } }),
-      Link.configure({ openOnClick: false, HTMLAttributes: { class: 'text-[#4791ff] underline' } }),
+      Link.configure({ openOnClick: false, HTMLAttributes: { class: 'text-[var(--site-primary)] underline' } }),
       Placeholder.configure({ placeholder: placeholder || '开始写作…' }),
       CodeBlockLowlight.configure({ lowlight }),
     ],
@@ -196,7 +203,7 @@ export default function TiptapEditor({ value, onChange, placeholder }: Props) {
   }, [value])
 
   return (
-    <div className="flex h-full flex-col rounded border border-[#d9d9d9] bg-white">
+    <div className="flex h-full flex-col rounded border border-[var(--site-border)] bg-white">
       <Toolbar editor={editor} />
       {/* Clicking anywhere in the scroll area (padding, whitespace below the
           last block) focuses the editor at the end of the document. Without

@@ -63,8 +63,8 @@ export default function ManageProductClient() {
             </div>
           )}
           <div>
-            <div className="font-medium text-[#333]">{product.name}</div>
-            <div className="text-xs text-[#999]">/products/{product.slug}</div>
+            <div className="font-medium text-[var(--site-text)]">{product.name}</div>
+            <div className="text-xs text-[var(--site-text-disabled)]">/products/{product.slug}</div>
           </div>
         </div>
       ),
@@ -111,8 +111,8 @@ export default function ManageProductClient() {
     <div className="p-4">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h1 className="m-0 text-xl text-[#333]">作品管理</h1>
-          <div className="mt-1 text-sm text-[#888]">新增和发布作品，无需修改前端代码。</div>
+          <h1 className="m-0 text-xl text-[var(--site-text)]">作品管理</h1>
+          <div className="mt-1 text-sm text-[var(--site-text-secondary)]">新增和发布作品，无需修改前端代码。</div>
         </div>
         <Link href="/manage/product/edit">
           <Button type="primary" icon={<PlusOutlined />}>新增作品</Button>

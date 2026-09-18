@@ -1,10 +1,12 @@
 'use client'
+import { v4 as uuidv4 } from 'uuid'
 
 import { useRef, useState } from 'react'
 import Link from 'next/link'
 import useSWR from 'swr'
-import { Alert, Button, Drawer, Empty, Form, Input, InputNumber, Modal, Radio, Select, Spin, Switch, Table, Tabs, Tag, message } from 'antd'
+import { Alert, Button, DatePicker, Drawer, Empty, Form, Input, InputNumber, Modal, Radio, Select, Spin, Switch, Table, Tabs, Tag, message } from 'antd'
 import { z } from 'zod'
+import dayjs from 'dayjs'
 import { apiFetch } from '@/lib/api/client'
 import { generationMetaSchema, taskListSchema, sourceListSchema, jobListSchema, jobDetailSchema, type GenerationTask, type GenerationSource, type GenerationJobDetail } from '@/lib/schemas/generation'
 import { formatTime } from '@/components/ai-digest/DigestShared'
@@ -82,7 +84,7 @@ export default function GenerationManager({ initialJobId }: { initialJobId?: num
   const errors = [tasks.error, meta.error, sources.error, jobs.error].filter(Boolean)
   return <div className={styles.page}>
     {contextHolder}
-    <header className={styles.header}><div><h1>生成管理</h1><p>配置内容来源、生成要求与时间，查看服务端执行进度。</p></div><div className={styles.actions}><Link href="/manage/content">内容管理 →</Link><Button type="primary" onClick={() => editTask('new')} disabled={!meta.data}>新建任务</Button></div></header>
+    <header className={styles.header}><div><h1>生成管理</h1><p>配置内容来源、生成要求与时间，查看服务端执行进度。</p></div><div className={styles.actions}><Link href="/manage/content">内容管理</Link><Button type="primary" onClick={() => editTask('new')} disabled={!meta.data}>新建任务</Button></div></header>
     {errors.length > 0 && <Alert className={styles.alert} type="error" showIcon message={errorText(errors[0])} action={<Button onClick={refresh}>重新加载</Button>} />}
     <div className={styles.health}><strong>服务状态</strong>{meta.data?.heartbeats.length ? meta.data.heartbeats.map((h, i) => <Tag key={i} color={h.healthy ? 'green' : 'orange'}>{h.environment === 'production' ? '线上' : '开发'} · {h.role === 'scheduler' ? '调度器' : '执行进程'} · {h.healthy ? '运行中' : '心跳过期'}</Tag>) : <span>尚未检测到服务端任务进程</span>}<span>时间均为北京时间</span></div>
     <Tabs items={[
@@ -91,7 +93,7 @@ export default function GenerationManager({ initialJobId }: { initialJobId?: num
         <p className={styles.muted}>{task.environment === 'production' ? '线上环境' : '开发环境'} · 第 {task.version} 版配置 · {task.config.autoPublish ? '校验后定时发布' : '生成后保留草稿'}</p>
         <dl><dt>生成 / 发布</dt><dd>{task.config.generateTime} / {task.config.publishTime}</dd><dt>下次生成</dt><dd>{time(task.nextGenerateAt)}</dd><dt>最近执行</dt><dd>{task.lastJob ? <Button type="link" size="small" onClick={() => setJobId(task.lastJob!.id)}>{jobLabels[task.lastJob.status]} · {task.lastJob.edition}</Button> : '暂无执行记录'}</dd></dl>
         {task.missingConfiguration.length > 0 && <p className={styles.muted}>待配置：{task.missingConfiguration.map(missingLabel).join('、')}</p>}
-        <div className={styles.actions}><Button onClick={() => editTask(task)}>配置任务</Button><Button onClick={() => { setRunTask(task); setRunDate(meta.data?.today || ''); requestId.current = crypto.randomUUID() }}>手动试运行</Button></div>
+        <div className={styles.actions}><Button onClick={() => editTask(task)}>配置任务</Button><Button onClick={() => { setRunTask(task); setRunDate(meta.data?.today || ''); requestId.current = uuidv4() }}>手动试运行</Button></div>
       </section>) : <Empty description="还没有生成任务" />}</div> },
       { key: 'sources', label: '资料来源', children: <><div className={styles.actions}><Button type="primary" onClick={() => { setEditingSource('new'); sourceForm.resetFields(); sourceForm.setFieldsValue({ enabled: true }) }}>添加 RSS / Atom 来源</Button></div><div className={styles.table}><Table rowKey="id" dataSource={sources.data?.list} pagination={false} columns={[
         { title: '来源', dataIndex: 'name', render: (_, s) => <div className={styles.sourceTitle}><strong>{s.name}</strong><p className={styles.muted}>{s.endpointUrl}</p></div> },
@@ -156,7 +158,7 @@ export default function GenerationManager({ initialJobId }: { initialJobId?: num
       </Form>
     </Drawer>
     <Modal title={`试运行 · ${runTask?.name || ''}`} open={!!runTask} onCancel={() => setRunTask(null)} onOk={triggerRun} confirmLoading={busy} okText="加入任务队列">
-      <p>使用当前已保存的配置生成草稿。已有已发布内容会继续展示。</p><label htmlFor="generation-edition">期次日期（北京时间）</label><Input id="generation-edition" type="date" value={runDate} max={meta.data?.today} onChange={event => { setRunDate(event.target.value); requestId.current = crypto.randomUUID() }} />
+      <p>使用当前已保存的配置生成草稿。已有已发布内容会继续展示。</p><label htmlFor="generation-edition">期次日期（北京时间）</label><DatePicker id="generation-edition" value={runDate ? dayjs(runDate) : null} maxDate={meta.data?.today ? dayjs(meta.data.today) : undefined} onChange={value => { setRunDate(value ? value.format('YYYY-MM-DD') : ''); requestId.current = uuidv4() }} />
     </Modal>
     <Drawer title={`执行记录 #${jobId || ''}`} open={jobId !== null} onClose={() => setJobId(null)} width={720}>
       {detail.error && <Alert type="error" message={errorText(detail.error)} />}
@@ -168,7 +170,7 @@ export default function GenerationManager({ initialJobId }: { initialJobId?: num
 function JobDetail({ job, busy, onAction }: { job: GenerationJobDetail; busy: boolean; onAction: (action: string) => void }) {
   const contentId = job.runs.map(r => r.result.contentId).find(value => typeof value === 'number')
   return <><p><Tag>{jobLabels[job.status]}</Tag>{stageLabels[job.stage]} · {job.edition}</p>{job.errorMessage && <Alert className={styles.alert} type="error" message={job.errorMessage} />}
-    <div className={styles.actions}>{['failed', 'cancelled'].includes(job.status) && <Button loading={busy} onClick={() => onAction('retry')}>重试失败阶段</Button>}{['queued', 'running', 'retry_wait'].includes(job.status) && <Button danger loading={busy} onClick={() => onAction('cancel')}>取消任务</Button>}{typeof contentId === 'number' && <Link href={`/manage/content/${contentId}`}>查看生成内容 →</Link>}</div>
+    <div className={styles.actions}>{['failed', 'cancelled'].includes(job.status) && <Button loading={busy} onClick={() => onAction('retry')}>重试失败阶段</Button>}{['queued', 'running', 'retry_wait'].includes(job.status) && <Button danger loading={busy} onClick={() => onAction('cancel')}>取消任务</Button>}{typeof contentId === 'number' && <Link href={`/manage/content/${contentId}`}>查看生成内容</Link>}</div>
     <h3>执行尝试</h3>{job.runs.map(run => <section key={run.id}><p>第 {run.attempt} 次 · {jobLabels[run.status]} · {time(run.startedAt)}</p>{run.errorMessage && <p>{run.errorMessage}</p>}<pre className={styles.details}>{JSON.stringify(run.result, null, 2)}</pre></section>)}
     <details><summary>输入资料与阶段产物</summary><pre className={styles.details}>{JSON.stringify(job.checkpoint, null, 2)}</pre></details>
   </>

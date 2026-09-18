@@ -114,7 +114,7 @@ export default function ManageAiKeyClient() {
       width: 230,
       render: (_: unknown, row: AiAccessKey) => (
         <div className="flex items-center justify-center gap-1">
-          <span className="font-mono text-xs text-[#555]">{row.keyPreview}</span>
+          <span className="font-mono text-xs text-[var(--site-text)]">{row.keyPreview}</span>
           <Tooltip title={row.key ? '复制完整 key' : '旧 key 无完整值，请重新创建'}>
             <Button
               type="link"
@@ -185,7 +185,7 @@ export default function ManageAiKeyClient() {
 
   return (
     <div className="flex h-full flex-col p-3">
-      <div className="flex shrink-0 items-center gap-3 border-b border-[#d2d2d2] pb-3">
+      <div className="flex shrink-0 items-center gap-3 border-b border-[var(--site-border)] pb-3">
         <Button type="primary" size="small" icon={<PlusOutlined />} onClick={showCreate}>
           新建 Key
         </Button>
@@ -213,7 +213,7 @@ export default function ManageAiKeyClient() {
       >
         {createdKey ? (
           <div>
-            <div className="mb-2 text-sm text-[#666]">请立即保存该 key，关闭后无法再次查看。</div>
+            <div className="mb-2 text-sm text-[var(--site-text-secondary)]">请立即保存该 key，关闭后无法再次查看。</div>
             <Input.TextArea className="font-mono text-xs" value={createdKey} autoSize readOnly />
             <Button
               className="mt-2"

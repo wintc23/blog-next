@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useRef, useState } from 'react'
-import { Popover } from 'antd'
+import { Button, Popover, type GetRef } from 'antd'
 import { CloseOutlined, MailOutlined, WechatOutlined } from '@ant-design/icons'
 import type { PersonalProfile } from '@/lib/schemas/personal-profile'
 import styles from './ContactPopover.module.css'
@@ -11,7 +11,7 @@ export default function ContactPopover({ profile }: {
 }) {
   const [open, setOpen] = useState(false)
   const id = useId()
-  const trigger = useRef<HTMLButtonElement>(null)
+  const trigger = useRef<GetRef<typeof Button>>(null)
   const card = useRef<HTMLDivElement>(null)
   if (!profile.contactEmail && !profile.wechatId && !profile.wechatQrUrl) return null
 
@@ -41,9 +41,9 @@ export default function ContactPopover({ profile }: {
               <strong>{profile.displayName}</strong>
               {profile.contactNote && <p>{profile.contactNote}</p>}
             </div>
-            <button type="button" aria-label="关闭联系方式" onClick={close} className={styles.close}>
+            <Button type="text" aria-label="关闭联系方式" onClick={close} className={styles.close}>
               <CloseOutlined aria-hidden />
-            </button>
+            </Button>
           </div>
           {profile.contactEmail && (
             <div className={styles.email}>
@@ -69,10 +69,10 @@ export default function ContactPopover({ profile }: {
         </div>
       }
     >
-      <button ref={trigger} type="button" className={styles.trigger}
+      <Button ref={trigger} type="link" className={styles.trigger}
         aria-haspopup="dialog" aria-expanded={open} aria-controls={open ? id : undefined}>
         联系我
-      </button>
+      </Button>
     </Popover>
   )
 }

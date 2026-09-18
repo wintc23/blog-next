@@ -53,7 +53,7 @@ export async function generateMetadata({
       },
     }
   } catch {
-    return { title: '博客归档' }
+    return { title: '已归档博客' }
   }
 }
 

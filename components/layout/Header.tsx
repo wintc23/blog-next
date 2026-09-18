@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { useUser, useSetHeaderOffset, useSiteIdentity } from '@/lib/store'
-import SiteSearch from './SiteSearch'
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 
@@ -45,22 +44,19 @@ export default function Header() {
   const navList = [
     { title: '首页', path: '/', active: pathname === '/' },
     {
-      title: '作品',
+      title: '探索',
       path: '/products',
-      active: pathname === '/products' || pathname?.startsWith('/products/'),
+      active: pathname === '/products' || pathname?.startsWith('/products/') || pathname === '/tools' || pathname?.startsWith('/tools/'),
+    },
+    {
+      title: 'AI 动态',
+      path: '/ai-news',
+      active: pathname === '/ai-news' || pathname?.startsWith('/ai-news/'),
     },
     {
       title: '留言',
       path: '/message',
       active: pathname === '/message' || pathname?.startsWith('/message/'),
-    },
-    {
-      title: '博客归档',
-      path: '/article',
-      active:
-        pathname === '/article' ||
-        pathname?.startsWith('/article/') ||
-        pathname?.startsWith('/tag/'),
     },
   ]
   if (user?.admin) {
@@ -91,7 +87,6 @@ export default function Header() {
             </Link>
           ))}
         </nav>
-        {pathname === '/article' && <SiteSearch />}
       </div>
     </header>
   )

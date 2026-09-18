@@ -1,4 +1,4 @@
-.shell { background: #f5f9fe; }
-.layout:global(.layout-main) { display: block; max-inline-size: 1180px; padding: 0; }
+.shell { background: var(--site-bg); }
+.layout:global(.layout-main) { display: block; max-inline-size: var(--site-content-width); padding: 0; }
 .layout :global(.nuxt-container) { padding: 0; overflow: visible; }
 @media (max-width: 599px) { .shell:global(.layout) { padding-block-start: 124px; } }

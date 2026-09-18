@@ -170,14 +170,14 @@ export default function ProductScreenshotGallery({
             </div>
           )}
           {title && (
-            <h2 className={`mb-0 text-2xl text-[#222] ${subtitle ? 'mt-2' : 'mt-0'}`}>
+            <h2 className={`mb-0 text-2xl text-[var(--site-text)] ${subtitle ? 'mt-2' : 'mt-0'}`}>
               {title}
             </h2>
           )}
         </div>
         {hasMultiple && (
           <div className="flex items-center gap-3">
-            <span className="font-mono text-sm text-[#999]">
+            <span className="font-mono text-sm text-[var(--site-text-disabled)]">
               {String(active + 1).padStart(2, '0')} / {String(screenshots.length).padStart(2, '0')}
             </span>
             <div className="flex gap-2">
@@ -185,7 +185,7 @@ export default function ProductScreenshotGallery({
               type="button"
               aria-label="上一个媒体"
               onClick={() => goTo((active - 1 + screenshots.length) % screenshots.length)}
-              className="flex h-9 w-9 cursor-pointer select-none items-center justify-center rounded-full border border-[#e5e7eb] bg-white text-[#667085] transition duration-150 hover:border-[#b8c0cc] hover:bg-[#eef2f6] hover:text-[#222] active:scale-95 active:border-[#98a2b3] active:bg-[#dfe5ec] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2d8cf0]/30"
+              className="flex h-9 w-9 cursor-pointer select-none items-center justify-center rounded-full border border-[var(--site-border)] bg-white text-[var(--site-text-secondary)] transition duration-150 hover:border-[var(--site-border)] hover:bg-[var(--site-bg)] hover:text-[var(--site-text)] active:scale-95 active:border-[var(--site-text-secondary)] active:bg-[var(--site-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--site-primary)]/30"
             >
               <ChevronIcon direction="left" />
             </button>
@@ -193,7 +193,7 @@ export default function ProductScreenshotGallery({
               type="button"
               aria-label="下一个媒体"
               onClick={() => goTo((active + 1) % screenshots.length)}
-              className="flex h-9 w-9 cursor-pointer select-none items-center justify-center rounded-full border border-[#e5e7eb] bg-white text-[#667085] transition duration-150 hover:border-[#b8c0cc] hover:bg-[#eef2f6] hover:text-[#222] active:scale-95 active:border-[#98a2b3] active:bg-[#dfe5ec] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2d8cf0]/30"
+              className="flex h-9 w-9 cursor-pointer select-none items-center justify-center rounded-full border border-[var(--site-border)] bg-white text-[var(--site-text-secondary)] transition duration-150 hover:border-[var(--site-border)] hover:bg-[var(--site-bg)] hover:text-[var(--site-text)] active:scale-95 active:border-[var(--site-text-secondary)] active:bg-[var(--site-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--site-primary)]/30"
             >
               <ChevronIcon direction="right" />
             </button>
@@ -218,7 +218,7 @@ export default function ProductScreenshotGallery({
               }`}
             >
               <div
-                className="group relative block w-full overflow-hidden rounded-xl border border-[#e8edf3] bg-[#f7faff] p-2 text-left shadow-[0_12px_35px_rgba(31,54,88,0.10)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(31,54,88,0.16)] sm:p-3"
+                className="group relative block w-full overflow-hidden rounded-xl border border-[var(--site-bg)] bg-[var(--site-surface-subtle)] p-2 text-left shadow-[0_12px_35px_rgba(31,54,88,0.10)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(31,54,88,0.16)] sm:p-3"
                 style={{ backgroundColor: `${accentColor}09` }}
               >
                 <div className="mb-2 flex items-center gap-1.5 px-1 pt-0.5" aria-hidden="true">
@@ -256,7 +256,7 @@ export default function ProductScreenshotGallery({
                 <span className="font-mono text-sm font-bold" style={{ color: accentColor }}>
                   {String(index + 1).padStart(2, '0')}
                 </span>
-                <span className="text-sm leading-6 text-[#777]">
+                <span className="text-sm leading-6 text-[var(--site-text-secondary)]">
                   {screenshot.caption || screenshot.alt}
                 </span>
               </figcaption>
