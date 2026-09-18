@@ -116,7 +116,7 @@ function TaskEditor({ initialId, tool }: { initialId?: string; tool?: Tool }) {
     if (!files.length || !task || task.status !== 'draft') return
     if (files.length + task.inputs.length > task.config.maxImages) throw new Error(`最多上传 ${task.config.maxImages} 张图片`)
     const taskId = await ensureTask()
-    try { for (const file of files) await uploadToolImage(file, taskId) } finally { await refresh() }
+    try { for (const file of files) await uploadToolImage(file, taskId, undefined, text => message.info({ key: 'image-upload-preparation', content: text })) } finally { await refresh() }
   })
   const handoff = () => void action(async () => {
     await ensureTask(); await save()

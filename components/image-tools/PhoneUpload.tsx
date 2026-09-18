@@ -1,12 +1,13 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { Button, Spin } from 'antd'
+import { App, Button, Spin } from 'antd'
 import { z } from 'zod'
 import { apiFetch } from '@/lib/api/client'
 import { uploadToolImage } from '@/lib/image-tools'
 import styles from './Tools.module.css'
 const schema = z.object({ name: z.string(), count: z.number(), maxImages: z.number() })
 export default function PhoneUpload() {
+  const { message } = App.useApp()
   const [token, setToken] = useState(''), [info, setInfo] = useState<z.infer<typeof schema> | null>(null)
   const [error, setError] = useState(''), [busy, setBusy] = useState(false), [done, setDone] = useState<string[]>([])
   const input = useRef<HTMLInputElement>(null), uploading = useRef(false)
@@ -25,11 +26,11 @@ export default function PhoneUpload() {
         if (uploading.current) return
         if (files.length + info.count > info.maxImages) { setError(`最多上传 ${info.maxImages} 张图片`); return }
         uploading.current = true; setBusy(true)
-        try { for (const file of files) { await uploadToolImage(file, undefined, token); setDone(names => [...names, file.name]); setInfo(value => value ? { ...value, count: value.count + 1 } : value) } }
+        try { for (const file of files) { await uploadToolImage(file, undefined, token, text => message.info({ key: 'image-upload-preparation', content: text })); setDone(names => [...names, file.name]); setInfo(value => value ? { ...value, count: value.count + 1 } : value) } }
         catch (error) { setError(error instanceof Error ? error.message : '上传失败') }
         finally { uploading.current = false; setBusy(false) }
       }} />
-      <Button size="large" type="primary" loading={busy} disabled={info.count >= info.maxImages} onClick={() => input.current?.click()}>从相册选择</Button><p className={styles.hint}>JPG / PNG / WebP，每张最多 20 MB。HEIC 照片请先导出为 JPG。</p>
+      <Button size="large" type="primary" loading={busy} disabled={info.count >= info.maxImages} onClick={() => input.current?.click()}>从相册选择</Button><p className={styles.hint}>JPG / PNG / WebP，较大的图片会自动优化后上传。HEIC 照片请先导出为 JPG。</p>
       <div role="status">{done.map((name, index) => <p key={index}>✓ {name} 已上传</p>)}</div>{done.length > 0 && <p>可以继续添加，也可以回到原设备开始生成。</p>}</>}
   </div></div>
 }

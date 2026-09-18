@@ -9,7 +9,7 @@ import { ToolsResult, type Tool, labels, ratioLabels, toolCover } from '@/lib/im
 import { uploadImage } from '@/lib/upload'
 import styles from './Admin.module.css'
 
-const limitsSchema = z.object({ version: z.number(), globalPerMinute: z.number(), userPerHour: z.number() })
+const limitsSchema = z.object({ version: z.number(), globalPerMinute: z.number(), userPerHour: z.number(), uploadMaxMb: z.number(), uploadMaxMegapixels: z.number(), processingMaxEdge: z.number() })
 const jobsSchema = z.object({ model: z.string(), limits: limitsSchema, jobs: z.array(z.object({ id: z.string(), ownerId: z.number(), name: z.string(), status: z.string(), createdAt: z.string() })) })
 const blank = { slug: '', enabled: false, position: 0, version: 0, config: { name: '', description: '', instruction: '', coverUrl: '', mode: 'per_image' as const, minImages: 1, maxImages: 10, maxOutputs: 4, defaultCount: 1, ratios: ['auto', '1:1', '3:2', '2:3'], defaultRatio: 'auto', comparison: false, promptRequired: false, fields: [] } }
 
@@ -67,12 +67,19 @@ export default function Admin() {
         }><div className={styles.cardTitle}><h2>{tool.config.name}</h2><Tag color={tool.enabled ? 'blue' : 'default'}>{tool.enabled ? '已发布' : '草稿'}</Tag></div><p>{tool.config.description}</p><div className={styles.meta}><span>{tool.config.mode === 'per_image' ? '图片转换' : '文字生图'}</span><span>{ratioLabels[tool.config.defaultRatio]}</span><span>v{tool.version}</span></div><Space><Button type="primary" onClick={() => edit(tool)}>编辑模板</Button>{tool.enabled && <Button href={`/tools/${tool.slug}`} target="_blank" rel="noreferrer">打开工具</Button>}</Space></Card>)}</div>
         {!loading && !tools.length && <Empty description="还没有工具模板"><Button onClick={() => edit(null)}>创建第一个模板</Button></Empty>}
       </Spin> },
-      { key: 'limits', label: '限频设置', children: <Card className={styles.limits} title="生成额度"><p>所有工具共用额度；批量和重试按图片张数计算。管理员不受两项限额限制。</p><Form form={limitForm} layout="vertical" onFinish={async values => {
+      { key: 'limits', label: '额度与图片设置', children: <Card className={styles.limits} title="额度与图片设置"><p>所有工具共用额度；批量和重试按图片张数计算。管理员不受两项限额限制。</p><Form form={limitForm} layout="vertical" onFinish={async values => {
         setBusy(true)
-        try { await apiFetch('/image-tools/admin/limits/', { method: 'PUT', data: { ...values, version: jobs?.limits.version }, schema: z.object({ limits: limitsSchema }) }); message.success('限频配置已生效'); await read() }
+        try { await apiFetch('/image-tools/admin/limits/', { method: 'PUT', data: { ...values, version: jobs?.limits.version }, schema: z.object({ limits: limitsSchema }) }); message.success('配置已生效'); await read() }
         catch (error) { message.error(error instanceof Error ? error.message : '保存失败') }
         finally { setBusy(false) }
-      }}><Row gutter={24}><Col xs={24} sm={12}><Form.Item name="globalPerMinute" label="全站每分钟" extra="超出后继续排队，等待执行。" rules={[{ required: true }]}><InputNumber min={1} max={10000} addonAfter="张" className={styles.full} /></Form.Item></Col><Col xs={24} sm={12}><Form.Item name="userPerHour" label="每账号每小时" extra="超出后暂停提交。游客还按同一 IP 共享此上限，批量与重试按图片张数计入。" rules={[{ required: true }]}><InputNumber min={1} max={10000} addonAfter="张" className={styles.full} /></Form.Item></Col></Row><Button type="primary" htmlType="submit" loading={busy} disabled={!jobs}>保存限额</Button></Form></Card> },
+      }}><Row gutter={24}><Col xs={24} sm={12}><Form.Item name="globalPerMinute" label="全站每分钟" extra="超出后继续排队，等待执行。" rules={[{ required: true }]}><InputNumber min={1} max={10000} addonAfter="张" className={styles.full} /></Form.Item></Col><Col xs={24} sm={12}><Form.Item name="userPerHour" label="每账号每小时" extra="超出后暂停提交。游客还按同一 IP 共享此上限，批量与重试按图片张数计入。" rules={[{ required: true }]}><InputNumber min={1} max={10000} addonAfter="张" className={styles.full} /></Form.Item></Col></Row>
+        <Divider orientation="left">图片上传与处理</Divider>
+        <p>范围内保留原图，超过时在浏览器自动优化后上传七牛。生成使用独立处理副本，不改变已上传的原图。</p>
+        <Row gutter={24}>
+          <Col xs={24} sm={12}><Form.Item name="uploadMaxMb" label="单张上传大小" extra="1–100 MB。超过时自动压缩，不直接拒绝。" rules={[{ required: true }]}><InputNumber min={1} max={100} precision={0} addonAfter="MB" className={styles.full} /></Form.Item></Col>
+          <Col xs={24} sm={12}><Form.Item name="uploadMaxMegapixels" label="上传像素上限" extra="1–80 百万像素。超过时保持比例缩小。" rules={[{ required: true }]}><InputNumber min={1} max={80} precision={0} addonAfter="百万像素" className={styles.full} /></Form.Item></Col>
+          <Col xs={24} sm={12}><Form.Item name="processingMaxEdge" label="生成输入最长边" extra="512–4096 像素。仅处理副本；不放大小图，不降低生成结果的尺寸。" rules={[{ required: true }]}><InputNumber min={512} max={4096} precision={0} step={256} addonAfter="px" className={styles.full} /></Form.Item></Col>
+        </Row><Button type="primary" htmlType="submit" loading={busy} disabled={!jobs}>保存设置</Button></Form></Card> },
       { key: 'jobs', label: '最近任务', children: <Card><Table rowKey="id" size="middle" loading={loading} dataSource={jobs?.jobs || []} scroll={{ x: 760 }} pagination={{ pageSize: 10 }} columns={[{ title: '工具', dataIndex: 'name' }, { title: '账号', dataIndex: 'ownerId', width: 90 }, { title: '状态', dataIndex: 'status', render: value => <Tag color={value === 'completed' ? 'success' : value === 'failed' ? 'error' : 'default'}>{labels[value] || value}</Tag> }, { title: '创建时间', dataIndex: 'createdAt', render: value => new Date(value).toLocaleString() }, { title: '任务编号', dataIndex: 'id', ellipsis: true }]} /></Card> },
     ]} />
     <Drawer title={current ? `编辑 · ${current.config.name}` : '新建工具模板'} open={open} onClose={close} width={680} forceRender footer={<div className={styles.drawerFooter}><Button onClick={close} disabled={busy || uploading}>取消</Button><Button type="primary" loading={busy} disabled={uploading} onClick={() => form.submit()}>保存模板</Button></div>}>
