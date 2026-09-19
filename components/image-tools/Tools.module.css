@@ -137,3 +137,5 @@
 .historyEmpty { margin: 0; padding: 48px 20px; color: var(--site-text-secondary); font-size: var(--font-ui); }
 .historyEmpty :global(.ant-empty-description) { color: var(--site-text-secondary); }
 .historyEmpty :global(.ant-empty-footer) { margin-top: 8px; }
+
+.historyEmpty :global(.ant-empty-image) { display: none; }
