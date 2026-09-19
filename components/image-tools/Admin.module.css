@@ -27,3 +27,16 @@
 .help { margin-bottom: 18px; font-size: var(--font-ui); }
 @media (max-width: 1100px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 700px) { .summary, .cards { grid-template-columns: minmax(0, 1fr); } .coverEditor { flex-direction: column; align-items: start; } .coverEditor img { width: 100%; } }
+
+.jobDetail { min-inline-size: 0; overflow-wrap: anywhere; color: var(--site-text); }
+.jobPhotos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.jobPhotos figure { margin: 0; min-inline-size: 0; }
+.jobPhotos :global(.ant-image) { inline-size: 100%; }
+.jobPhotos :global(.ant-image-img) { inline-size: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--site-radius); }
+.jobPhotos figcaption { margin-block-start: 6px; font-size: var(--font-meta); color: var(--site-text-secondary); }
+.jobDetail h3 { font-size: var(--font-body); font-weight: 500; margin-block: 16px 8px; color: var(--site-title); }
+.jobPrompt, .jobJson { white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--font-ui); line-height: 1.75; }
+.jobPrompt { margin-block-end: 16px; }
+.jobItems { display: grid; gap: 16px; padding: 0; list-style: none; }
+.jobItems p { margin-block: 8px; font-size: var(--font-ui); }
+@media (max-width: 600px) { .jobPhotos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

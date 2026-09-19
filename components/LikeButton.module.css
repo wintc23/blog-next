@@ -4,7 +4,7 @@
   justify-content: center;
   gap: 7px;
   min-height: 34px;
-  padding: 5px 12px;
+  padding: 5px 4px;
   border: 1px solid transparent;
   border-radius: var(--site-radius);
   background: transparent;
@@ -14,9 +14,9 @@
   line-height: 22px;
   vertical-align: middle;
   cursor: pointer;
-  transition: background-color .15s, border-color .15s;
+  transition: color .15s;
 }
-.button:global(.ant-btn):global(.ant-btn-variant-text):not(:disabled):hover, .button:global(.ant-btn):global(.ant-btn-variant-text)[aria-pressed='true'] { background: var(--site-like-soft); border-color: transparent; color: var(--site-like-hover); }
+.button:global(.ant-btn):global(.ant-btn-variant-text):not(:disabled):hover, .button:global(.ant-btn):global(.ant-btn-variant-text):not(:disabled):active, .button:global(.ant-btn):global(.ant-btn-variant-text)[aria-pressed='true'] { background: transparent; border-color: transparent; color: var(--site-like-hover); }
 .button:global(.ant-btn):global(.ant-btn-variant-text):focus-visible { outline: 2px solid var(--site-primary); outline-offset: 3px; }
 .button:global(.ant-btn):global(.ant-btn-variant-text):disabled { cursor: wait; opacity: .65; }
 .count { font-variant-numeric: tabular-nums; }

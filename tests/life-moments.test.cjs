@@ -21,7 +21,7 @@ const Card = load('components/home/MomentCard.tsx', {
   'next/link': ({ children, ...props }) => React.createElement('a', props, children),
   '@/lib/schemas/personal-profile': schema, '@/lib/life-moments': time,
   '@/components/LikeButton': () => null, './MomentSelection': ({ children }) => children,
-  './MomentGallery': Gallery, './LifeMoments.module.css': css,
+  './MomentEditLink': () => null, './MomentGallery': Gallery, './LifeMoments.module.css': css,
 }).default
 const legacy = { id: 'test-id', date: '2026-09-17', text: '旅途', category: 'travel', imageUrl: 'https://example.test/one.jpg', imageAlt: '旧照片' }
 

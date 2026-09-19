@@ -7,13 +7,15 @@ import { z } from 'zod'
 import { apiFetch } from '@/lib/api/client'
 import { ToolsResult, type Tool, labels, ratioLabels, toolCover } from '@/lib/image-tools'
 import { uploadImage } from '@/lib/upload'
+import AdminJobDetails from './AdminJobDetails'
 import styles from './Admin.module.css'
 
 const limitsSchema = z.object({ version: z.number(), globalPerMinute: z.number(), userPerHour: z.number(), uploadMaxMb: z.number(), uploadMaxMegapixels: z.number(), processingMaxEdge: z.number() })
-const jobsSchema = z.object({ model: z.string(), limits: limitsSchema, jobs: z.array(z.object({ id: z.string(), ownerId: z.number(), name: z.string(), status: z.string(), createdAt: z.string() })) })
+const jobsSchema = z.object({ total: z.number(), page: z.number(), perPage: z.number(), model: z.string(), limits: limitsSchema, jobs: z.array(z.object({ id: z.string(), ownerId: z.number(), ownerName: z.string(), name: z.string(), status: z.string(), createdAt: z.string() })) })
 const blank = { slug: '', enabled: false, position: 0, version: 0, config: { name: '', description: '', instruction: '', coverUrl: '', mode: 'per_image' as const, minImages: 1, maxImages: 10, maxOutputs: 4, defaultCount: 1, ratios: ['auto', '1:1', '3:2', '2:3'], defaultRatio: 'auto', comparison: false, promptRequired: false, fields: [] } }
 
 export default function Admin() {
+  const [jobId, setJobId] = useState<string | null>(null), [jobsLoading, setJobsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [tools, setTools] = useState<Tool[]>([])
   const [current, setCurrent] = useState<Tool | null>(null)
@@ -33,6 +35,12 @@ export default function Admin() {
     finally { setLoading(false) }
   }
   useEffect(() => { setMounted(true); void read() }, [])
+  const readJobs = async (page: number) => {
+    setJobsLoading(true)
+    try { setJobs(await apiFetch('/image-tools/admin/jobs/', { params: { page }, schema: jobsSchema })) }
+    catch (error) { message.error(error instanceof Error ? error.message : '加载任务失败') }
+    finally { setJobsLoading(false) }
+  }
   const edit = (tool: Tool | null) => {
     setCurrent(tool); form.resetFields(); form.setFieldsValue(tool || blank); setDirty(false); setOpen(true)
   }
@@ -80,8 +88,9 @@ export default function Admin() {
           <Col xs={24} sm={12}><Form.Item name="uploadMaxMegapixels" label="上传像素上限" extra="1–80 百万像素。超过时保持比例缩小。" rules={[{ required: true }]}><InputNumber min={1} max={80} precision={0} addonAfter="百万像素" className={styles.full} /></Form.Item></Col>
           <Col xs={24} sm={12}><Form.Item name="processingMaxEdge" label="生成输入最长边" extra="512–4096 像素。仅处理副本；不放大小图，不降低生成结果的尺寸。" rules={[{ required: true }]}><InputNumber min={512} max={4096} precision={0} step={256} addonAfter="px" className={styles.full} /></Form.Item></Col>
         </Row><Button type="primary" htmlType="submit" loading={busy} disabled={!jobs}>保存设置</Button></Form></Card> },
-      { key: 'jobs', label: '最近任务', children: <Card><Table rowKey="id" size="middle" loading={loading} dataSource={jobs?.jobs || []} scroll={{ x: 760 }} pagination={{ pageSize: 10 }} columns={[{ title: '工具', dataIndex: 'name' }, { title: '账号', dataIndex: 'ownerId', width: 90 }, { title: '状态', dataIndex: 'status', render: value => <Tag color={value === 'completed' ? 'success' : value === 'failed' ? 'error' : 'default'}>{labels[value] || value}</Tag> }, { title: '创建时间', dataIndex: 'createdAt', render: value => new Date(value).toLocaleString() }, { title: '任务编号', dataIndex: 'id', ellipsis: true }]} /></Card> },
+      { key: 'jobs', label: '全站任务', children: <Card><Table rowKey="id" size="middle" loading={loading || jobsLoading} dataSource={jobs?.jobs || []} scroll={{ x: 760 }} pagination={{ current: jobs?.page || 1, pageSize: jobs?.perPage || 20, total: jobs?.total || 0, showSizeChanger: false, onChange: page => void readJobs(page) }} columns={[{ title: '工具', dataIndex: 'name' }, { title: '账号', dataIndex: 'ownerName', render: (name, row) => `${name} (${row.ownerId})` }, { title: '状态', dataIndex: 'status', render: value => <Tag color={value === 'completed' ? 'success' : value === 'failed' ? 'error' : 'default'}>{labels[value] || value}</Tag> }, { title: '创建时间', dataIndex: 'createdAt', render: value => new Date(value).toLocaleString() }, { title: '任务编号', dataIndex: 'id', ellipsis: true }, { title: '操作', key: 'view', fixed: 'right', width: 110, render: (_, row) => <Button type="link" onClick={() => setJobId(row.id)}>查看详情</Button> }]} /></Card> },
     ]} />
+    <AdminJobDetails id={jobId} onClose={() => setJobId(null)} />
     <Drawer title={current ? `编辑 · ${current.config.name}` : '新建工具模板'} open={open} onClose={close} width={680} forceRender footer={<div className={styles.drawerFooter}><Button onClick={close} disabled={busy || uploading}>取消</Button><Button type="primary" loading={busy} disabled={uploading} onClick={() => form.submit()}>保存模板</Button></div>}>
       <Form form={form} layout="vertical" onFinish={save} onValuesChange={changed => {
         setDirty(true)

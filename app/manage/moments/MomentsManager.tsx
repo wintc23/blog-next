@@ -7,7 +7,8 @@ import 'dayjs/locale/zh-cn'
 import { PhonePublishButton } from '@/components/device-login/DeviceLogin'
 import { PlusOutlined } from '@ant-design/icons'
 import { deleteLifeMoment, getLifeMoments, saveLifeMoment, type LifeMomentInput } from '@/lib/api/life-moments'
-import { MOMENT_CATEGORIES, type ProfileMoment } from '@/lib/schemas/personal-profile'
+import { apiFetch } from '@/lib/api/client'
+import { ProfileMomentSchema, MOMENT_CATEGORIES, type ProfileMoment } from '@/lib/schemas/personal-profile'
 import { currentMomentTime, momentClock, momentTimeLabel } from '@/lib/life-moments'
 import MomentImagesEditor from './MomentImagesEditor'
 import styles from './MomentsManager.module.css'
@@ -22,7 +23,7 @@ function newMoment(): MomentForm {
   }
 }
 
-export default function MomentsManager() {
+export default function MomentsManager({ initialEditId }: { initialEditId?: string }) {
   const { message } = App.useApp()
   const [form] = Form.useForm<MomentForm>()
   const [list, setList] = useState<ProfileMoment[]>([])
@@ -59,7 +60,7 @@ export default function MomentsManager() {
 
   useEffect(() => { void load(); return () => { requestId.current += 1 } }, [load])
 
-  const edit = (moment: ProfileMoment | null) => {
+  const edit = useCallback((moment: ProfileMoment | null) => {
     setDetails([])
     setEditing(moment)
     form.resetFields()
@@ -69,7 +70,16 @@ export default function MomentsManager() {
       form.setFieldsValue(newMoment())
     }
     setOpen(true)
-  }
+  }, [form])
+
+  useEffect(() => {
+    if (!initialEditId) return
+    const controller = new AbortController()
+    apiFetch(`/life-moments/${encodeURIComponent(initialEditId)}/`, { schema: ProfileMomentSchema, signal: controller.signal, cache: 'no-store' })
+      .then(moment => { if (!controller.signal.aborted) edit(moment) })
+      .catch(error => { if (!controller.signal.aborted) message.error(error instanceof Error ? error.message : '加载动态失败') })
+    return () => controller.abort()
+  }, [initialEditId, edit, message])
 
   const save = async ({ localTime, ...values }: MomentForm) => {
     setSaving(true)

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { MOMENT_CATEGORIES, type ProfileMoment } from '@/lib/schemas/personal-profile'
 import LikeButton from '@/components/LikeButton'
 import MomentSelection from './MomentSelection'
+import MomentEditLink from './MomentEditLink'
 import MomentGallery from './MomentGallery'
 import styles from './LifeMoments.module.css'
 
@@ -28,13 +29,13 @@ export default function MomentCard({ moment, compact = false, detail = false }: 
           </figure>)}
         </div>}
       </Link>
-      <div className={styles.compactFooter}><div className={styles.compactMeta}>{date}<span title={[category, moment.location].filter(Boolean).join(' · ')}>{[category, moment.location].filter(Boolean).join(' · ')}</span></div><LikeButton target="moment" id={moment.id} /></div>
+      <div className={styles.compactFooter}><div className={styles.compactMeta}>{date}{moment.location && <>{' '}<span title={moment.location}>{moment.location}</span></>}</div><LikeButton target="moment" id={moment.id} /></div>
     </article>
   )
   const card = <article className={`${styles.card} ${detail ? styles.detailCard : ''}`}>
     {content}
     <MomentGallery images={moment.images} momentId={moment.id} />
-    <div className={styles.momentActions}><LikeButton target="moment" id={moment.id} /></div>
+    <div className={styles.momentActions}><LikeButton target="moment" id={moment.id} /><MomentEditLink id={moment.id} /></div>
   </article>
   return detail ? <MomentSelection>{card}</MomentSelection> : card
 }
