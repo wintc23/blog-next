@@ -4,7 +4,6 @@ import BackLink from '@/components/BackLink'
 import { notFound } from 'next/navigation'
 import { getLifeMoment } from '@/lib/api/life-moments'
 import { ApiError } from '@/lib/api/client'
-import { momentTimeLabel } from '@/lib/life-moments'
 import { getSiteIdentity } from '@/lib/get-site-identity'
 import { shareMetadata } from '@/lib/share-metadata'
 import MomentCard from '@/components/home/MomentCard'
@@ -24,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [moment, identity] = await Promise.all([loadMoment((await params).id), getSiteIdentity()])
   const cover = moment.images[0]
   return shareMetadata({
-    title: `${momentTimeLabel(moment)} 的生活片段`, description: moment.text.slice(0, 160) || identity.description,
+    title: `${moment.date.replaceAll('-', '.')} 的生活片段`, description: moment.text.slice(0, 160) || identity.description,
     path: `/moments/${moment.id}`, siteName: identity.title, type: 'article',
     image: cover ? { url: cover.url, alt: cover.description } : undefined,
   })

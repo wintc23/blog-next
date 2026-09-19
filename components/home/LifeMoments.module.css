@@ -6,15 +6,15 @@
 .recentList { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
 .card, .compactLink { display: block; min-inline-size: 0; border: 1px solid var(--site-border); border-radius: var(--site-radius); background: var(--site-surface); padding: 22px; }
 .compactCard { min-inline-size: 0; border: 1px solid var(--site-border); border-radius: var(--site-radius); background: var(--site-surface); }
-.compactLink { padding: 14px; color: inherit; border: 0; }
+.compactLink { padding: 10px 12px 8px; color: inherit; border: 0; }
 .compactLink:hover { border-color: var(--site-primary-hover); }
 .meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; color: var(--site-text-secondary); font-size: var(--font-meta); line-height: 1.8; }
 .meta time { font-variant-numeric: tabular-nums; }
 .meta a:hover { color: var(--site-primary); text-decoration: underline; }
 .text { margin: 14px 0 0; font-size: var(--font-body); line-height: 1.9; color: var(--site-text-secondary); white-space: pre-wrap; overflow-wrap: anywhere; }
 .compactCard .meta { font-size: var(--font-meta); }
-.compactCard .text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; margin-block-start: 8px; font-size: var(--font-ui); line-height: 1.8; }
-.previewImages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-block-start: 12px; }
+.compactCard .text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin-block-start: 0; font-size: var(--font-ui); line-height: 1.8; }
+.previewImages { display: grid; grid-template-columns: repeat(3, minmax(0, 72px)); gap: 6px; margin-block-start: 8px; }
 .previewImages figure { margin: 0; position: relative; }
 .previewImages img { display: block; inline-size: 100%; block-size: auto; aspect-ratio: 1; object-fit: cover; object-position: center; border-radius: var(--site-radius); background: var(--site-bg); }
 .moreImages { position: absolute; inset: 0; display: grid; place-items: center; color: var(--site-surface); background: #182a3a99; border-radius: var(--site-radius); font-size: var(--font-subtitle); }
@@ -65,6 +65,9 @@
 .loadMore { display: flex; justify-content: center; align-items: center; gap: 8px; min-block-size: 64px; margin-block-start: 16px; font-size: var(--font-ui); color: var(--site-text-secondary); }
 
 .momentActions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-block-start: 8px; }
-.compactCard .momentActions { padding: 0 8px 8px; margin: 0; }
-.selectionBar { position: sticky; inset-block-start: 76px; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px; margin-block-end: 16px; background: var(--site-surface); border: 1px solid var(--site-border); border-radius: var(--site-radius); font-size: var(--font-ui); }
+.compactFooter { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; padding: 0 8px 6px 12px; color: var(--site-text-secondary); font-size: var(--font-meta); }
+.compactMeta { display: grid; min-inline-size: 0; flex: 1; line-height: 1.5; }
+.compactMeta span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.compactFooter time { font-variant-numeric: tabular-nums; }
+.selectionBar { display: flex; justify-content: flex-end; flex-wrap: wrap; align-items: center; gap: 8px; margin-block-end: 16px; font-size: var(--font-ui); color: var(--site-text-secondary); }
 .photoSelect { position: absolute; inset-block-start: 6px; inset-inline-end: 6px; z-index: 1; padding: 4px; background: var(--site-surface); border-radius: var(--site-radius); }

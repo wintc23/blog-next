@@ -38,7 +38,7 @@ export default async function HomePage({
   const [products, profile, moments, news] = await Promise.all([
     getProducts(true),
     getPersonalProfile(true),
-    getLifeMoments(1, 3, true),
+    getLifeMoments(1, 2, true),
     getAiNewsHome().catch((error) => {
       console.error('Unable to load homepage AI news:', error instanceof Error ? error.message : 'Unknown error')
       return null

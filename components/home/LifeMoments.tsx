@@ -12,7 +12,7 @@ export default function LifeMoments({ moments }: { moments: ProfileMoment[] }) {
         <Link href="/moments">全部动态</Link>
       </header>
       <ul className={styles.recentList}>
-        {moments.map((moment) => <li key={moment.id}><MomentCard moment={moment} compact /></li>)}
+        {moments.slice(0, 2).map((moment) => <li key={moment.id}><MomentCard moment={moment} compact /></li>)}
       </ul>
     </aside>
   )

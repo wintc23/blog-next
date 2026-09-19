@@ -31,6 +31,9 @@
   --site-primary-hover: #57a3f3;
   --site-primary-active: #1674d5;
   --site-primary-soft: #eaf4ff;
+  --site-like: #d43846;
+  --site-like-hover: #b92332;
+  --site-like-soft: #fff1f0;
   --site-radius: 4px;
 }
 

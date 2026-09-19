@@ -1,14 +1,14 @@
-.button {
+.button:global(.ant-btn):global(.ant-btn-variant-text) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
   min-height: 34px;
   padding: 5px 12px;
-  border: 1px solid var(--site-border);
+  border: 1px solid transparent;
   border-radius: var(--site-radius);
   background: transparent;
-  color: var(--site-primary);
+  color: var(--site-like);
   font: inherit;
   font-size: var(--font-ui);
   line-height: 22px;
@@ -16,9 +16,9 @@
   cursor: pointer;
   transition: background-color .15s, border-color .15s;
 }
-.button:hover, .button[aria-pressed='true'] { background: var(--site-primary-soft); border-color: var(--site-primary); color: var(--site-primary-active); }
-.button:focus-visible { outline: 2px solid var(--site-primary); outline-offset: 3px; }
-.button:disabled { cursor: wait; opacity: .65; }
+.button:global(.ant-btn):global(.ant-btn-variant-text):not(:disabled):hover, .button:global(.ant-btn):global(.ant-btn-variant-text)[aria-pressed='true'] { background: var(--site-like-soft); border-color: transparent; color: var(--site-like-hover); }
+.button:global(.ant-btn):global(.ant-btn-variant-text):focus-visible { outline: 2px solid var(--site-primary); outline-offset: 3px; }
+.button:global(.ant-btn):global(.ant-btn-variant-text):disabled { cursor: wait; opacity: .65; }
 .count { font-variant-numeric: tabular-nums; }
-@media (pointer: coarse) { .button { min-height: 44px; } }
-@media (prefers-reduced-motion: reduce) { .button { transition: none; } }
+@media (pointer: coarse) { .button:global(.ant-btn):global(.ant-btn-variant-text) { min-height: 44px; } }
+@media (prefers-reduced-motion: reduce) { .button:global(.ant-btn):global(.ant-btn-variant-text) { transition: none; } }
