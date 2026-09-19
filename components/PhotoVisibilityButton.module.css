@@ -1,0 +1,6 @@
+.button:global(.ant-btn) { position: absolute; inset-inline-end: 0; inset-block-end: 0; inline-size: 40px; block-size: 40px; min-inline-size: 40px; padding: 0; border: 0; background: transparent; z-index: 2; color: var(--site-surface); }
+.button:global(.ant-btn):not(:disabled):hover, .button:global(.ant-btn):not(:disabled):active { color: var(--site-surface); background: transparent; }
+.symbol { display: grid; place-items: center; inline-size: 24px; block-size: 24px; border-radius: var(--site-radius); background: color-mix(in srgb, var(--site-text) 72%, transparent); font-size: 16px; }
+.button[aria-pressed='true'] .symbol { background: var(--site-primary); }
+.button:focus-visible { outline: 2px solid var(--site-primary); outline-offset: 1px; }
+@media (pointer: coarse) { .button:global(.ant-btn) { inline-size: 44px; block-size: 44px; } }

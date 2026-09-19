@@ -12,6 +12,8 @@ import { useImagePaste } from '@/lib/use-image-paste'
 import { useUser, useShowLogin } from '@/lib/store'
 import { ShareDialog, useDevice } from '@/components/image-tools/Shared'
 import AlbumForm from './AlbumForm'
+import PhotoVisibilityButton from '@/components/PhotoVisibilityButton'
+import { PhotoSort, SortablePhoto } from '@/components/PhotoSort'
 import PhotoPicker from './PhotoPicker'
 import styles from './Albums.module.css'
 export default function AlbumDetail({ id }: { id: string }) {
@@ -21,7 +23,6 @@ export default function AlbumDetail({ id }: { id: string }) {
   const [busy, setBusy] = useState(false), [edit, setEdit] = useState(false), [picker, setPicker] = useState(false), [share, setShare] = useState(false)
   const editable = !!user?.admin && !!album?.editable
   const input = useRef<HTMLInputElement>(null), working = useRef(false)
-  const drag = useRef<{ id: string; x: number; y: number; target: string | null } | null>(null)
   useEffect(() => {
     setAlbum(null); setError(''); const controller = new AbortController()
     apiFetch(`/albums/${id}/`, { schema: AlbumSchema, signal: controller.signal }).then(setAlbum).catch(error => { if (!controller.signal.aborted) setError(error.message) })
@@ -69,23 +70,19 @@ export default function AlbumDetail({ id }: { id: string }) {
         {album.visibility === 'public' && <Button onClick={() => setShare(true)}>分享画册</Button>}
       </div>
     </header>
-    {editable && <p className={styles.hint}>支持粘贴上传。拖动照片下方的排序手柄调整顺序，键盘可用左右方向键。</p>}
+    {editable && <p className={styles.hint}>支持粘贴上传。按住排序手柄 200ms 后拖动；右下角可独立设置图片的公开或隐藏。</p>}
     <input ref={input} style={{ display: 'none' }} type="file" accept={IMAGE_UPLOAD_ACCEPT} multiple hidden onChange={event => { void upload(Array.from(event.target.files || [])); event.target.value = '' }} />
-    {!album.photos.length ? <div className={styles.empty}><Empty description={editable ? '上传照片，或从动态、生图结果中选图' : '画册还没有照片'} /></div> : <Image.PreviewGroup><div className={styles.photos}>
-      {album.photos.map((photo, index) => <article className={styles.photo} key={photo.id} data-album-photo={photo.id}>
-        <Image src={photoUrl(photo)} alt={photo.name} loading="lazy" />
+    {!album.photos.length ? <div className={styles.empty}><Empty description={editable ? '上传照片，或从动态、生图结果中选图' : '画册还没有照片'} /></div> : <Image.PreviewGroup><PhotoSort ids={album.photos.map(p => p.id)} disabled={!editable || busy} onMove={(from, to) => reorder(album.photos[from].id, album.photos[to].id)} preview={id => {
+      const photo = album.photos.find(p => p.id === id)
+      // eslint-disable-next-line @next/next/no-img-element
+      return photo ? <img src={photoUrl(photo)} alt="拖动中的照片" /> : null
+    }}><div className={styles.photos}>
+      {album.photos.map((photo, index) => <SortablePhoto className={styles.photo} key={photo.id} id={photo.id} disabled={!editable || busy}>{({ attributes, listeners, setActivatorNodeRef }) => <>
+        <div className={styles.photoVisual}><Image src={photoUrl(photo)} alt={photo.name} loading="lazy" />
+          {editable && <PhotoVisibilityButton isPublic={photo.isPublic} disabled={busy} onChange={isPublic => void run(async () => { setAlbum(await apiFetch(`/albums/${id}/photos/${photo.id}/`, { method: 'PATCH', data: { isPublic }, schema: AlbumSchema })) })} />}
+        </div>
         <div className={styles.photoFooter}>
-          {editable ? <Button className={styles.drag} type="text" disabled={busy} icon={<HolderOutlined />} aria-label={`排序第 ${index + 1} 张照片`} onPointerDown={event => {
-            if (event.button !== 0) return
-            event.currentTarget.setPointerCapture(event.pointerId); drag.current = { id: photo.id, x: event.clientX, y: event.clientY, target: null }
-          }} onPointerMove={event => {
-            if (!drag.current) return
-            if (Math.hypot(event.clientX - drag.current.x, event.clientY - drag.current.y) < 8) return
-            drag.current.target = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>('[data-album-photo]')?.dataset.albumPhoto || null
-          }} onPointerUp={() => { const item = drag.current; drag.current = null; if (item?.target) reorder(item.id, item.target) }} onPointerCancel={() => { drag.current = null }} onKeyDown={event => {
-            if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return
-            event.preventDefault(); const next = album.photos[index + (event.key === 'ArrowLeft' ? -1 : 1)]; if (next) reorder(photo.id, next.id)
-          }} /> : <span className={styles.hint}>{index + 1}</span>}
+          {editable ? <Button ref={setActivatorNodeRef} {...attributes} {...listeners} className={styles.drag} type="text" disabled={busy} icon={<HolderOutlined />} aria-label={`排序第 ${index + 1} 张照片`} onContextMenu={event => event.preventDefault()} /> : <span className={styles.hint}>{index + 1}</span>}
           {album.cover?.id === photo.id && <Tag>封面</Tag>}
           <Dropdown trigger={['click']} menu={{ items: [{ key: 'download', label: device === 'desktop' ? '下载图片' : '保存图片' }, ...(editable ? [{ key: 'cover', label: '设为封面' }, { key: 'remove', label: '移出画册', danger: true, icon: <DeleteOutlined /> }] : [])], onClick: ({ key }) => {
             if (key === 'download') void run(() => downloadBlob(photoUrl(photo), /\.[a-z0-9]+$/i.test(photo.name) ? photo.name : `${photo.name}.jpg`, false, device !== 'desktop'))
@@ -93,8 +90,8 @@ export default function AlbumDetail({ id }: { id: string }) {
             if (key === 'remove') void run(async () => { setAlbum(await apiFetch(`/albums/${id}/photos/${photo.id}/`, { method: 'DELETE', schema: AlbumSchema })) })
           } }}><Button type="text" icon={<MoreOutlined />} disabled={busy} aria-label={`第 ${index + 1} 张照片操作`} /></Dropdown>
         </div>
-      </article>)}
-    </div></Image.PreviewGroup>}
+      </>}</SortablePhoto>)}
+    </div></PhotoSort></Image.PreviewGroup>}
     {edit && <AlbumForm album={album} onClose={() => setEdit(false)} onSaved={value => { setAlbum(value); setEdit(false); message.success('画册已保存') }} />}
     {picker && <PhotoPicker onClose={() => setPicker(false)} onAdd={add} />}
     <ShareDialog title={album.title} path={share && album.visibility === 'public' ? `/albums/${id}` : null} onClose={() => setShare(false)} description={album.description} />

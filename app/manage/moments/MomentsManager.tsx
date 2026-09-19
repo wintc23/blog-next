@@ -35,6 +35,7 @@ export default function MomentsManager({ initialEditId }: { initialEditId?: stri
   const [editing, setEditing] = useState<ProfileMoment | null>(null)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [imageInteraction, setImageInteraction] = useState(false)
   const [details, setDetails] = useState<string[]>([])
   const [clientReady, setClientReady] = useState(false)
   const requestId = useRef(0)
@@ -139,7 +140,7 @@ export default function MomentsManager({ initialEditId }: { initialEditId?: stri
           <Pagination className={styles.pagination} current={page} pageSize={12} total={total} hideOnSinglePage showSizeChanger={false} disabled={saving} onChange={setPage} />
         </Spin>
       )}
-      {clientReady && <Modal title={editing ? '编辑动态' : '发布动态'} open={open} width={640} forceRender maskClosable={false}
+      {clientReady && <Modal title={editing ? '编辑动态' : '发布动态'} open={open} width={640} forceRender maskClosable={false} keyboard={!imageInteraction}
         style={{ top: 24 }} styles={{ body: { maxHeight: 'calc(100dvh - 200px)', overflowY: 'auto', paddingInline: 2 } }}
         footer={<div className={styles.formActions}><Button disabled={saving || uploading} onClick={() => setOpen(false)}>取消</Button><Button type="primary" htmlType="submit" form="life-moment-form" loading={saving} disabled={uploading}>{editing ? '保存修改' : '发布'}</Button></div>}
         closable={!saving && !uploading} onCancel={() => { if (!saving && !uploading) setOpen(false) }}>
@@ -147,7 +148,7 @@ export default function MomentsManager({ initialEditId }: { initialEditId?: stri
           <Form.Item name="text" rules={[{ required: true, whitespace: true, message: '写几句话记录这一刻吧' }]}>
             <Input.TextArea aria-label="动态内容" placeholder="分享这一刻…" autoSize={{ minRows: 4, maxRows: 12 }} maxLength={2000} showCount />
           </Form.Item>
-          <Form.Item name="images"><MomentImagesEditor active={open} disabled={saving || uploading} onUploadingChange={setUploading} onApplyMetadata={value => {
+          <Form.Item name="images"><MomentImagesEditor onInteractionChange={setImageInteraction} active={open} disabled={saving || uploading} onUploadingChange={setUploading} onApplyMetadata={value => {
             form.setFieldsValue({ ...(value.takenAt ? { localTime: dayjs(value.takenAt).locale('zh-cn') } : {}), ...(value.location ? { location: value.location } : {}) }); setDetails(['details']); message.success('已填入照片信息，可继续修改')
           }} /></Form.Item>
           <Collapse ghost activeKey={details} onChange={keys => setDetails(Array.isArray(keys) ? keys : [keys])} items={[{ key: 'details', label: '日期、地点和分类', forceRender: true, children: <>

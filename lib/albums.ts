@@ -3,7 +3,7 @@ import { apiFetch } from './api/client'
 import { BASE_URL } from './config'
 export const SourceSchema = z.object({ type: z.enum(['photo', 'moment', 'generated', 'media']), id: z.string(), index: z.number().optional() })
 export type PhotoSource = z.infer<typeof SourceSchema>
-export const PhotoSchema = z.object({ id: z.string(), url: z.string(), name: z.string(), width: z.number(), height: z.number() })
+export const PhotoSchema = z.object({ id: z.string(), url: z.string(), isPublic: z.boolean().optional(), name: z.string(), width: z.number(), height: z.number() })
 export type AlbumPhoto = z.infer<typeof PhotoSchema>
 export const AlbumSchema = z.object({ id: z.string(), title: z.string(), description: z.string(), visibility: z.enum(['private', 'public']), version: z.number(), count: z.number(), editable: z.boolean(), cover: PhotoSchema.nullable(), photos: z.array(PhotoSchema).default([]) })
 export type Album = z.infer<typeof AlbumSchema>

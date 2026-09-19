@@ -27,7 +27,7 @@ export const MOMENT_CATEGORIES = [
   { value: 'daily', label: '日常' },
 ] as const
 
-export const MomentImageSchema = z.object({ url: z.string(), description: z.string().default('') })
+export const MomentImageSchema = z.object({ url: z.string(), description: z.string().default(''), isPublic: z.boolean().optional() })
 export type MomentImage = z.infer<typeof MomentImageSchema>
 
 export const ProfileMomentSchema = z.object({

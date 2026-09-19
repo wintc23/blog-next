@@ -21,7 +21,7 @@ const loadMoment = cache(async (id: string) => {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [moment, identity] = await Promise.all([loadMoment((await params).id), getSiteIdentity()])
-  const cover = moment.images[0]
+  const cover = moment.images.find(picture => picture.isPublic !== false)
   return shareMetadata({
     title: `${moment.date.replaceAll('-', '.')} 的生活片段`, description: moment.text.slice(0, 160) || identity.description,
     path: `/moments/${moment.id}`, siteName: identity.title, type: 'article',

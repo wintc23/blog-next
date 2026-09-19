@@ -73,3 +73,5 @@
 .photoSelect { position: absolute; inset-block-start: 6px; inset-inline-end: 6px; z-index: 1; padding: 4px; background: transparent; }
 
 .photoSelect:global(.ant-checkbox-wrapper) :global(.ant-checkbox:not(.ant-checkbox-checked) .ant-checkbox-inner) { background: transparent; border-color: var(--site-surface); }
+
+.galleryVisual { position: relative; }

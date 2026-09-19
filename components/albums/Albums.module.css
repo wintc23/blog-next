@@ -22,3 +22,9 @@
 .selected { border-color: var(--site-primary); }
 .empty { padding: 48px 16px; text-align: center; background: var(--site-surface); border-radius: 4px; margin-top: 24px; }
 @media (max-width: 640px) { .header { flex-direction: column; gap: 16px; } .page { padding-top: 20px; } .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } .photos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } .picker { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } .cardText { padding: 12px; } }
+
+.albumTags { display: flex; flex-wrap: wrap; gap: 10px; margin-block: 16px; }
+.albumTag:global(.ant-btn) { max-inline-size: 100%; block-size: auto; min-block-size: 36px; padding: 6px 12px; white-space: normal; text-align: start; }
+.albumTag > span { min-inline-size: 0; overflow-wrap: anywhere; }
+.photoVisual { position: relative; }
+.drag:global(.ant-btn) { touch-action: manipulation; user-select: none; -webkit-touch-callout: none; }
