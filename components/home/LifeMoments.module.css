@@ -18,12 +18,12 @@
 .previewImages figure { margin: 0; position: relative; }
 .previewImages img { display: block; inline-size: 100%; block-size: auto; aspect-ratio: 4 / 3; object-fit: contain; border-radius: var(--site-radius); background: var(--site-bg); }
 .moreImages { position: absolute; inset: 0; display: grid; place-items: center; color: var(--site-surface); background: #182a3a99; border-radius: var(--site-radius); font-size: var(--font-subtitle); }
-.gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 20px 14px; margin-block-start: 18px; }
+.gallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: 8px; inline-size: 100%; max-inline-size: 360px; margin-block-start: 16px; }
 .gallery figure { min-inline-size: 0; margin: 0; }
-.photoButton { display: block; height: auto; white-space: normal; inline-size: 100%; padding: 0; border: 0; border-radius: var(--site-radius); overflow: hidden; background: var(--site-bg); cursor: zoom-in; }
-.photoButton img { display: block; inline-size: 100%; block-size: auto; aspect-ratio: 4 / 3; object-fit: contain; }
-.singleImage { grid-template-columns: minmax(0, 1fr); }
-.singleImage img { aspect-ratio: auto; max-block-size: 480px; }
+.gallery .photoButton:global(.ant-btn) { display: block; inline-size: 100%; block-size: auto; aspect-ratio: 1; padding: 0; border: 0; border-radius: var(--site-radius); overflow: hidden; background: var(--site-bg); cursor: zoom-in; }
+.gallery .photoButton img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; object-position: center; }
+.singleImage { grid-template-columns: minmax(0, 1fr); max-inline-size: 240px; }
+.twoColumns { grid-template-columns: repeat(2, minmax(0, 1fr)); max-inline-size: 256px; }
 .gallery figcaption { margin-block-start: 7px; font-size: var(--font-meta); line-height: 1.7; color: var(--site-text-secondary); white-space: pre-wrap; overflow-wrap: anywhere; }
 .viewer { inline-size: min(920px, calc(100% - 32px)); max-block-size: calc(100dvh - 32px); margin: auto; padding: 58px 20px 20px; border: 0; border-radius: var(--site-radius); background: var(--site-surface); color: var(--site-text-secondary); }
 .viewer::backdrop { background: #111c2cbb; }
@@ -54,7 +54,6 @@
   .dateGroup h2 { display: flex; justify-content: space-between; align-items: baseline; }
   .dateGroup h2 span { margin: 0; }
   .card, .detailCard { padding: 16px; }
-  .gallery { gap: 16px 10px; }
   .text { font-size: var(--font-ui); }
 }
 

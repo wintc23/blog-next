@@ -19,6 +19,7 @@ export default function AlbumDetail({ id }: { id: string }) {
   const { message, modal } = App.useApp(), router = useRouter(), user = useUser(), showLogin = useShowLogin()
   const [album, setAlbum] = useState<Album | null>(null), [error, setError] = useState(''), [retry, setRetry] = useState(0)
   const [busy, setBusy] = useState(false), [edit, setEdit] = useState(false), [picker, setPicker] = useState(false), [share, setShare] = useState(false)
+  const editable = !!user?.admin && !!album?.editable
   const input = useRef<HTMLInputElement>(null), working = useRef(false)
   const drag = useRef<{ id: string; x: number; y: number; target: string | null } | null>(null)
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function AlbumDetail({ id }: { id: string }) {
   }
   const patch = async (data: object) => { if (album) setAlbum(await apiFetch(`/albums/${id}/`, { method: 'PATCH', data: { ...data, version: album.version }, schema: AlbumSchema })) }
   const upload = useCallback(async (files: File[]) => {
-    if (!album?.editable || working.current || !files.length) return
+    if (!album || !editable || working.current || !files.length) return
     if (files.length + album.count > 500) { message.error('每本画册最多 500 张图片'); return }
     working.current = true; setBusy(true)
     let added = 0
@@ -45,8 +46,8 @@ export default function AlbumDetail({ id }: { id: string }) {
       message.success(`已添加 ${added} 张图片`)
     } catch (error) { message.error(`${added ? `已添加 ${added} 张。` : ''}${error instanceof Error ? error.message : '上传失败'}`) }
     finally { working.current = false; setBusy(false) }
-  }, [album, id, message])
-  useImagePaste(!!album?.editable && !busy && !edit && !picker && !share, upload)
+  }, [album, editable, id, message])
+  useImagePaste(editable && !busy && !edit && !picker && !share, upload)
   const add = async (sources: PhotoSource[]) => { setAlbum(await addPhotos(id, sources)) }
   const reorder = (from: string, to: string) => {
     if (!album || from === to) return
@@ -61,20 +62,20 @@ export default function AlbumDetail({ id }: { id: string }) {
     <Link href="/albums">返回画册</Link>
     <header className={styles.header} style={{ marginTop: 20 }}><div><h1>{album.title}</h1><p>{album.description}</p><p className={styles.hint}>{album.count} 张照片 · {album.visibility === 'private' ? '仅自己可见' : '公开画册'}</p></div>
       <div className={styles.actions}>
-        {album.editable && <><Button type="primary" icon={<PlusOutlined />} loading={busy} onClick={() => input.current?.click()}>上传照片</Button><Button disabled={busy} onClick={() => setPicker(true)}>从站内选图</Button><Dropdown menu={{ items: [{ key: 'edit', label: '编辑画册' }, { key: 'delete', label: '删除画册', danger: true }], onClick: ({ key }) => {
+        {editable && <><Button type="primary" icon={<PlusOutlined />} loading={busy} onClick={() => input.current?.click()}>上传照片</Button><Button disabled={busy} onClick={() => setPicker(true)}>从站内选图</Button><Dropdown menu={{ items: [{ key: 'edit', label: '编辑画册' }, { key: 'delete', label: '删除画册', danger: true }], onClick: ({ key }) => {
           if (key === 'edit') setEdit(true)
           else modal.confirm({ title: '删除这本画册？', content: '源图片和其它画册中的照片会保留。', okText: '删除', cancelText: '取消', okButtonProps: { danger: true }, onOk: async () => { await apiFetch(`/albums/${id}/`, { method: 'DELETE' }); router.replace('/albums') } })
         } }}><Button disabled={busy} icon={<MoreOutlined />} aria-label="管理画册" /></Dropdown></>}
         {album.visibility === 'public' && <Button onClick={() => setShare(true)}>分享画册</Button>}
       </div>
     </header>
-    {album.editable && <p className={styles.hint}>支持粘贴上传。拖动照片下方的排序手柄调整顺序，键盘可用左右方向键。</p>}
+    {editable && <p className={styles.hint}>支持粘贴上传。拖动照片下方的排序手柄调整顺序，键盘可用左右方向键。</p>}
     <input ref={input} style={{ display: 'none' }} type="file" accept={IMAGE_UPLOAD_ACCEPT} multiple hidden onChange={event => { void upload(Array.from(event.target.files || [])); event.target.value = '' }} />
-    {!album.photos.length ? <div className={styles.empty}><Empty description={album.editable ? '上传照片，或从动态、生图结果中选图' : '画册还没有照片'} /></div> : <Image.PreviewGroup><div className={styles.photos}>
+    {!album.photos.length ? <div className={styles.empty}><Empty description={editable ? '上传照片，或从动态、生图结果中选图' : '画册还没有照片'} /></div> : <Image.PreviewGroup><div className={styles.photos}>
       {album.photos.map((photo, index) => <article className={styles.photo} key={photo.id} data-album-photo={photo.id}>
         <Image src={photoUrl(photo)} alt={photo.name} loading="lazy" />
         <div className={styles.photoFooter}>
-          {album.editable ? <Button className={styles.drag} type="text" disabled={busy} icon={<HolderOutlined />} aria-label={`排序第 ${index + 1} 张照片`} onPointerDown={event => {
+          {editable ? <Button className={styles.drag} type="text" disabled={busy} icon={<HolderOutlined />} aria-label={`排序第 ${index + 1} 张照片`} onPointerDown={event => {
             if (event.button !== 0) return
             event.currentTarget.setPointerCapture(event.pointerId); drag.current = { id: photo.id, x: event.clientX, y: event.clientY, target: null }
           }} onPointerMove={event => {
@@ -86,7 +87,7 @@ export default function AlbumDetail({ id }: { id: string }) {
             event.preventDefault(); const next = album.photos[index + (event.key === 'ArrowLeft' ? -1 : 1)]; if (next) reorder(photo.id, next.id)
           }} /> : <span className={styles.hint}>{index + 1}</span>}
           {album.cover?.id === photo.id && <Tag>封面</Tag>}
-          <Dropdown trigger={['click']} menu={{ items: [{ key: 'download', label: device === 'desktop' ? '下载图片' : '保存图片' }, ...(album.editable ? [{ key: 'cover', label: '设为封面' }, { key: 'remove', label: '移出画册', danger: true, icon: <DeleteOutlined /> }] : [])], onClick: ({ key }) => {
+          <Dropdown trigger={['click']} menu={{ items: [{ key: 'download', label: device === 'desktop' ? '下载图片' : '保存图片' }, ...(editable ? [{ key: 'cover', label: '设为封面' }, { key: 'remove', label: '移出画册', danger: true, icon: <DeleteOutlined /> }] : [])], onClick: ({ key }) => {
             if (key === 'download') void run(() => downloadBlob(photoUrl(photo), /\.[a-z0-9]+$/i.test(photo.name) ? photo.name : `${photo.name}.jpg`, false, device !== 'desktop'))
             if (key === 'cover') void run(() => patch({ coverId: photo.id }))
             if (key === 'remove') void run(async () => { setAlbum(await apiFetch(`/albums/${id}/photos/${photo.id}/`, { method: 'DELETE', schema: AlbumSchema })) })

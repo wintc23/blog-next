@@ -3,11 +3,11 @@ import { useState } from 'react'
 import { Alert, App, Button, Modal, Select, Spin } from 'antd'
 import { apiFetch } from '@/lib/api/client'
 import { AlbumsSchema, addPhotos, type Album, type PhotoSource } from '@/lib/albums'
-import { useUser, useShowLogin } from '@/lib/store'
+import { useUser } from '@/lib/store'
 import AlbumForm from './AlbumForm'
 import styles from './Albums.module.css'
 export default function AddToAlbum({ sources }: { sources: PhotoSource[] }) {
-  const user = useUser(), showLogin = useShowLogin(), { message } = App.useApp()
+  const user = useUser(), { message } = App.useApp()
   const [open, setOpen] = useState(false), [create, setCreate] = useState(false), [busy, setBusy] = useState(false)
   const [albums, setAlbums] = useState<Album[] | null>(null), [selected, setSelected] = useState<string[]>([]), [error, setError] = useState('')
   const load = async () => {
@@ -18,8 +18,9 @@ export default function AddToAlbum({ sources }: { sources: PhotoSource[] }) {
       setAlbums([...first.list, ...remaining.flatMap(result => result.list)])
     } catch (error) { setError(error instanceof Error ? error.message : '加载失败') }
   }
+  if (!user?.admin) return null
   return <>
-    <Button type="link" onClick={() => { if (!user) { showLogin(); return } setOpen(true); setSelected([]); void load() }}>加入画册</Button>
+    <Button type="link" onClick={() => { setOpen(true); setSelected([]); void load() }}>加入画册</Button>
     <Modal open={open && !create} title="加入画册" onCancel={() => setOpen(false)} okText="添加" cancelText="取消" confirmLoading={busy} okButtonProps={{ disabled: !selected.length || !albums }} onOk={async () => {
       setBusy(true)
       try { for (const id of selected) await addPhotos(id, sources); message.success('已加入画册'); setOpen(false) }
