@@ -203,12 +203,12 @@ function TaskEditor({ initialId, tool }: { initialId?: string; tool?: Tool }) {
           </> }]} />
           <div className={styles.generateRow}><Button type="primary" loading={busy} disabled={task.inputs.length < task.config.minImages || task.config.promptRequired && !options.prompt?.trim()} onClick={start}>生成{task.config.mode === 'per_image' && task.inputs.length ? ` ${task.inputs.length} 张` : ''}</Button><Dropdown trigger={['click']} menu={{ items: taskMenuItems, onClick: ({ key }) => taskMenuAction(key) }}><Button icon={<MoreOutlined />} disabled={busy} aria-label="更多任务操作">更多</Button></Dropdown><span className={styles.hint} role="status">{saved}</span></div>
         </section> : <TaskResults task={task} busy={busy} onRetry={retry} moreItems={taskMenuItems} onMoreAction={taskMenuAction}
-          onShare={assetIds => action(async () => { const result = await apiFetch(`/image-tasks/${id}/share/`, { method: 'POST', data: { assetIds }, schema: z.object({ token: z.string() }) }); setShare({ title: '分享生成结果', shareTitle: `${task.config.name} · 创作分享`, description: `${task.config.name}生成的 ${assetIds.length} 张图片，点击查看完整作品。`, path: `/tools/share/${result.token}`, note: '仅分享所选结果，不含原图和生成要求。7 天有效，可在更多操作中取消。' }); await refresh() })}
+          onShare={assetIds => !user?.admin ? Promise.resolve(false) : action(async () => { const result = await apiFetch(`/image-tasks/${id}/share/`, { method: 'POST', data: { assetIds }, schema: z.object({ token: z.string() }) }); setShare({ title: '分享生成结果', shareTitle: `${task.config.name} · 创作分享`, description: `${task.config.name}生成的 ${assetIds.length} 张图片，点击查看完整作品。`, path: `/tools/share/${result.token}`, note: '仅分享所选结果，不含原图和生成要求。7 天有效，可在更多操作中取消。' }); await refresh() })}
           onDownloadAll={() => void action(() => downloadBlob(`${BASE_URL}/image-tasks/${id}/download/`, `${task.config.name}.zip`, true))}
           onClone={() => void action(async () => { const result = await mutateTask(id, 'clone/'); router.push(`/tools/tasks/${result.task.id}`) })}
-          onStopSharing={() => void action(async () => { await apiFetch(`/image-tasks/${id}/share/`, { method: 'DELETE' }); await refresh(); message.success('已取消结果分享') })} />}
+          onStopSharing={() => { if (!user?.admin) return; void action(async () => { await apiFetch(`/image-tasks/${id}/share/`, { method: 'DELETE' }); await refresh(); message.success('已取消结果分享') }) }} />}
       </div>
-      <ShareDialog title={share?.title || ''} path={share?.path || null} note={share?.note} shareTitle={share?.shareTitle} description={share?.description} image={share?.image} onClose={closeShare} />
+      <ShareDialog title={share?.title || ''} path={share?.path.startsWith('/tools/share/') && !user?.admin ? null : share?.path || null} note={share?.note} shareTitle={share?.shareTitle} description={share?.description} image={share?.image} onClose={closeShare} />
     </>}
   </div>
 }

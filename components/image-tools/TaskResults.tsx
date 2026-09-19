@@ -5,6 +5,7 @@ import { Button, Checkbox, Collapse, Dropdown, Modal, Spin, type MenuProps } fro
 import { MoreOutlined } from '@ant-design/icons'
 import { assetUrl, labels, ratioLabels, type Task } from '@/lib/image-tools'
 import { Compare, DownloadImageButton, ResultImage } from './Shared'
+import { useUser } from '@/lib/store'
 import AddToAlbum from '@/components/albums/AddToAlbum'
 import styles from './Tools.module.css'
 
@@ -19,6 +20,7 @@ export default function TaskResults({ task, busy, onRetry, onShare, onDownloadAl
   moreItems: MenuProps['items']
   onMoreAction: (key: string) => void
 }) {
+  const canShare = !!useUser()?.admin
   const [activeId, setActiveId] = useState((task.items.at(-1)?.previousId ? task.items.at(-1)?.id : task.items[0]?.id) || '')
   const knownItems = useRef(new Set(task.items.map(item => item.id)))
   const [comparing, setComparing] = useState(false)
@@ -37,7 +39,7 @@ export default function TaskResults({ task, busy, onRetry, onShare, onDownloadAl
   const canRetry = item && ['completed', 'failed', 'uncertain'].includes(item.status) && !retrying
   const completed = task.items.filter(item => item.status === 'completed').length
   const openShare = () => {
-    if (!output) return
+    if (!canShare || !output) return
     if (task.outputs.length === 1) { void onShare([output.id]); return }
     setSelected([output.id]); setShareOpen(true)
   }
@@ -65,19 +67,19 @@ export default function TaskResults({ task, busy, onRetry, onShare, onDownloadAl
         {output && <span>{output.width} × {output.height}</span>}
       </div>
       <div className={styles.resultToolbar} role="group" aria-label="当前结果操作">
-        {output && <><DownloadImageButton asset={output} disabled={busy} /><AddToAlbum sources={task.outputs.map(asset => ({ type: 'generated', id: asset.id }))} pictures={task.outputs.map((asset, index) => ({ url: assetUrl(asset), name: `结果 ${index + 1}` }))} /><Button disabled={busy} onClick={openShare}>分享结果</Button></>}
+        {output && <><DownloadImageButton asset={output} disabled={busy} /><AddToAlbum sources={task.outputs.map(asset => ({ type: 'generated', id: asset.id }))} pictures={task.outputs.map((asset, index) => ({ url: assetUrl(asset), name: `结果 ${index + 1}` }))} />{canShare && <Button disabled={busy} onClick={openShare}>分享结果</Button>}</>}
         {canRetry && <Button disabled={busy} onClick={() => onRetry(item.id)}>重新生成</Button>}
         {output && source && task.config.comparison && <Button disabled={busy} onClick={() => setComparing(true)}>对比原图</Button>}
         <Dropdown trigger={['click']} menu={{ items: [
           { key: 'clone', label: '调整后再生成' },
           ...(task.outputs.length > 1 ? [{ key: 'download', label: '下载全部图片（ZIP）' }] : []),
-          ...(task.sharing ? [{ key: 'unshare', label: '取消结果分享' }] : []),
+          ...(canShare && task.sharing ? [{ key: 'unshare', label: '取消结果分享' }] : []),
           { type: 'divider' },
           ...(moreItems || []),
         ], onClick: ({ key }) => {
           if (key === 'clone') onClone()
           if (key === 'download') onDownloadAll()
-          if (key === 'unshare') onStopSharing()
+          if (key === 'unshare' && canShare) onStopSharing()
           onMoreAction(key)
         } }}><Button icon={<MoreOutlined />} disabled={busy} aria-label="更多结果操作">更多</Button></Dropdown>
       </div>
@@ -92,7 +94,7 @@ export default function TaskResults({ task, busy, onRetry, onShare, onDownloadAl
     <Modal title="对比原图" open={comparing && !!source && !!output} onCancel={() => setComparing(false)} footer={null} width={720} destroyOnClose>
       {source && output && <Compare input={source} output={output} />}
     </Modal>
-    <Modal title="选择分享的图片" open={shareOpen} onCancel={() => setShareOpen(false)} okText="创建分享链接" cancelText="取消" confirmLoading={busy} okButtonProps={{ disabled: !selectedIds.length }} onOk={async () => { if (await onShare(selectedIds)) setShareOpen(false) }}>
+    <Modal title="选择分享的图片" open={canShare && shareOpen} onCancel={() => setShareOpen(false)} okText="创建分享链接" cancelText="取消" confirmLoading={busy} okButtonProps={{ disabled: !selectedIds.length }} onOk={async () => { if (canShare && await onShare(selectedIds)) setShareOpen(false) }}>
       <p className={styles.hint}>仅分享选中的结果，不包含原图和生成要求。链接 7 天有效，重新分享会替换旧链接。</p>
       <Checkbox checked={selectedIds.length === task.outputs.length} indeterminate={!!selectedIds.length && selectedIds.length < task.outputs.length} onChange={event => setSelected(event.target.checked ? task.outputs.map(asset => asset.id) : [])}>全选</Checkbox>
       <div className={styles.shareChoices}>{task.outputs.map((asset, index) => <Checkbox key={asset.id} checked={selectedIds.includes(asset.id)} onChange={event => setSelected(list => event.target.checked ? [...list, asset.id] : list.filter(id => id !== asset.id))}>
