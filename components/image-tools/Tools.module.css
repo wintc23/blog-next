@@ -139,3 +139,12 @@
 .historyEmpty :global(.ant-empty-footer) { margin-top: 8px; }
 
 .historyEmpty :global(.ant-empty-image) { display: none; }
+
+.history > a { flex-wrap: nowrap; justify-content: flex-start; }
+.historyThumbnail { display: block; inline-size: 80px; block-size: 80px; flex: 0 0 80px; overflow: hidden; border-radius: var(--site-radius); background: var(--site-surface-subtle); }
+.historyThumbnail img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; object-position: center; }
+.historyPlaceholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; block-size: 100%; color: var(--site-text-secondary); font-size: var(--font-meta); text-align: center; }
+.historyDetails { min-inline-size: 0; display: grid; gap: 4px; overflow-wrap: anywhere; }
+.historyDetails strong { font-size: var(--font-body); font-weight: 500; }
+.historyStatus { color: var(--site-text-secondary); font-size: var(--font-meta); }
+@media (max-width: 600px) { .history > a { padding: 12px; gap: 12px; } }
