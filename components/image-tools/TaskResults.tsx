@@ -65,7 +65,7 @@ export default function TaskResults({ task, busy, onRetry, onShare, onDownloadAl
         {output && <span>{output.width} × {output.height}</span>}
       </div>
       <div className={styles.resultToolbar} role="group" aria-label="当前结果操作">
-        {output && <><DownloadImageButton asset={output} disabled={busy} /><AddToAlbum sources={[{ type: 'generated', id: output.id }]} /><Button disabled={busy} onClick={openShare}>分享结果</Button></>}
+        {output && <><DownloadImageButton asset={output} disabled={busy} /><AddToAlbum sources={task.outputs.map(asset => ({ type: 'generated', id: asset.id }))} pictures={task.outputs.map((asset, index) => ({ url: assetUrl(asset), name: `结果 ${index + 1}` }))} /><Button disabled={busy} onClick={openShare}>分享结果</Button></>}
         {canRetry && <Button disabled={busy} onClick={() => onRetry(item.id)}>重新生成</Button>}
         {output && source && task.config.comparison && <Button disabled={busy} onClick={() => setComparing(true)}>对比原图</Button>}
         <Dropdown trigger={['click']} menu={{ items: [

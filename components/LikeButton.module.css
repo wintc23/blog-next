@@ -5,10 +5,10 @@
   gap: 7px;
   min-height: 34px;
   padding: 5px 12px;
-  border: 1px solid #e7dadd;
-  border-radius: 4px;
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
   background: transparent;
-  color: #b75c6c;
+  color: var(--site-primary);
   font: inherit;
   font-size: var(--font-ui);
   line-height: 22px;
@@ -16,7 +16,7 @@
   cursor: pointer;
   transition: background-color .15s, border-color .15s;
 }
-.button:hover, .button[aria-pressed='true'] { background: #fff1f3; border-color: #eeb9c3; color: #ce4963; }
+.button:hover, .button[aria-pressed='true'] { background: var(--site-primary-soft); border-color: var(--site-primary); color: var(--site-primary-active); }
 .button:focus-visible { outline: 2px solid var(--site-primary); outline-offset: 3px; }
 .button:disabled { cursor: wait; opacity: .65; }
 .count { font-variant-numeric: tabular-nums; }

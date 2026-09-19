@@ -9,7 +9,7 @@ import { useAuthenticatedAction } from '@/lib/use-authenticated-action'
 import styles from './LikeButton.module.css'
 
 export default function LikeButton({ target, id, initialState = { likes: 0, like: false } }: {
-  target: LikeTarget; id: number; initialState?: LikeState
+  target: LikeTarget; id: number | string; initialState?: LikeState
 }) {
   const user = useUser()
   const authenticate = useAuthenticatedAction()

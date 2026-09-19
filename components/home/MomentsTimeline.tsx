@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Empty, Spin } from 'antd'
 import { getLifeMomentGroups, type LifeMomentGroups } from '@/lib/api/life-moments'
 import { mergeMomentGroups } from '@/lib/life-moments'
+import MomentSelection from './MomentSelection'
 import MomentCard from './MomentCard'
 import styles from './LifeMoments.module.css'
 
@@ -39,7 +40,7 @@ export default function MomentsTimeline({ initial }: { initial: LifeMomentGroups
   }, [hasMore, loading, error, loadMore])
 
   if (!groups.length) return <Empty className={styles.archiveEmpty} image={false} styles={{ image: { display: 'none' } }} description="暂无生活动态" />
-  return <>
+  return <MomentSelection>
     <div className={styles.timeline} aria-busy={loading}>{groups.map(group => <section key={group.date} className={styles.dateGroup} aria-labelledby={`date-${group.date}`}>
       <h2 id={`date-${group.date}`}><time dateTime={group.date}>{group.date.replaceAll('-', '.')}</time><span>{group.moments.length} 条动态</span></h2>
       <ol>{group.moments.map(moment => <li key={moment.id}><MomentCard moment={moment} grouped /></li>)}</ol>
@@ -48,5 +49,5 @@ export default function MomentsTimeline({ initial }: { initial: LifeMomentGroups
     <div className={styles.loadMore}>
       {loading ? <span role="status"><Spin size="small" /> 正在加载</span> : error ? <><span role="status">{error}</span><Button type="link" onClick={() => void loadMore()}>重试</Button></> : hasMore ? <Button type="link" onClick={() => void loadMore()}>加载更多</Button> : <span>已显示全部动态</span>}
     </div>
-  </>
+  </MomentSelection>
 }

@@ -16,10 +16,11 @@ function load(file, mocks = {}) {
 const schema = load('lib/schemas/personal-profile.ts')
 const time = load('lib/life-moments.ts')
 const css = new Proxy({}, { get: (_, key) => key === '__esModule' ? false : String(key) })
-const Gallery = load('components/home/MomentGallery.tsx', { './LifeMoments.module.css': css, '@/components/CommentImagePreview': () => null }).default
+const Gallery = load('components/home/MomentGallery.tsx', { './MomentSelection': { useMomentSelection: () => null }, './LifeMoments.module.css': css, '@/components/CommentImagePreview': () => null }).default
 const Card = load('components/home/MomentCard.tsx', {
   'next/link': ({ children, ...props }) => React.createElement('a', props, children),
   '@/lib/schemas/personal-profile': schema, '@/lib/life-moments': time,
+  '@/components/LikeButton': () => null, './MomentSelection': ({ children }) => children,
   './MomentGallery': Gallery, './LifeMoments.module.css': css,
 }).default
 const legacy = { id: 'test-id', date: '2026-09-17', text: '旅途', category: 'travel', imageUrl: 'https://example.test/one.jpg', imageAlt: '旧照片' }

@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { MOMENT_CATEGORIES, type ProfileMoment } from '@/lib/schemas/personal-profile'
 import { momentClock, momentTimeLabel } from '@/lib/life-moments'
-import AddToAlbum from '@/components/albums/AddToAlbum'
+import LikeButton from '@/components/LikeButton'
+import MomentSelection from './MomentSelection'
 import MomentGallery from './MomentGallery'
 import styles from './LifeMoments.module.css'
 
@@ -22,16 +23,18 @@ export default function MomentCard({ moment, compact = false, grouped = false, d
         {!!moment.images.length && <div className={styles.previewImages}>
           {moment.images.slice(0, 3).map((picture, index) => <figure key={index}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={picture.url} alt={picture.description || `动态照片 ${index + 1}`} width={120} height={90} loading="lazy" decoding="async" />
+            <img src={picture.url} alt={picture.description || `动态照片 ${index + 1}`} width={120} height={120} loading="lazy" decoding="async" />
             {index === 2 && moment.images.length > 3 && <span className={styles.moreImages}>+{moment.images.length - 3}</span>}
           </figure>)}
         </div>}
       </Link>
+      <div className={styles.momentActions}><LikeButton target="moment" id={moment.id} /></div>
     </article>
   )
-  return <article className={`${styles.card} ${detail ? styles.detailCard : ''}`}>
+  const card = <article className={`${styles.card} ${detail ? styles.detailCard : ''}`}>
     {content}
-    <MomentGallery images={moment.images} />
-    {!!moment.images.length && <AddToAlbum sources={moment.images.map((_, index) => ({ type: 'moment', id: String(moment.id), index }))} />}
+    <MomentGallery images={moment.images} momentId={moment.id} />
+    <div className={styles.momentActions}><LikeButton target="moment" id={moment.id} /></div>
   </article>
+  return detail ? <MomentSelection>{card}</MomentSelection> : card
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Alert, App, Button, Empty, Form, Input, Modal, DatePicker, Collapse, Pagination, Popconfirm, Select, Spin } from 'antd'
+import { Alert, App, Button, Empty, Form, Input, Modal, DatePicker, AutoComplete, Collapse, Pagination, Popconfirm, Select, Spin } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import { PhonePublishButton } from '@/components/device-login/DeviceLogin'
@@ -34,6 +34,7 @@ export default function MomentsManager() {
   const [editing, setEditing] = useState<ProfileMoment | null>(null)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [details, setDetails] = useState<string[]>([])
   const [clientReady, setClientReady] = useState(false)
   const requestId = useRef(0)
 
@@ -59,6 +60,7 @@ export default function MomentsManager() {
   useEffect(() => { void load(); return () => { requestId.current += 1 } }, [load])
 
   const edit = (moment: ProfileMoment | null) => {
+    setDetails([])
     setEditing(moment)
     form.resetFields()
     if (moment) {
@@ -135,12 +137,14 @@ export default function MomentsManager() {
           <Form.Item name="text" rules={[{ required: true, whitespace: true, message: '写几句话记录这一刻吧' }]}>
             <Input.TextArea aria-label="动态内容" placeholder="分享这一刻…" autoSize={{ minRows: 4, maxRows: 12 }} maxLength={2000} showCount />
           </Form.Item>
-          <Form.Item name="images"><MomentImagesEditor active={open} disabled={saving || uploading} onUploadingChange={setUploading} /></Form.Item>
-          <Collapse ghost items={[{ key: 'details', label: '日期、地点和分类', forceRender: true, children: <>
+          <Form.Item name="images"><MomentImagesEditor active={open} disabled={saving || uploading} onUploadingChange={setUploading} onApplyMetadata={value => {
+            form.setFieldsValue({ ...(value.takenAt ? { localTime: dayjs(value.takenAt).locale('zh-cn') } : {}), ...(value.location ? { location: value.location } : {}) }); setDetails(['details']); message.success('已填入照片信息，可继续修改')
+          }} /></Form.Item>
+          <Collapse ghost activeKey={details} onChange={keys => setDetails(Array.isArray(keys) ? keys : [keys])} items={[{ key: 'details', label: '日期、地点和分类', forceRender: true, children: <>
             <Form.Item name="localTime" label="时间（北京时间）" extra={editing && !editing.occurredAt ? `原记录日期为 ${editing.date}，留空保留原日期。` : undefined}
-              rules={[{ required: !editing || !!editing.occurredAt, message: '请选择日期和时间' }]}><DatePicker showTime={{ format: 'HH:mm' }} format="YYYY-MM-DD HH:mm" className={styles.fullWidth} /></Form.Item>
+              rules={[{ required: !editing || !!editing.occurredAt, message: '请选择日期和时间' }]}><DatePicker presets={[{ label: '现在', value: () => dayjs(currentMomentTime()).locale('zh-cn') }, { label: '昨天', value: () => dayjs(currentMomentTime()).subtract(1, 'day').locale('zh-cn') }]} showTime={{ format: 'HH:mm' }} format="YYYY-MM-DD HH:mm" className={styles.fullWidth} /></Form.Item>
             <Form.Item name="category" label="分类" rules={[{ required: true }]}><Select options={[...MOMENT_CATEGORIES]} /></Form.Item>
-            <Form.Item name="location" label="地点（选填）"><Input maxLength={60} /></Form.Item>
+            <Form.Item name="location" label="地点（选填）"><AutoComplete options={[...new Set(list.map(moment => moment.location).filter(Boolean))].map(value => ({ value }))} filterOption={(input, option) => String(option?.value).toLowerCase().includes(input.toLowerCase())}><Input maxLength={60} placeholder="填写地点或选择已用地点" /></AutoComplete></Form.Item>
           </> }]} />
         </Form>
       </Modal>}

@@ -42,3 +42,15 @@
 .composerPhotos .addPhoto:global(.ant-btn) { width: 100%; height: auto; aspect-ratio: 1; font-size: var(--font-title); }
 
 .fullWidth input { font-size: var(--font-body); }
+
+.metadataChoices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-block: 16px; }
+.metadataChoices :global(.ant-radio-wrapper) { align-items: flex-start; margin: 0; min-width: 0; }
+.metadataChoices :global(.ant-radio-wrapper) > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.metadataChoices img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--site-radius); margin-bottom: 4px; }
+.metadataFields { display: grid; gap: 12px; margin-block: 16px; }
+@media (max-width: 480px) { .metadataChoices { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.metadataShortcuts { display: flex; flex-wrap: wrap; gap: 8px; }
+.metadataShortcuts > span { display: contents; }
+.metadataShortcuts :global(.ant-btn) { max-inline-size: 100%; block-size: auto; min-block-size: 36px; padding: 4px 8px; white-space: normal; text-align: start; }
+.metadataShortcuts img { inline-size: 24px; block-size: 24px; object-fit: cover; flex-shrink: 0; border-radius: var(--site-radius); }

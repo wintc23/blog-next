@@ -14,6 +14,7 @@ import { useImagePaste } from '@/lib/use-image-paste'
 import { assetUrl, downloadBlob, loadTask, mutateTask, TaskResult, uploadToolImage, ratioLabels, toolCover, type Options, type Task, type Tool } from '@/lib/image-tools'
 import { ShareDialog, useDevice } from './Shared'
 import TaskResults from './TaskResults'
+import LikeButton from '@/components/LikeButton'
 import styles from './Tools.module.css'
 
 function emptyDraft(tool: Tool): Task {
@@ -160,7 +161,7 @@ function TaskEditor({ initialId, tool }: { initialId?: string; tool?: Tool }) {
   return <div className={styles.shell}>
     {error && <div role="alert" className={styles.error}>{error}<Button onClick={() => void refresh().catch(() => {})}>刷新</Button></div>}
     {!task ? !error && <Spin /> : <>
-      <div className={styles.editorHeading}><div><Link href="/products" className={styles.backArrow} aria-label="返回探索页图片工具"><ArrowLeftOutlined /></Link><h1>{task.config.name}</h1></div><Link href="/tools/tasks">我的图片任务</Link></div>
+      <div className={styles.editorHeading}><div><Link href="/products" className={styles.backArrow} aria-label="返回探索页图片工具"><ArrowLeftOutlined /></Link><h1>{task.config.name}</h1><LikeButton target="tool" id={task.toolSlug} /></div><Link href="/tools/tasks">我的图片任务</Link></div>
       <Image.PreviewGroup items={task.inputs.map(asset => assetUrl(asset))} preview={{ visible: preview !== null, current: preview ?? 0, onVisibleChange: visible => { if (!visible) setPreview(null) }, onChange: current => setPreview(current) }} />
       <div className={styles.taskFlow}>
         {task.status === 'draft' ? <section className={`${styles.panel} ${styles.draftPanel}`} aria-label="输入"><div className={styles.panelHeading}><h2>{task.config.mode === 'per_image' ? '原图' : '输入'}</h2>
