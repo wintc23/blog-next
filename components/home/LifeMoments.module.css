@@ -71,3 +71,5 @@
 .compactFooter time { font-variant-numeric: tabular-nums; }
 .selectionBar { display: flex; justify-content: flex-end; flex-wrap: wrap; align-items: center; gap: 8px; margin-block-end: 16px; font-size: var(--font-ui); color: var(--site-text-secondary); }
 .photoSelect { position: absolute; inset-block-start: 6px; inset-inline-end: 6px; z-index: 1; padding: 4px; background: transparent; }
+
+.photoSelect:global(.ant-checkbox-wrapper) :global(.ant-checkbox:not(.ant-checkbox-checked) .ant-checkbox-inner) { background: transparent; border-color: var(--site-surface); }
