@@ -5,6 +5,7 @@ import { Button, Checkbox, Collapse, Dropdown, Modal, Spin, type MenuProps } fro
 import { MoreOutlined } from '@ant-design/icons'
 import { assetUrl, labels, ratioLabels, type Task } from '@/lib/image-tools'
 import { Compare, DownloadImageButton, ResultImage } from './Shared'
+import AddToAlbum from '@/components/albums/AddToAlbum'
 import styles from './Tools.module.css'
 
 export default function TaskResults({ task, busy, onRetry, onShare, onDownloadAll, onClone, onStopSharing, moreItems, onMoreAction }: {
@@ -64,7 +65,7 @@ export default function TaskResults({ task, busy, onRetry, onShare, onDownloadAl
         {output && <span>{output.width} × {output.height}</span>}
       </div>
       <div className={styles.resultToolbar} role="group" aria-label="当前结果操作">
-        {output && <><DownloadImageButton asset={output} disabled={busy} /><Button disabled={busy} onClick={openShare}>分享结果</Button></>}
+        {output && <><DownloadImageButton asset={output} disabled={busy} /><AddToAlbum sources={[{ type: 'generated', id: output.id }]} /><Button disabled={busy} onClick={openShare}>分享结果</Button></>}
         {canRetry && <Button disabled={busy} onClick={() => onRetry(item.id)}>重新生成</Button>}
         {output && source && task.config.comparison && <Button disabled={busy} onClick={() => setComparing(true)}>对比原图</Button>}
         <Dropdown trigger={['click']} menu={{ items: [

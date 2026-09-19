@@ -1,7 +1,10 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Alert, App, Button, Empty, Form, Input, Modal, Pagination, Popconfirm, Select, Spin } from 'antd'
+import { Alert, App, Button, Empty, Form, Input, Modal, DatePicker, Collapse, Pagination, Popconfirm, Select, Spin } from 'antd'
+import dayjs, { type Dayjs } from 'dayjs'
+import 'dayjs/locale/zh-cn'
+import { PhonePublishButton } from '@/components/device-login/DeviceLogin'
 import { PlusOutlined } from '@ant-design/icons'
 import { deleteLifeMoment, getLifeMoments, saveLifeMoment, type LifeMomentInput } from '@/lib/api/life-moments'
 import { MOMENT_CATEGORIES, type ProfileMoment } from '@/lib/schemas/personal-profile'
@@ -9,12 +12,12 @@ import { currentMomentTime, momentClock, momentTimeLabel } from '@/lib/life-mome
 import MomentImagesEditor from './MomentImagesEditor'
 import styles from './MomentsManager.module.css'
 
-type MomentForm = Omit<LifeMomentInput, 'occurredAt'> & { localTime: string }
+type MomentForm = Omit<LifeMomentInput, 'occurredAt'> & { localTime: Dayjs | null }
 
 function newMoment(): MomentForm {
   const localTime = currentMomentTime()
   return {
-    date: localTime.slice(0, 10), localTime,
+    date: localTime.slice(0, 10), localTime: dayjs(localTime).locale('zh-cn'),
     category: 'daily', text: '', images: [], location: '',
   }
 }
@@ -59,7 +62,7 @@ export default function MomentsManager() {
     setEditing(moment)
     form.resetFields()
     if (moment) {
-      form.setFieldsValue({ ...moment, localTime: moment.occurredAt ? `${moment.date}T${momentClock(moment)}` : '' })
+      form.setFieldsValue({ ...moment, localTime: moment.occurredAt ? dayjs(`${moment.date}T${momentClock(moment)}`).locale('zh-cn') : null })
     } else {
       form.setFieldsValue(newMoment())
     }
@@ -69,7 +72,7 @@ export default function MomentsManager() {
   const save = async ({ localTime, ...values }: MomentForm) => {
     setSaving(true)
     try {
-      await saveLifeMoment({ ...values, date: localTime ? localTime.slice(0, 10) : editing?.date || values.date, occurredAt: localTime ? `${localTime}:00+08:00` : null }, editing?.id)
+      await saveLifeMoment({ ...values, date: localTime ? localTime.format('YYYY-MM-DD') : editing?.date || values.date, occurredAt: localTime ? `${localTime.format('YYYY-MM-DDTHH:mm')}:00+08:00` : null }, editing?.id)
       setOpen(false)
       message.success(editing ? '动态已更新' : '动态已发布')
       if (!editing && page !== 1) setPage(1)
@@ -98,7 +101,7 @@ export default function MomentsManager() {
     <div className={styles.manager}>
       <header className={styles.heading}>
         <div><h1>生活动态</h1><p>记录日常与旅行。每条动态独立发布，历史内容持续保留。</p></div>
-        <div className={styles.actions}><Button href="/moments" target="_blank" rel="noreferrer">查看全部动态</Button><Button type="primary" icon={<PlusOutlined />} disabled={saving} onClick={() => edit(null)}>发布动态</Button></div>
+        <div className={styles.actions}><PhonePublishButton /><Button href="/moments" target="_blank" rel="noreferrer">查看全部动态</Button><Button type="primary" icon={<PlusOutlined />} disabled={saving} onClick={() => edit(null)}>发布动态</Button></div>
       </header>
       {error ? <Alert type="error" showIcon message="加载动态失败" description={error} action={<Button onClick={load}>重试</Button>} /> : (
         <Spin spinning={loading}>
@@ -129,16 +132,16 @@ export default function MomentsManager() {
         footer={<div className={styles.formActions}><Button disabled={saving || uploading} onClick={() => setOpen(false)}>取消</Button><Button type="primary" htmlType="submit" form="life-moment-form" loading={saving} disabled={uploading}>{editing ? '保存修改' : '发布'}</Button></div>}
         closable={!saving && !uploading} onCancel={() => { if (!saving && !uploading) setOpen(false) }}>
         <Form<MomentForm> id="life-moment-form" form={form} layout="vertical" onFinish={save} disabled={saving || uploading} scrollToFirstError>
-          <div className={styles.columns}>
-            <Form.Item name="localTime" label="时间（北京时间）" extra={editing && !editing.occurredAt ? `原记录日期为 ${editing.date}，留空可保留原日期。` : undefined}
-              rules={[{ required: !editing || !!editing.occurredAt, message: '请选择日期和时间' }]}><Input type="datetime-local" step={60} /></Form.Item>
-            <Form.Item name="category" label="分类" rules={[{ required: true }]}><Select options={[...MOMENT_CATEGORIES]} /></Form.Item>
-          </div>
-          <Form.Item name="text" label="内容" rules={[{ required: true, whitespace: true, message: '写几句话记录这次经历吧' }]}>
-            <Input.TextArea rows={5} maxLength={2000} showCount />
+          <Form.Item name="text" rules={[{ required: true, whitespace: true, message: '写几句话记录这一刻吧' }]}>
+            <Input.TextArea aria-label="动态内容" placeholder="分享这一刻…" autoSize={{ minRows: 4, maxRows: 12 }} maxLength={2000} showCount />
           </Form.Item>
-          <Form.Item name="images" label="图片（选填）"><MomentImagesEditor disabled={saving || uploading} onUploadingChange={setUploading} /></Form.Item>
-          <Form.Item name="location" label="地点（选填）"><Input maxLength={60} /></Form.Item>
+          <Form.Item name="images"><MomentImagesEditor active={open} disabled={saving || uploading} onUploadingChange={setUploading} /></Form.Item>
+          <Collapse ghost items={[{ key: 'details', label: '日期、地点和分类', forceRender: true, children: <>
+            <Form.Item name="localTime" label="时间（北京时间）" extra={editing && !editing.occurredAt ? `原记录日期为 ${editing.date}，留空保留原日期。` : undefined}
+              rules={[{ required: !editing || !!editing.occurredAt, message: '请选择日期和时间' }]}><DatePicker showTime={{ format: 'HH:mm' }} format="YYYY-MM-DD HH:mm" className={styles.fullWidth} /></Form.Item>
+            <Form.Item name="category" label="分类" rules={[{ required: true }]}><Select options={[...MOMENT_CATEGORIES]} /></Form.Item>
+            <Form.Item name="location" label="地点（选填）"><Input maxLength={60} /></Form.Item>
+          </> }]} />
         </Form>
       </Modal>}
     </div>

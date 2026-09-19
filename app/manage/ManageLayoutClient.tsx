@@ -50,6 +50,7 @@ const MENU = [
   { key: '/manage', label: '已归档博客', icon: <BookOutlined /> },
   { key: '/manage/profile', label: '个人信息', icon: <UserOutlined /> },
   { key: '/manage/moments', label: '生活动态', icon: <CameraOutlined /> },
+  { key: '/albums', label: '画册', icon: <BookOutlined /> },
   { key: '/manage/product', label: '作品管理', icon: <AppstoreOutlined /> },
   { key: '/manage/image-tools', label: '生图模板', icon: <RobotOutlined /> },
   { key: '/manage/generation', label: '生成管理', icon: <RobotOutlined /> },

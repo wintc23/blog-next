@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { apiFetchServer } from '@/lib/api/client'
 import { ToolsResult } from '@/lib/image-tools'
 import ImageToolCatalog from '@/components/image-tools/Catalog'
@@ -112,8 +113,8 @@ export default async function ProductsPage() {
   ])
   return (
     <div className="space-y-4">
-      <header className="mb-6">
-        <h1 className="m-0 text-2xl font-medium text-[var(--site-title)]">探索</h1>
+      <header className="flex items-center justify-between gap-4 mb-6">
+        <h1 className="m-0 text-2xl font-medium text-[var(--site-title)]">探索</h1><Link href="/albums">浏览画册</Link>
       </header>
       <section id="image-tools" aria-label="图片工具" className="scroll-mt-36"><ImageToolCatalog compact initialTools={toolData?.tools} /></section>
 

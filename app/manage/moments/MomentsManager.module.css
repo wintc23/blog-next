@@ -33,3 +33,12 @@
   .list > li > .actions { grid-column: 1 / -1; justify-content: flex-end; }
   .columns { grid-template-columns: minmax(0, 1fr); gap: 0; }
 }
+.fullWidth { width: 100%; }
+.composerPhotos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-block: 16px 10px; max-width: 420px; }
+.composerPhoto { position: relative; min-width: 0; aspect-ratio: 1; }
+.photoPreview:global(.ant-btn) { width: 100%; height: 100%; padding: 0; overflow: hidden; touch-action: none; cursor: grab; }
+.photoPreview img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: var(--site-radius); pointer-events: none; }
+.removePhoto:global(.ant-btn) { position: absolute; top: 4px; right: 4px; color: var(--site-surface); background: var(--site-text-secondary); border-color: var(--site-surface); }
+.composerPhotos .addPhoto:global(.ant-btn) { width: 100%; height: auto; aspect-ratio: 1; font-size: var(--font-title); }
+
+.fullWidth input { font-size: var(--font-body); }

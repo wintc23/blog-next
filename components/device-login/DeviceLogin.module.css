@@ -1,0 +1,5 @@
+.panel { display: flex; align-items: center; flex-direction: column; gap: 16px; padding: 16px 0; text-align: center; }
+.panel p, .phone p { margin: 0; font-size: var(--font-ui); color: var(--site-text-secondary); line-height: 1.8; }
+.code { letter-spacing: .2em; color: var(--site-title); }
+.phone { max-width: 480px; margin: 40px auto; padding: 24px; display: grid; gap: 20px; text-align: center; }
+.phone h1 { font-size: var(--font-title); color: var(--site-title); }

@@ -1,0 +1,24 @@
+.page { padding: 32px 0 64px; color: var(--site-text); }
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+.header h1 { font-size: var(--font-title); font-weight: 600; color: var(--site-title); margin: 0 0 8px; overflow-wrap: anywhere; }
+.header p { color: var(--site-text-secondary); margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; margin: 24px 0; }
+.card { border: 1px solid var(--site-border); border-radius: 4px; overflow: hidden; background: var(--site-surface); }
+.cover { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--site-surface-subtle); display: flex; justify-content: center; align-items: center; color: var(--site-text-secondary); }
+.cardText { padding: 16px; }
+.cardText h2 { color: var(--site-title); font-size: var(--font-subtitle); margin: 0 0 8px; }
+.hint { color: var(--site-text-secondary); font-size: var(--font-meta); margin: 8px 0; }
+.photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; margin: 24px 0; }
+.photo { position: relative; min-width: 0; border: 1px solid var(--site-border); background: var(--site-surface); border-radius: 4px; overflow: hidden; }
+.photo :global(.ant-image) { width: 100%; aspect-ratio: 1; display: block; }
+.photo :global(.ant-image-img) { width: 100%; aspect-ratio: 1; object-fit: cover; }
+.photoFooter { padding: 8px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.drag { touch-action: none; cursor: grab; }
+.picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
+.choice { position: relative; border: 2px solid var(--site-border); border-radius: 4px; padding: 3px; background: var(--site-surface); }
+.choice img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.choice :global(.ant-checkbox-wrapper) { position: absolute; top: 8px; right: 8px; }
+.selected { border-color: var(--site-primary); }
+.empty { padding: 48px 16px; text-align: center; background: var(--site-surface); border-radius: 4px; margin-top: 24px; }
+@media (max-width: 640px) { .header { flex-direction: column; gap: 16px; } .page { padding-top: 20px; } .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } .photos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } .picker { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } .cardText { padding: 12px; } }

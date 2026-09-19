@@ -1,108 +1,53 @@
 'use client'
-
-import { useId, useRef, useState } from 'react'
-import { App, Button, Input } from 'antd'
-import { UploadOutlined } from '@ant-design/icons'
+import { useRef, useState } from 'react'
+import { App, Button, Image } from 'antd'
+import { PlusOutlined, CloseOutlined } from '@ant-design/icons'
 import type { MomentImage } from '@/lib/schemas/personal-profile'
-import { safeLink } from '@/lib/rich-content'
 import { uploadImage } from '@/lib/upload'
+import { useImagePaste } from '@/lib/use-image-paste'
+import { IMAGE_UPLOAD_ACCEPT } from '@/lib/image-formats'
 import styles from './MomentsManager.module.css'
 
-export default function MomentImagesEditor({ value = [], onChange, disabled, onUploadingChange }: {
-  value?: MomentImage[]; onChange?: (images: MomentImage[]) => void; disabled?: boolean
+export default function MomentImagesEditor({ value = [], onChange, disabled, active = true, onUploadingChange }: {
+  value?: MomentImage[]; onChange?: (images: MomentImage[]) => void; disabled?: boolean; active?: boolean
   onUploadingChange: (uploading: boolean) => void
 }) {
   const { message } = App.useApp()
-  const id = useId()
-  const fileInput = useRef<HTMLInputElement>(null)
-  const list = useRef<HTMLOListElement>(null)
-  const drag = useRef<number | null>(null)
-  const latest = useRef(value)
-  latest.current = value
-  const busy = useRef(false)
-  const [uploading, setUploading] = useState(false)
-  const [address, setAddress] = useState('')
-  const [announcement, setAnnouncement] = useState('')
+  const input = useRef<HTMLInputElement>(null), list = useRef<HTMLDivElement>(null), busy = useRef(false)
+  const latest = useRef(value); latest.current = value
+  const drag = useRef<number | null>(null), start = useRef({ x: 0, y: 0 }), moved = useRef(false)
+  const [uploading, setUploading] = useState(false), [preview, setPreview] = useState<number | null>(null)
   const locked = disabled || uploading
   const change = (images: MomentImage[]) => { latest.current = images; onChange?.(images) }
-  const move = (from: number, to: number) => {
-    if (locked || to < 0 || to >= latest.current.length || from === to) return
-    const images = [...latest.current]
-    images.splice(to, 0, images.splice(from, 1)[0])
-    change(images)
-    setAnnouncement(`图片已移到第 ${to + 1} 张`)
-  }
+  const move = (from: number, to: number) => { if (locked || from === to || to < 0 || to >= latest.current.length) return; const images = [...latest.current]; images.splice(to, 0, images.splice(from, 1)[0]); change(images) }
   const upload = async (files: File[]) => {
     if (disabled || busy.current || !files.length) return
-    busy.current = true
-    setUploading(true)
-    onUploadingChange(true)
     const remaining = 9 - latest.current.length
-    if (files.length > remaining) message.warning('每条动态最多 9 张图片，只上传可添加的部分')
+    if (files.length > remaining) { message.warning('每条动态最多 9 张图片'); return }
+    busy.current = true; setUploading(true); onUploadingChange(true)
     try {
-      for (const file of files.slice(0, remaining)) {
-        try { change([...latest.current, { url: await uploadImage(file), description: '' }]) }
-        catch (cause) { message.error(cause instanceof Error ? cause.message : '图片上传失败，请重试') }
+      const { prepareToolImage } = await import('@/lib/prepare-tool-image')
+      for (const file of files) {
+        const ready = await prepareToolImage(file, { maxBytes: 5 * 1024 * 1024, maxPixels: 24_000_000, maxEdge: 12000, processingMaxEdge: 2048 }, text => message.info({ key: 'moment-upload', content: text }))
+        change([...latest.current, { url: await uploadImage(ready), description: '' }])
       }
-    } finally {
-      busy.current = false
-      setUploading(false)
-      onUploadingChange(false)
-    }
+    } catch (e) { message.error(e instanceof Error ? e.message : '上传失败，请重试') }
+    finally { busy.current = false; setUploading(false); onUploadingChange(false) }
   }
-  const addAddress = () => {
-    const url = address.trim()
-    if (!safeLink(url) || url.length > 2048) { message.error('请填写有效的 HTTP 或 HTTPS 图片地址'); return }
-    change([...value, { url, description: '' }])
-    setAddress('')
-  }
-
-  return <div>
-    <p id={`${id}-hint`} className={styles.photoHint}>最多 9 张，每张不超过 5 MB，支持 JPG、PNG、WebP。图片显示在文字下方，可拖拽缩略图或使用前移、后移按钮排序。</p>
-    <ol ref={list} className={styles.imageList} aria-label="动态图片" aria-describedby={`${id}-hint`}>
-      {value.map((picture, index) => <li key={`${picture.url}-${value.slice(0, index).filter((p) => p.url === picture.url).length}`} data-moment-image={index}>
-        <button className={styles.dragPhoto} type="button" disabled={locked} aria-label={`调整第 ${index + 1} 张图片顺序`} aria-describedby={`${id}-hint`}
-          onKeyDown={(event) => {
-            if (['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown'].includes(event.key)) {
-              event.preventDefault()
-              move(index, index + (['ArrowLeft', 'ArrowUp'].includes(event.key) ? -1 : 1))
-            }
-          }}
-          onPointerDown={(event) => { if (!locked && event.isPrimary && event.button === 0) { drag.current = index; event.currentTarget.setPointerCapture(event.pointerId) } }}
-          onPointerMove={(event) => {
-            if (drag.current === null || locked || !event.isPrimary) return
-            const target = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>('[data-moment-image]')
-            if (target && list.current?.contains(target)) {
-              const next = Number(target.dataset.momentImage)
-              move(drag.current, next)
-              drag.current = next
-            }
-          }}
-          onPointerUp={() => { drag.current = null }} onPointerCancel={() => { drag.current = null }} onLostPointerCapture={() => { drag.current = null }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={picture.url} alt={picture.description || `第 ${index + 1} 张图片`} width={88} height={88} draggable={false} />
-        </button>
-        <div className={styles.imageFields}>
-          <label htmlFor={`${id}-description-${index}`}>图片 {index + 1} 描述（选填）</label>
-          <Input.TextArea id={`${id}-description-${index}`} value={picture.description} disabled={locked} maxLength={200} rows={2}
-            placeholder="描述画面或记录拍摄时的感受" onChange={(event) => change(value.map((p, i) => i === index ? { ...p, description: event.target.value } : p))} />
-          <div className={styles.imageActions}>
-            <Button size="small" disabled={locked || index === 0} aria-label={`前移第 ${index + 1} 张图片`} onClick={() => move(index, index - 1)}>前移</Button>
-            <Button size="small" disabled={locked || index === value.length - 1} aria-label={`后移第 ${index + 1} 张图片`} onClick={() => move(index, index + 1)}>后移</Button>
-            <Button size="small" disabled={locked} danger aria-label={`移除第 ${index + 1} 张图片`} onClick={() => change(value.filter((_, i) => i !== index))}>移除</Button>
-          </div>
-        </div>
-      </li>)}
-    </ol>
-    <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden style={{ display: 'none' }} disabled={locked || value.length >= 9}
-      onChange={(event) => { const files = Array.from(event.target.files || []); event.target.value = ''; void upload(files) }} />
-    <Button icon={<UploadOutlined />} loading={uploading} disabled={locked || value.length >= 9} onClick={() => fileInput.current?.click()}>添加图片</Button>
-    <details className={styles.addressDetails}>
-      <summary>使用图片地址</summary>
-      <label htmlFor={`${id}-url`}>图片地址</label>
-      <div className={styles.addressInput}><Input id={`${id}-url`} inputMode="url" value={address} maxLength={2048} disabled={locked || value.length >= 9} onChange={(event) => setAddress(event.target.value)} />
-        <Button disabled={locked || value.length >= 9 || !address.trim()} onClick={addAddress}>添加</Button></div>
-    </details>
-    <span className="sr-only" role="status">{announcement}</span>
-  </div>
+  useImagePaste(active && !locked && preview === null, files => { void upload(files) }, true)
+  return <><Image.PreviewGroup items={value.map(p => p.url)} preview={{ visible: preview !== null, current: preview ?? 0, onVisibleChange: visible => { if (!visible) setPreview(null) }, onChange: setPreview }} />
+    <div ref={list} className={styles.composerPhotos} onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); void upload(Array.from(e.dataTransfer.files)) }}
+      onPointerMove={e => { if (drag.current === null || locked) return; if (Math.hypot(e.clientX - start.current.x, e.clientY - start.current.y) > 6) moved.current = true; const target = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('[data-photo-index]'); if (target && list.current?.contains(target)) { const next = Number(target.dataset.photoIndex); move(drag.current, next); drag.current = next } }}
+      onPointerUp={() => { if (drag.current !== null && !moved.current) setPreview(drag.current); drag.current = null }} onPointerCancel={() => { drag.current = null }}>
+      {value.map((picture, index) => <div key={`${picture.url}-${index}`} className={styles.composerPhoto} data-photo-index={index}>
+        <Button type="text" className={styles.photoPreview} aria-label={`查看第 ${index + 1} 张图片，拖动可排序`} disabled={locked}
+          onPointerDown={e => { if (!locked && e.button === 0) { drag.current = index; moved.current = false; start.current = { x: e.clientX, y: e.clientY }; list.current?.setPointerCapture(e.pointerId) } }}
+          onKeyDown={e => { if (['ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); move(index, index + (e.key === 'ArrowLeft' ? -1 : 1)) } else if (['Enter', ' '].includes(e.key)) { e.preventDefault(); setPreview(index) } }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}<img src={picture.url} alt={picture.description || `图片 ${index + 1}`} draggable={false} />
+        </Button><Button className={styles.removePhoto} shape="circle" size="small" icon={<CloseOutlined />} aria-label={`删除第 ${index + 1} 张图片`} disabled={locked} onClick={() => change(value.filter((_, i) => i !== index))} />
+      </div>)}
+      {value.length < 9 && <Button className={styles.addPhoto} type="dashed" icon={<PlusOutlined />} loading={uploading} disabled={locked} aria-label="添加动态图片" onClick={() => input.current?.click()} />}
+    </div><input ref={input} hidden style={{ display: 'none' }} type="file" accept={IMAGE_UPLOAD_ACCEPT} multiple onChange={e => { const files = Array.from(e.target.files || []); e.target.value = ''; void upload(files) }} />
+    <p className={styles.photoHint}>最多 9 张，可粘贴图片或拖动排序。</p>
+  </>
 }

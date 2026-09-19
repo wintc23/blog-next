@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { MOMENT_CATEGORIES, type ProfileMoment } from '@/lib/schemas/personal-profile'
 import { momentClock, momentTimeLabel } from '@/lib/life-moments'
+import AddToAlbum from '@/components/albums/AddToAlbum'
 import MomentGallery from './MomentGallery'
 import styles from './LifeMoments.module.css'
 
@@ -31,5 +32,6 @@ export default function MomentCard({ moment, compact = false, grouped = false, d
   return <article className={`${styles.card} ${detail ? styles.detailCard : ''}`}>
     {content}
     <MomentGallery images={moment.images} />
+    {!!moment.images.length && <AddToAlbum sources={moment.images.map((_, index) => ({ type: 'moment', id: String(moment.id), index }))} />}
   </article>
 }
