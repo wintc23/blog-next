@@ -2,13 +2,14 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { App, Button, Collapse, Dropdown, Input, Select, Spin, Tooltip } from 'antd'
+import { App, Button, Collapse, Dropdown, Image, Input, Select, Spin, Tooltip } from 'antd'
 import { ArrowLeftOutlined, CloseOutlined, MoreOutlined, PlusOutlined, QrcodeOutlined } from '@ant-design/icons'
 import { z } from 'zod'
 import { useUser, useShowLogin, useAppStore } from '@/lib/store'
 import { apiFetch } from '@/lib/api/client'
 import { trackEvent } from '@/lib/stat-event'
 import { BASE_URL } from '@/lib/config'
+import { useImagePaste } from '@/lib/use-image-paste'
 import { assetUrl, downloadBlob, loadTask, mutateTask, TaskResult, uploadToolImage, ratioLabels, toolCover, type Options, type Task, type Tool } from '@/lib/image-tools'
 import { ShareDialog, useDevice } from './Shared'
 import TaskResults from './TaskResults'
@@ -56,6 +57,9 @@ function TaskEditor({ initialId, tool }: { initialId?: string; tool?: Tool }) {
   const active = useRef(false)
   const listRef = useRef<HTMLDivElement>(null)
   const drag = useRef<number | null>(null)
+  const dragStart = useRef({ x: 0, y: 0 })
+  const dragged = useRef(false)
+  const [preview, setPreview] = useState<number | null>(null)
   const prefix = useId()
   taskRef.current = task; optionsRef.current = options
   const refresh = useCallback(async (signal?: AbortSignal) => {
@@ -118,6 +122,7 @@ function TaskEditor({ initialId, tool }: { initialId?: string; tool?: Tool }) {
     const taskId = await ensureTask()
     try { for (const file of files) await uploadToolImage(file, taskId, undefined, text => message.info({ key: 'image-upload-preparation', content: text })) } finally { await refresh() }
   })
+  useImagePaste(task?.status === 'draft' && task.config.maxImages > 0 && !busy && !share && preview === null, upload)
   const handoff = () => void action(async () => {
     await ensureTask(); await save()
     const result = await apiFetch(`/image-tasks/${idRef.current}/handoff/`, { method: 'POST', data: {}, schema: z.object({ token: z.string(), expiresIn: z.number() }) })
@@ -155,6 +160,7 @@ function TaskEditor({ initialId, tool }: { initialId?: string; tool?: Tool }) {
     {error && <div role="alert" className={styles.error}>{error}<Button onClick={() => void refresh().catch(() => {})}>刷新</Button></div>}
     {!task ? !error && <Spin /> : <>
       <div className={styles.editorHeading}><div><Link href="/products" className={styles.backArrow} aria-label="返回探索页图片工具"><ArrowLeftOutlined /></Link><h1>{task.config.name}</h1></div><Link href="/tools/tasks">我的图片任务</Link></div>
+      <Image.PreviewGroup items={task.inputs.map(asset => assetUrl(asset))} preview={{ visible: preview !== null, current: preview ?? 0, onVisibleChange: visible => { if (!visible) setPreview(null) }, onChange: current => setPreview(current) }} />
       <div className={styles.taskFlow}>
         {task.status === 'draft' ? <section className={`${styles.panel} ${styles.draftPanel}`} aria-label="输入"><div className={styles.panelHeading}><h2>{task.config.mode === 'per_image' ? '原图' : '输入'}</h2>
           {task.status === 'draft' && task.config.maxImages > 0 && <Tooltip title={device === 'phone' ? '从其他设备上传' : '用手机上传'}><Button type="link" className={styles.phoneUpload} icon={<QrcodeOutlined />} aria-label={device === 'phone' ? '从其他设备上传' : '用手机上传'} disabled={busy} onClick={handoff}>{device === 'phone' ? '从其他设备上传' : '用手机上传'}</Button></Tooltip>}
@@ -163,8 +169,9 @@ function TaskEditor({ initialId, tool }: { initialId?: string; tool?: Tool }) {
             <input ref={input} className="hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple={task.config.maxImages > 1} aria-label="选择创作图片" onChange={event => { upload(Array.from(event.target.files || [])); event.target.value = '' }} />
             <div ref={listRef} className={styles.uploadGrid}
               onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); if (!busy && task.status === 'draft') upload(Array.from(event.dataTransfer.files)) }}
-              onPaste={event => { const files = Array.from(event.clipboardData.files); if (files.length && task.status === 'draft') { event.preventDefault(); upload(files) } }} onPointerMove={event => {
+              onPointerMove={event => {
               if (drag.current === null || busy) return
+              if (Math.hypot(event.clientX - dragStart.current.x, event.clientY - dragStart.current.y) > 6) dragged.current = true
               const target = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>('[data-tool-image]')
               if (!target || !listRef.current?.contains(target)) return
               const destination = Number(target.dataset.toolImage)
@@ -172,16 +179,16 @@ function TaskEditor({ initialId, tool }: { initialId?: string; tool?: Tool }) {
               const current = taskRef.current!; const images = [...current.inputs]
               images.splice(destination, 0, images.splice(drag.current, 1)[0]); drag.current = destination
               taskRef.current = { ...current, inputs: images }; setTask(taskRef.current)
-            }} onPointerUp={() => { if (drag.current !== null) { drag.current = null; void action(() => reorder(taskRef.current!.inputs.map(asset => asset.id))) } }} onPointerCancel={() => { drag.current = null; void refresh().catch(() => {}) }}>
+            }} onPointerUp={() => { if (drag.current !== null) { const index = drag.current; drag.current = null; if (dragged.current) void action(() => reorder(taskRef.current!.inputs.map(asset => asset.id))); else setPreview(index) } }} onPointerCancel={() => { drag.current = null; void refresh().catch(() => {}) }}>
               {task.inputs.map((asset, index) => <div className={styles.thumb} key={asset.id} data-tool-image={index}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={assetUrl(asset)} alt={asset.name} draggable={false} tabIndex={task.status === 'draft' ? 0 : undefined} role={task.status === 'draft' ? 'button' : undefined} aria-label={task.status === 'draft' ? `拖动图片 ${index + 1} 排序，或使用左右方向键` : undefined}
+                <img src={assetUrl(asset)} alt={asset.name} draggable={false} tabIndex={task.status === 'draft' ? 0 : undefined} role={task.status === 'draft' ? 'button' : undefined} aria-label={task.status === 'draft' ? `查看图片 ${index + 1} 大图；拖动或使用左右方向键排序` : undefined}
                   style={{ touchAction: task.status === 'draft' ? 'none' : 'auto', cursor: task.status === 'draft' ? 'grab' : 'default' }}
-                  onPointerDown={event => { if (task.status !== 'draft' || busy || event.button !== 0) return; listRef.current?.setPointerCapture(event.pointerId); drag.current = index }}
-                  onKeyDown={event => { if (task.status !== 'draft' || busy || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return; event.preventDefault(); const next = index + (event.key === 'ArrowLeft' ? -1 : 1); if (next < 0 || next >= task.inputs.length) return; const ids = task.inputs.map(a => a.id); ids.splice(next, 0, ids.splice(index, 1)[0]); void action(() => reorder(ids)) }} />
+                  onPointerDown={event => { if (task.status !== 'draft' || busy || event.button !== 0) return; listRef.current?.setPointerCapture(event.pointerId); drag.current = index; dragged.current = false; dragStart.current = { x: event.clientX, y: event.clientY } }}
+                  onKeyDown={event => { if (['Enter', ' '].includes(event.key)) { event.preventDefault(); setPreview(index); return } if (task.status !== 'draft' || busy || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return; event.preventDefault(); const next = index + (event.key === 'ArrowLeft' ? -1 : 1); if (next < 0 || next >= task.inputs.length) return; const ids = task.inputs.map(a => a.id); ids.splice(next, 0, ids.splice(index, 1)[0]); void action(() => reorder(ids)) }} />
                 <span className={styles.imageNumber}>{index + 1}</span>{task.status === 'draft' && <Button size="small" disabled={busy} aria-label={`删除图片 ${index + 1}`} onClick={() => void action(async () => { await apiFetch(`/image-tasks/${id}/assets/${asset.id}/`, { method: 'DELETE' }); await refresh() })}><CloseOutlined /></Button>}
               </div>)}
-              {task.status === 'draft' && task.inputs.length < task.config.maxImages && <Tooltip title="添加图片"><Button className={styles.addImage} style={{ width: '100%', height: 'auto' }} type="dashed" icon={<PlusOutlined />} aria-label="添加图片" loading={busy} onClick={() => input.current?.click()} /></Tooltip>}
+              {task.status === 'draft' && task.inputs.length < task.config.maxImages && <Tooltip title="添加图片，也可直接粘贴"><Button className={styles.addImage} style={{ width: '100%', height: 'auto' }} type="dashed" icon={<PlusOutlined />} aria-label="添加图片" loading={busy} onClick={() => input.current?.click()} /></Tooltip>}
             </div>
           </>}
           {task.config.promptRequired && <><label className={styles.label} htmlFor={`${prefix}-prompt`}>描述你想生成的画面</label>
