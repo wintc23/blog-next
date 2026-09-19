@@ -7,14 +7,16 @@ export const LifeMomentListSchema = z.object({
   list: z.array(ProfileMomentSchema), total: z.number(), page: z.number(), perPage: z.number(),
 })
 
-const LifeMomentGroupsSchema = z.object({
+export const LifeMomentGroupsSchema = z.object({
   groups: z.array(z.object({ date: z.string(), moments: z.array(ProfileMomentSchema) })),
   total: z.number(), totalDates: z.number(), page: z.number(), perPage: z.number(),
 })
 
-export function getLifeMomentGroups(page = 1) {
-  return apiFetchServer('/life-moments/', {
-    params: { page, per_page: 7, group_by: 'date' }, schema: LifeMomentGroupsSchema, cache: 'no-store',
+export type LifeMomentGroups = z.infer<typeof LifeMomentGroupsSchema>
+
+export function getLifeMomentGroups(page = 1, server = true, signal?: AbortSignal) {
+  return (server ? apiFetchServer : apiFetch)('/life-moments/', {
+    params: { page, per_page: 7, group_by: 'date' }, schema: LifeMomentGroupsSchema, cache: 'no-store', signal,
   })
 }
 

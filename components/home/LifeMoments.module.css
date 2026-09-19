@@ -57,3 +57,10 @@
   .gallery { gap: 16px 10px; }
   .text { font-size: var(--font-ui); }
 }
+
+.archive, .detail { max-inline-size: 1100px; margin-inline: auto; }
+.archiveHeading h1 { color: var(--site-title); }
+.archiveEmpty { margin: 0; padding: 48px 20px; }
+.archiveEmpty :global(.ant-empty-description) { color: var(--site-text-secondary); font-size: var(--font-ui); }
+.loadSentinel { block-size: 1px; }
+.loadMore { display: flex; justify-content: center; align-items: center; gap: 8px; min-block-size: 64px; margin-block-start: 16px; font-size: var(--font-ui); color: var(--site-text-secondary); }

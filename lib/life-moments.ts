@@ -20,3 +20,15 @@ export function currentMomentTime() {
   const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value
   return `${part('year')}-${part('month')}-${part('day')}T${part('hour')}:${part('minute')}`
 }
+
+/** Offset pages can overlap when newer dates are published during browsing. */
+export function mergeMomentGroups(current: { date: string; moments: ProfileMoment[] }[], incoming: { date: string; moments: ProfileMoment[] }[]) {
+  const groups = new Map(current.map(group => [group.date, { ...group, moments: [...group.moments] }]))
+  const seen = new Set(current.flatMap(group => group.moments.map(moment => moment.id)))
+  for (const group of incoming) {
+    const target = groups.get(group.date) || { date: group.date, moments: [] }
+    for (const moment of group.moments) if (!seen.has(moment.id)) { target.moments.push(moment); seen.add(moment.id) }
+    if (target.moments.length) groups.set(group.date, target)
+  }
+  return [...groups.values()].sort((a, b) => b.date.localeCompare(a.date))
+}

@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { EyeOutlined } from '@ant-design/icons'
 import { Tag, Tooltip } from 'antd'
-import { usePathname } from 'next/navigation'
 import {
   useSite,
   useShowUserDrawer,
@@ -12,13 +11,6 @@ import {
   useSiteIdentity,
 } from '@/lib/store'
 import { pseudoRandom, formatCount } from '@/lib/utils'
-
-const HIDE_SIDEBAR_PREFIXES = [
-  '/message',
-  '/about',
-  '/products',
-  '/recommendation',
-]
 
 const ALIYUN = {
   href: 'https://www.aliyun.com/minisite/goods?userCode=h55rc1yh',
@@ -47,12 +39,6 @@ export default function Sidebar() {
   const showUserDrawer = useShowUserDrawer()
   const outline = useOutlineItems()
   const headerOffset = useHeaderOffset()
-  const pathname = usePathname()
-  const shouldShow = !HIDE_SIDEBAR_PREFIXES.some(
-    (p) => pathname === p || pathname?.startsWith(p + '/'),
-  )
-  if (!shouldShow) return null
-
   const outlineShow = outline.length > 0
 
   const jumpTo = (id: string) => {

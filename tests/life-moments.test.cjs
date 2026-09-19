@@ -53,3 +53,19 @@ test('moment text precedes ordered images, and text and captions cannot inject H
     if (!compact) assert.ok(html.includes('<figcaption>&lt;img'))
   }
 })
+
+test('scroll pages merge overlapping dates and IDs without mutating loaded content', () => {
+  const a = schema.ProfileMomentSchema.parse({ ...legacy, id: 'a' })
+  const b = schema.ProfileMomentSchema.parse({ ...legacy, id: 'b' })
+  const c = schema.ProfileMomentSchema.parse({ ...legacy, id: 'c', date: '2026-09-16' })
+  const current = [{ date: a.date, moments: [a] }]
+  const merged = time.mergeMomentGroups(current, [{ date: a.date, moments: [a, b] }, { date: c.date, moments: [c, c] }])
+  assert.deepEqual(merged.map(g => g.moments.map(m => m.id)), [['a', 'b'], ['c']])
+  assert.equal(current[0].moments.length, 1)
+})
+
+const { usesBlogSidebar } = load('lib/site-layout.ts')
+test('only archive routes load the sidebar, with exact route segment boundaries', () => {
+  for (const route of ['/article', '/article/123', '/tag/1', '/blog']) assert.equal(usesBlogSidebar(route), true)
+  for (const route of ['/', '/moments', '/moments/123', '/products', '/message', '/about', '/link', '/recommendation', '/tools/cartoon', '/ai-news', '/article-other', null]) assert.equal(usesBlogSidebar(route), false)
+})
