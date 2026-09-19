@@ -21,6 +21,7 @@ const UserActivitySchema = z.object({
   postId: z.number().nullish(),
   postTitle: z.string().nullish(),
   digestId: z.number().nullish(),
+  momentId: z.string().nullish(),
   targetUrl: z.string().nullish(),
 })
 

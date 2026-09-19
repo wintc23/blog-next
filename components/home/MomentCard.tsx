@@ -35,7 +35,7 @@ export default function MomentCard({ moment, compact = false, detail = false }: 
   const card = <article className={`${styles.card} ${detail ? styles.detailCard : ''}`}>
     {content}
     <MomentGallery images={moment.images} momentId={moment.id} />
-    <div className={styles.momentActions}><LikeButton target="moment" id={moment.id} /><MomentEditLink id={moment.id} /></div>
+    <div className={styles.momentActions}><LikeButton target="moment" id={moment.id} /><Link href={`/moments/${moment.id}#comments`}>评论</Link><MomentEditLink id={moment.id} /></div>
   </article>
   return detail ? <MomentSelection>{card}</MomentSelection> : card
 }

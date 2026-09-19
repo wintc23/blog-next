@@ -6,6 +6,7 @@ import { getLifeMoment } from '@/lib/api/life-moments'
 import { ApiError } from '@/lib/api/client'
 import { getSiteIdentity } from '@/lib/get-site-identity'
 import { shareMetadata } from '@/lib/share-metadata'
+import DigestComments from '@/components/ai-digest/DigestComments'
 import MomentCard from '@/components/home/MomentCard'
 import styles from '@/components/home/LifeMoments.module.css'
 
@@ -35,5 +36,6 @@ export default async function MomentPage({ params }: Props) {
     <div className="mb-4"><BackLink href="/moments">返回动态列表</BackLink></div>
     <header className={styles.archiveHeading}><h1>生活片段</h1></header>
     <MomentCard moment={moment} detail />
+    <DigestComments momentId={moment.id} />
   </section>
 }

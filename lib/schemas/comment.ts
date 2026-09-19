@@ -15,6 +15,7 @@ export const CommentSchema = z.object({
   hide: z.boolean().optional(),
   postId: z.number().nullish(),
   digestId: z.number().nullish(),
+  momentId: z.string().nullish(),
   targetUrl: z.string().nullish(),
   postTitle: z.string().nullish(),
 })

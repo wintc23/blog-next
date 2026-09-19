@@ -80,9 +80,9 @@ export default function ManageCommentClient() {
       key: 'link',
       width: 200,
       render: (_: unknown, row: Row) =>
-        row.postId || row.digestId ? (
+        row.targetUrl ? (
           <Link
-            href={`${row.digestId ? `/ai-news/${row.digestId}` : `/article/${row.postId}`}?commentId=${row.id}#comments`}
+            href={`${row.targetUrl}?commentId=${row.id}#comments`}
             className="text-[var(--site-primary)] underline"
           >
             查看

@@ -1,5 +1,6 @@
 'use client'
 
+import { useAuthenticatedAction } from '@/lib/use-authenticated-action'
 import { App, Button, Input, Modal } from 'antd'
 import { LinkOutlined } from '@ant-design/icons'
 import { BubbleMenu, EditorContent, useEditor } from '@tiptap/react'
@@ -17,6 +18,7 @@ import { safeLink, splitCommentBody, joinCommentBody } from '@/lib/rich-content'
 import CommentImages from './CommentImages'
 
 interface Props {
+  quickLogin?: boolean
   value: string
   onChange: (v: string) => void
   placeholder?: string
@@ -26,8 +28,9 @@ interface Props {
   actions?: ReactNode
 }
 
-export default function CommentInput({ value, onChange, placeholder, rows = 4, compact = false, onBusyChange, actions }: Props) {
+export default function CommentInput({ quickLogin = false, value, onChange, placeholder, rows = 4, compact = false, onBusyChange, actions }: Props) {
   const user = useUser()
+  const authenticate = useAuthenticatedAction()
   const showLogin = useShowLogin()
   const showUserDrawer = useShowUserDrawer()
   const waitingForLogin = useRef(false)
@@ -155,7 +158,12 @@ export default function CommentInput({ value, onChange, placeholder, rows = 4, c
 
   const startLogin = () => {
     waitingForLogin.current = true
-    showLogin()
+    if (quickLogin) {
+      void authenticate(async () => undefined).catch(error => {
+        waitingForLogin.current = false
+        message.error(error instanceof Error ? error.message : '登录失败，请重试')
+      })
+    } else showLogin()
   }
 
   return (
