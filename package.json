@@ -31,6 +31,7 @@
     "axios": "^1.7.9",
     "dayjs": "^1.11.13",
     "fflate": "^0.8.2",
+    "heic-to": "1.5.2",
     "lowlight": "^3.3.0",
     "next": "^15.1.11",
     "react": "^19.0.0",
@@ -38,6 +39,7 @@
     "shiki": "^4.0.2",
     "socket.io-client": "2.3.1",
     "swr": "^2.3.0",
+    "utif": "3.1.0",
     "uuid": "^11.0.3",
     "zod": "^4.3.6",
     "zustand": "^5.0.12"
@@ -47,6 +49,7 @@
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@types/socket.io-client": "^1.4.36",
+    "@types/utif": "3.0.6",
     "autoprefixer": "^10.4.20",
     "playwright": "^1.59.1",
     "postcss": "^8.5.1",

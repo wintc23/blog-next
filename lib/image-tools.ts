@@ -31,7 +31,6 @@ export const loadTask = (id: string, signal?: AbortSignal) => apiFetch(`/image-t
 export const mutateTask = (id: string, action: string, data: unknown = {}) => apiFetch(`/image-tasks/${id}/${action}`, { method: 'POST', data, schema: TaskResult })
 
 export async function uploadToolImage(file: File, taskId?: string, handoff?: string, notice?: (text: string) => void) {
-  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) throw new Error('请上传 JPG、PNG 或 WebP 图片；HEIC 照片请先导出为 JPG')
   const headers: Record<string, string> = { 'Content-Type': 'application/json', ...(handoff ? { 'X-Image-Upload-Token': handoff } : { Authorization: getTokenClient() || '' }) }
   const endpoint = `${BASE_URL}${handoff ? '/image-upload-session/' : `/image-tasks/${taskId}/assets/`}`
   const request = async (data: unknown) => {
@@ -45,7 +44,8 @@ export async function uploadToolImage(file: File, taskId?: string, handoff?: str
     const policy = await apiFetch('/image-tools/upload-policy/', { schema: z.object({ maxBytes: z.number().positive(), maxPixels: z.number().positive(), maxEdge: z.number().positive(), processingMaxEdge: z.number().positive() }) })
     const { prepareToolImage } = await import('./prepare-tool-image')
     const prepared = await prepareToolImage(file, policy, notice)
-    if (prepared !== file) trackEvent('image_tool.upload_compressed', { beforeKb: Math.round(file.size / 1024), afterKb: Math.round(prepared.size / 1024) })
+    if (prepared !== file && prepared.size < file.size) trackEvent('image_tool.upload_compressed', { beforeKb: Math.round(file.size / 1024), afterKb: Math.round(prepared.size / 1024) })
+    if (prepared.type !== file.type) trackEvent('image_tool.upload_converted', { target: prepared.type })
     file = prepared
     const grant = await request({ action: 'authorize', name: file.name, size: file.size, mime: file.type })
     const form = new FormData()

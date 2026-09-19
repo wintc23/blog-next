@@ -10,7 +10,9 @@ const assert = require('node:assert/strict')
       const context = await browser.newContext({ viewport: mobile ? { width: 390, height: 844 } : { width: 1360, height: 900 }, isMobile: mobile, hasTouch: mobile })
       const page = await context.newPage()
       const source = ts.transpileModule(fs.readFileSync('lib/prepare-tool-image.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText
-      await page.addScriptTag({ content: '{ const exports = {}; ' + source + '; window.compression = exports; }' })
+      const formats = ts.transpileModule(fs.readFileSync('lib/image-formats.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText
+      await page.addScriptTag({ content: '{ const exports = {}; ' + formats + '; window.imageFormats = exports; }' })
+      await page.addScriptTag({ content: '{ const exports = {}; const require = name => name === \'./image-formats\' ? window.imageFormats : { decodeSpecialImage() { throw new Error(\'Use integration test for workers\') } }; ' + source + '; window.compression = exports; }' })
       const results = await page.evaluate(async () => {
         const canvas = document.createElement('canvas'); canvas.width = 1600; canvas.height = 1000
         const ctx = canvas.getContext('2d'); const pixels = ctx.createImageData(1600,1000)

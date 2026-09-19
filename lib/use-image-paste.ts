@@ -10,7 +10,7 @@ export function useImagePaste(enabled: boolean, upload: (files: File[]) => void)
       const target = event.target instanceof Element ? event.target : null
       if (target?.closest('[role="dialog"], [role="alertdialog"]')) return
       if (target?.closest('input, textarea, [contenteditable="true"]') && event.clipboardData.getData('text/plain')) return
-      const files = Array.from(event.clipboardData.files).filter(file => file.type.startsWith('image/'))
+      const files = Array.from(event.clipboardData.files).filter(file => !file.type || file.type === 'application/octet-stream' || file.type.startsWith('image/'))
       if (!files.length) return
       event.preventDefault()
       upload(files)

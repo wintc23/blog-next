@@ -9,6 +9,7 @@ import { useUser, useShowLogin, useAppStore } from '@/lib/store'
 import { apiFetch } from '@/lib/api/client'
 import { trackEvent } from '@/lib/stat-event'
 import { BASE_URL } from '@/lib/config'
+import { IMAGE_UPLOAD_ACCEPT } from '@/lib/image-formats'
 import { useImagePaste } from '@/lib/use-image-paste'
 import { assetUrl, downloadBlob, loadTask, mutateTask, TaskResult, uploadToolImage, ratioLabels, toolCover, type Options, type Task, type Tool } from '@/lib/image-tools'
 import { ShareDialog, useDevice } from './Shared'
@@ -166,7 +167,7 @@ function TaskEditor({ initialId, tool }: { initialId?: string; tool?: Tool }) {
           {task.status === 'draft' && task.config.maxImages > 0 && <Tooltip title={device === 'phone' ? '从其他设备上传' : '用手机上传'}><Button type="link" className={styles.phoneUpload} icon={<QrcodeOutlined />} aria-label={device === 'phone' ? '从其他设备上传' : '用手机上传'} disabled={busy} onClick={handoff}>{device === 'phone' ? '从其他设备上传' : '用手机上传'}</Button></Tooltip>}
         </div>
           {task.config.maxImages > 0 && <>
-            <input ref={input} className="hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple={task.config.maxImages > 1} aria-label="选择创作图片" onChange={event => { upload(Array.from(event.target.files || [])); event.target.value = '' }} />
+            <input ref={input} className="hidden" type="file" accept={IMAGE_UPLOAD_ACCEPT} multiple={task.config.maxImages > 1} aria-label="选择创作图片" onChange={event => { upload(Array.from(event.target.files || [])); event.target.value = '' }} />
             <div ref={listRef} className={styles.uploadGrid}
               onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); if (!busy && task.status === 'draft') upload(Array.from(event.dataTransfer.files)) }}
               onPointerMove={event => {
