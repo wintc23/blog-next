@@ -23,6 +23,7 @@ export default function Admin() {
   const [error, setError] = useState(''), [loading, setLoading] = useState(true), [busy, setBusy] = useState(false), [uploading, setUploading] = useState(false)
   const [ready, setReady] = useState(false), [open, setOpen] = useState(false), [dirty, setDirty] = useState(false)
   const [form] = Form.useForm(), [limitForm] = Form.useForm()
+  const ratios: string[] = Form.useWatch(['config', 'ratios'], form) || []
   const mode = Form.useWatch(['config', 'mode'], form)
   const cover = Form.useWatch(['config', 'coverUrl'], form)
   const { message, modal } = App.useApp()
@@ -52,7 +53,7 @@ export default function Admin() {
   const save = async (values: typeof blank) => {
     setBusy(true)
     try {
-      await apiFetch('/image-tools/admin/templates/', { method: 'POST', data: { ...values, version: current?.version, config: { ...values.config, ratios: [values.config.defaultRatio], maxOutputs: 4, defaultCount: values.config.mode === 'per_image' ? 1 : values.config.defaultCount } }, schema: z.object({ tool: ToolsResult.shape.tools.element }) })
+      await apiFetch('/image-tools/admin/templates/', { method: 'POST', data: { ...values, version: current?.version, config: { ...values.config, maxOutputs: 4, defaultCount: values.config.mode === 'per_image' ? 1 : values.config.defaultCount } }, schema: z.object({ tool: ToolsResult.shape.tools.element }) })
       message.success('已保存新版本'); setDirty(false); setOpen(false); await read()
     } catch (error) { message.error(error instanceof Error ? error.message : '保存失败') }
     finally { setBusy(false) }
@@ -112,7 +113,8 @@ export default function Admin() {
         <h3>输入与输出</h3>
         <Form.Item name={['config', 'mode']} label="处理方式"><Select options={[{ value: 'per_image', label: '逐张处理图片，一张输入对应一张输出' }, { value: 'reference', label: '根据描述生成，可附一张参考图' }]} /></Form.Item>
         <Row gutter={16}><Col span={12}><Form.Item name={['config', 'minImages']} label="至少上传图片" rules={[{ required: true }]}><InputNumber min={0} max={mode === 'reference' ? 1 : 10} className={styles.full} /></Form.Item></Col><Col span={12}><Form.Item name={['config', 'maxImages']} label="最多上传图片" rules={[{ required: true }]}><InputNumber min={0} max={mode === 'reference' ? 1 : 10} className={styles.full} /></Form.Item></Col></Row>
-        <Row gutter={16}><Col span={12}><Form.Item name={['config', 'defaultRatio']} label="输出画幅" rules={[{ required: true }]}><Select options={Object.entries(ratioLabels).map(([value, label]) => ({ value, label }))} /></Form.Item></Col>{mode === 'reference' && <Col span={12}><Form.Item name={['config', 'defaultCount']} label="每次生成数量" rules={[{ required: true }]}><InputNumber min={1} max={4} className={styles.full} /></Form.Item></Col>}</Row>
+        <Form.Item name={['config', 'ratios']} label="可选画幅" rules={[{ required: true, type: 'array', min: 1, message: '至少选择一种画幅' }]} extra="用户可在高级设置中选择这些画幅。"><Select mode="multiple" options={Object.entries(ratioLabels).map(([value, label]) => ({ value, label }))} /></Form.Item>
+        <Row gutter={16}><Col xs={24} sm={12}><Form.Item name={['config', 'defaultRatio']} label="默认画幅" dependencies={[[ 'config', 'ratios' ]]} rules={[{ required: true }, { validator: (_, value) => ratios.includes(value) ? Promise.resolve() : Promise.reject(new Error('请选择可选范围内的默认画幅')) }]}><Select options={ratios.map(value => ({ value, label: ratioLabels[value] || value }))} /></Form.Item></Col>{mode === 'reference' && <Col span={12}><Form.Item name={['config', 'defaultCount']} label="每次生成数量" rules={[{ required: true }]}><InputNumber min={1} max={4} className={styles.full} /></Form.Item></Col>}</Row>
         <Space size="large" wrap><Form.Item name={['config', 'promptRequired']} label="显示描述输入框" valuePropName="checked"><Switch /></Form.Item><Form.Item name={['config', 'comparison']} label="展示原图对比" valuePropName="checked"><Switch /></Form.Item></Space>
         <Divider />
         <h3>生成规则</h3><p className={styles.help}>这些设置固定应用于每次生成，不在前台展示。已创建的任务保留原版本规则。</p>
